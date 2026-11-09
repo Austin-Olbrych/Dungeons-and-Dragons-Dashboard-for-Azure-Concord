@@ -1,0 +1,267 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Azure Concord</title>
+<meta name="description" content="The Azure Concord's character sheets, loot, shop, guild and journal for the Three Roads campaign.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IM+Fell+English+SC&family=Alegreya+Sans:ital,wght@0,400;0,500;0,700;1,400&family=IBM+Plex+Mono:wght@500;600&display=swap">
+<style>
+/* Layout: sticky header with tabs; a character picker until a player chooses; each tab is one column of panels that widens to grids on desktop */
+:root{
+  --bg:#ebe6d9;--surface:#f7f3e8;--surface2:#efe9da;--ink:#221f1a;--muted:#6a6356;--line:#d2c9b4;
+  --accent:#8a6516;--accent-ink:#fff8e6;--good:#2e7a4e;--good-bg:#dcebdf;--bad:#a63e2e;--bad-bg:#f1dcd6;--info:#2d5d93;--info-bg:#dde6f1;
+  --f-display:"IM Fell English SC","Palatino Linotype",Palatino,Georgia,serif;
+  --f-body:"Alegreya Sans","Segoe UI",system-ui,sans-serif;
+  --f-num:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){:root{
+  --bg:#121418;--surface:#1b1e24;--surface2:#23272f;--ink:#e8dfc9;--muted:#9b947f;--line:#30353f;
+  --accent:#d3ab50;--accent-ink:#1a1407;--good:#72c494;--good-bg:#1d3226;--bad:#e5806d;--bad-bg:#3a221e;--info:#8db3e6;--info-bg:#1d2a3b;color-scheme:dark}}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:16px/1.45 var(--f-body);padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--surface)}
+.wrap{max-width:1120px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--surface);border-bottom:1px solid var(--line)}
+header.top .wrap{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px 16px;padding-block:10px}
+h1{font:400 1.6rem/1 var(--f-display);margin:0;letter-spacing:.02em}
+h2{font:400 1.3rem var(--f-display);margin:0;text-wrap:balance}
+h3{font:400 1.15rem var(--f-display);margin:0}
+.sub{color:var(--muted);font-size:.88rem}
+.lbl{font-size:.72rem;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);font-weight:700}
+.tabs{display:flex;flex-wrap:wrap;gap:4px;background:var(--surface2);padding:3px;border-radius:10px}
+.tabs a{color:var(--muted);text-decoration:none;font-weight:500;padding:6px 12px;border-radius:8px}
+.tabs a[aria-current="page"]{background:var(--ink);color:var(--bg)}
+button{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.btn{border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:5px 11px;cursor:pointer;font-weight:500}
+.btn:hover{border-color:var(--accent)}
+main{padding-block:16px 48px}
+.stack{display:flex;flex-direction:column;gap:12px}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px}
+.empty{color:var(--muted);font-style:italic}
+.badge{font-size:.7rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;border:1px solid var(--line);border-radius:4px;padding:0 5px;color:var(--muted);white-space:nowrap}
+.badge.warn{color:var(--bad);border-color:var(--bad)}
+.rar{font-size:.8rem;color:var(--muted)}
+.n{font-family:var(--f-num);font-variant-numeric:tabular-nums}
+/* picker */
+.pick{display:grid;gap:12px;grid-template-columns:repeat(auto-fill,minmax(220px,1fr))}
+.tile{text-align:left;border:1px solid var(--line);border-radius:12px;background:var(--surface);padding:12px 14px;cursor:pointer;display:flex;flex-direction:column;gap:6px;color:inherit;min-width:0}
+.tile:hover{border-color:var(--accent)}
+.tile .nm{font:400 1.35rem var(--f-display)}
+.tile .top{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.tile .ac{font:600 1.05rem var(--f-num)}
+.tile ul{margin:0;padding-left:16px;font-size:.88rem}
+/* sheet */
+.sh-head{display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px;align-items:end;border-bottom:2px solid var(--ink);padding-bottom:8px}
+.big{font:400 2.2rem/1 var(--f-display);margin:0}
+.strip{display:grid;grid-template-columns:repeat(auto-fit,minmax(96px,1fr));gap:8px}
+.st{border:1px solid var(--line);border-radius:10px;background:var(--surface);padding:6px 10px;display:flex;flex-direction:column;min-width:0}
+.st b{font:600 1.35rem/1.2 var(--f-num)}
+.st small{color:var(--muted);font-size:.74rem;line-height:1.25}
+.hpbar{height:6px;background:var(--surface2);border-radius:3px;overflow:hidden}
+.hpbar span{display:block;height:100%;background:var(--good)}
+.hpbar.low span{background:var(--bad)}
+.abil{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:6px}
+@media (max-width:440px){.abil{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.ab{text-align:center;border:1px solid var(--line);border-radius:10px;padding:6px 4px;background:var(--surface);display:flex;flex-direction:column}
+.ab b{font:600 1.35rem/1.1 var(--f-num)}
+.ab small{color:var(--muted);font:500 .8rem var(--f-num)}
+.ab .sv{font-size:.78rem;border-top:1px dashed var(--line);margin-top:3px;padding-top:3px}
+.alerts{display:grid;gap:14px;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));align-items:start}
+.ag{display:flex;flex-direction:column;gap:6px}
+.ag>.lbl{color:var(--tone)}
+.al{border:1px solid var(--line);border-left:3px solid var(--tone);border-radius:8px;background:var(--surface);padding:7px 10px;display:flex;flex-direction:column;gap:2px}
+.al .t{font-weight:700}
+.al .s{font-size:.92rem}
+.t-def{--tone:var(--bad)}.t-react{--tone:var(--info)}.t-save{--tone:var(--good)}.t-off{--tone:var(--accent)}.t-note{--tone:var(--muted)}.t-att{--tone:var(--bad)}
+.gear{border:1px solid var(--line);border-radius:10px;background:var(--surface)}
+.gr{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 10px;padding:7px 10px;align-items:center}
+.gr+.gr{border-top:1px solid var(--line)}
+.gr .d{grid-column:1/-1;font-size:.86rem;color:var(--muted)}
+.gr.off .n2{color:var(--muted)}
+.pips{display:inline-flex;gap:3px;align-items:center;font:500 .8rem var(--f-num);color:var(--muted)}
+.pip{width:9px;height:9px;border-radius:50%;border:1.5px solid var(--accent)}
+.pip.on{background:var(--accent)}
+.coins{display:flex;gap:12px;font:600 .9rem var(--f-num)}
+.coins .gp{color:var(--accent)}
+details>summary{cursor:pointer}
+/* tables */
+.tablewrap{overflow-x:auto}
+table.ledger{width:100%;border-collapse:collapse;font-size:.95rem}
+.ledger th{text-align:left;font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding:6px 8px;border-bottom:1px solid var(--line)}
+.ledger td{padding:7px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+/* house */
+.org-top{border:2px solid var(--ink);border-radius:12px;padding:10px 12px;display:flex;flex-direction:column;gap:6px;background:var(--surface)}
+.pchip{border:1px solid var(--line);border-radius:999px;padding:3px 10px;font-size:.9rem;background:var(--bg)}
+.pchip.wolf{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-weight:700}
+.caps{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}
+.pc{border:1px solid var(--line);border-radius:10px;background:var(--surface);padding:7px 10px;display:flex;flex-direction:column}
+.pc b{overflow-wrap:anywhere}
+.pc.cap{border-width:2px}
+.subs{display:flex;flex-direction:column;gap:6px;border-left:2px solid var(--line);margin-left:10px;padding-left:10px}
+.divn{font-size:.72rem;letter-spacing:.09em;text-transform:uppercase;font-weight:700;color:var(--accent)}
+.ctrs{display:grid;gap:10px;grid-template-columns:repeat(auto-fill,minmax(280px,1fr))}
+.ctr{border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:10px;background:var(--surface);padding:10px 12px;display:flex;flex-direction:column;gap:6px}
+/* journal */
+.journal{display:grid;gap:16px;grid-template-columns:1fr}
+@media (min-width:880px){.journal{grid-template-columns:240px minmax(0,1fr);align-items:start}}
+.jrail{display:flex;flex-direction:column;gap:6px}
+@media (max-width:879px){.jrail{flex-direction:row;overflow-x:auto}.jstep{min-width:200px}}
+.jstep{display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:center;text-align:left;border:1px solid var(--line);border-radius:10px;background:var(--surface);padding:8px 10px;cursor:pointer}
+.jstep.on{border-color:var(--ink);box-shadow:0 0 0 1px var(--ink)}
+.jstep small{color:var(--muted);font-size:.78rem;display:block}
+.jn{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:var(--ink);color:var(--bg);font:600 .9rem var(--f-num)}
+.jl{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:4px}
+.jgrid{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
+.dec{border-left:3px solid var(--accent);padding:2px 0 2px 10px;display:flex;flex-direction:column}
+.tl{list-style:none;margin:0;padding:0;border-left:2px solid var(--line);display:flex;flex-direction:column;gap:8px}
+.tl li{display:grid;grid-template-columns:120px 1fr;gap:10px;padding-left:12px;position:relative}
+.tl li::before{content:"";position:absolute;left:-6px;top:6px;width:10px;height:10px;border-radius:50%;background:var(--accent)}
+@media (max-width:480px){.tl li{grid-template-columns:1fr;gap:2px}}
+.tw{font:600 .82rem var(--f-num);color:var(--muted)}
+a{color:var(--accent)}
+.foot{color:var(--muted);font-size:.82rem;padding-block:24px}
+</style>
+</head>
+<body>
+<header class="top"><div class="wrap">
+  <div><h1>Azure Concord</h1><div class="sub" id="who">Three Roads campaign</div></div>
+  <nav class="tabs" id="tabs" aria-label="Sections"></nav>
+</div></header>
+<main class="wrap" id="app"><p class="empty">Opening the ledger…</p></main>
+<div class="wrap foot" id="foot"></div>
+<script>
+(function(){
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const sgn=n=>(n>=0?'+':'')+n;
+const fmt=n=>(+n||0).toLocaleString('en-US');
+const ABIL=['str','dex','con','int','wis','cha'];
+const TABS=[['sheet','My sheet'],['party','Party'],['loot','Loot'],['shop','Shop'],['house','The House'],['journal','Journal']];
+let D=null,ME=null,JSEL=null;
+try{ME=localStorage.getItem('ac.me')}catch(e){}
+const first=s=>String(s||'').split(' ')[0];
+const isOn=e=>e.active!==false&&(!e.attune||e.attuned);
+const items=c=>(c.entries||[]).filter(e=>(e.kind||'item')==='item');
+const notable=e=>(e.rarity&&!/^common$/i.test(e.rarity))||(e.fx||[]).length>0||!!e.attune||(+e.uses||0)>0;
+const ATK={any:'',weapon:'weapon',melee:'melee',ranged:'ranged',spell:'spell'};
+const ABL={any:'all',str:'STR',dex:'DEX',con:'CON',int:'INT',wis:'WIS',cha:'CHA',magic:'spell and magic','mental-magic':'INT, WIS and CHA saves vs magic'};
+const TRIG={attacked:'when you’re targeted by an attack',hit:'when you’re hit',damaged:'when someone takes damage',save:'when a save is rolled',spell:'when you’re targeted by a spell',anyroll:'when a creature rolls to attack, check or damage',check:'on an ability check'};
+const cap=s=>s?s[0].toUpperCase()+s.slice(1):s;
+const dot=s=>s&&!/[.!?]$/.test(s)?s+'.':s;
+function fxLine(f){const ak=ATK[f.a]||'';let s='';
+  switch(f.w){
+    case 'defense':s=f.t==='ac'?`${f.v} AC`:`${ak?cap(ak)+' attacks':'Attacks'} against you have ${f.t==='atkdis'?'disadvantage':'advantage'}`;break;
+    case 'damage':{const d=f.d||'all damage';s=({resist:`Resistant to ${d}`,immune:`Immune to ${d} damage`,vuln:`Vulnerable to ${d}`,absorb:`Absorb ${d}: it heals you`,reduce:`Reduce ${d} damage by ${f.v}`,condimmune:`You can’t be ${d}`}[f.t]||'')+(f.a==='nonmagical'?' from nonmagical attacks':'');break}
+    case 'save':{const ab=ABL[f.a]||f.a;s=({adv:`Advantage on ${ab} saves`,dis:`Disadvantage on ${ab} saves`,bonus:`${f.v} to ${ab} saves`,evasion:'Evasion: no damage on a successful DEX save, half on a failure',reroll:`Reroll a failed save${f.v?' ('+f.v+')':''}`}[f.t]||'');break}
+    case 'aura':s=f.t==='savebonus'?`Allies within ${f.r||'?'} ft add ${f.v} to saves`:`Aura${f.r?' ('+f.r+' ft)':''}`;break;
+    case 'reaction':s=`Reaction ${TRIG[f.a]||''}${f.s==='ally'?', protects allies'+(f.r?' within '+f.r+' ft':''):''}${f.v?': '+f.v:''}`;break;
+    case 'offense':s=({adv:'You attack with advantage',dis:'You attack with disadvantage',hit:`${f.v} to hit`,dmg:`${f.v} ${f.d||''} damage`,crit:`You crit on ${f.v||'a 20'}`,rider:f.v||''}[f.t]||'')+(ak&&f.t!=='rider'?` (${ak})`:'');break;
+  }
+  return [dot(s.trim()),f.n].filter(Boolean).join(' ');
+}
+function itemLine(e){const f=(e.fx||[])[0];const t=f?fxLine(f):(e.desc||'');return t.length>110?t.slice(0,108)+'…':t}
+function pips(e){const m=+e.uses||0;if(!m)return'';if(m>6)return`<span class="pips">${+e.left||0}/${m}</span>`;let s='';for(let i=0;i<m;i++)s+=`<span class="pip${i<(+e.left||0)?' on':''}"></span>`;return`<span class="pips" title="${+e.left||0} of ${m} left">${s}</span>`}
+const me=()=>D&&D.party.find(c=>c.id===ME);
+
+function tab(){const h=(location.hash||'').slice(1);return TABS.some(t=>t[0]===h)?h:'sheet'}
+function renderTabs(){$('#tabs').innerHTML=ME?TABS.map(([k,l])=>`<a href="#${k}"${tab()===k?' aria-current="page"':''}>${l}</a>`).join(''):'';
+  const m=me();$('#who').innerHTML=m?`Playing as <b>${esc(m.name)}</b> · <button class="btn" style="padding:1px 8px;font-size:.82rem" data-act="switch">Switch</button>`:'Three Roads campaign'}
+
+function picker(){return `<div class="stack"><div><h2 style="font-size:1.8rem">Who are you playing?</h2><p class="sub" style="margin:4px 0 0">Pick your character. This device will remember it.</p></div>
+  <div class="pick">${D.party.map(c=>`<button class="tile" data-act="pick" data-id="${esc(c.id)}"><span class="top"><span class="nm">${esc(first(c.name))}</span><span class="ac">AC ${esc(c.ac??'?')}</span></span><span class="sub">${esc(c.cls||'')}</span><span class="pips">HP ${esc(c.hpMax??'?')}</span></button>`).join('')}</div></div>`}
+
+function sheet(c){
+  const mod=s=>s==null?'?':sgn(Math.floor((s-10)/2));
+  const hp=c.hp??c.hpMax,pct=c.hpMax?Math.max(0,Math.min(100,Math.round(100*hp/c.hpMax))):0;
+  const stat=(l,v,sub)=>`<div class="st"><span class="lbl">${l}</span><b>${esc(v??'?')}</b>${sub?`<small>${esc(sub)}</small>`:''}</div>`;
+  const G={def:['When you’re attacked','t-def'],react:['Your reactions','t-react'],save:['Saves and auras','t-save'],off:['When you attack','t-off'],note:['Don’t forget','t-note'],att:['Not attuned yet','t-att']};
+  const groups={};const add=(k,e,line)=>(groups[k]=groups[k]||[]).push({e,line});
+  for(const e of c.entries||[]){
+    if(e.attune&&!e.attuned&&e.active!==false){add('att',e,'Its bonuses are off until you attune to it.');continue}
+    if(!isOn(e))continue;
+    for(const f of e.fx||[])add({defense:'def',damage:'def',reaction:'react',save:'save',aura:'save',offense:'off'}[f.w]||'note',e,fxLine(f));
+  }
+  const its=items(c).filter(e=>!e.in),feats=(c.entries||[]).filter(e=>(e.kind||'item')!=='item');
+  const inside=id=>items(c).filter(e=>e.in===id);
+  const gearRow=e=>{const b=[];if(e.attune)b.push(e.attuned?'<span class="badge">attuned</span>':'<span class="badge warn">not attuned</span>');if(e.active===false)b.push('<span class="badge">packed</span>');if((+e.qty||1)>1)b.push('<span class="badge">×'+esc(e.qty)+'</span>');const inn=e.container?inside(e.id):[];
+    return `<div class="gr${isOn(e)?'':' off'}"><span class="n2"><b>${esc(e.name)}</b>${e.rarity?` <span class="rar">${esc(e.rarity)}</span>`:''}</span><span class="row" style="gap:5px">${b.join('')}${pips(e)}</span>${e.desc?`<span class="d">${esc(e.desc)}</span>`:''}${inn.length?`<span class="d"><b>Holds:</b> ${esc(inn.map(x=>x.name).join(', '))}</span>`:''}</div>`};
+  const att=items(c).filter(e=>e.attune&&e.attuned&&e.active!==false).length;
+  return `<article class="stack">
+    <header class="sh-head"><div><h2 class="big">${esc(c.name)}</h2><div class="sub">${esc(c.cls||'')}</div></div>${c.ddb?`<a href="${esc(c.ddb)}" target="_blank" rel="noopener">Open on D&D Beyond</a>`:''}</header>
+    <div class="strip">${stat('AC',c.ac,c.acNote)}${stat('HP',(hp??'?')+'/'+(c.hpMax??'?'))}${stat('Speed',c.speed!=null?c.speed+' ft':null)}${stat('Init',c.init!=null?sgn(c.init):null)}${c.dc!=null?stat('Save DC',c.dc):''}${c.toHit!=null?stat(c.atkLabel||'To hit',sgn(c.toHit),c.atkNote):''}${stat('Gold',fmt(c.gold)+' gp',c.jars?c.jars+' ash jar'+(c.jars===1?'':'s'):'')}</div>
+    ${c.hpMax?`<div class="hpbar${pct<35?' low':''}" aria-hidden="true"><span style="width:${pct}%"></span></div>`:''}
+    ${c.scores?`<div class="abil">${ABIL.map(a=>`<div class="ab"><span class="lbl">${a.toUpperCase()}</span><b>${mod(c.scores[a])}</b><small>${esc(c.scores[a]??'')}</small><span class="sv">save ${(c.saves||{})[a]!=null?sgn(c.saves[a]):'?'}</span></div>`).join('')}</div>`:''}
+    <h3>What to remember in a fight</h3>
+    <div class="alerts">${Object.keys(G).filter(k=>groups[k]).map(k=>`<section class="ag ${G[k][1]}"><span class="lbl">${G[k][0]}</span>${groups[k].map(x=>`<div class="al"><span class="t">${esc(x.e.name)} ${pips(x.e)}</span><span class="s">${esc(x.line)}</span></div>`).join('')}</section>`).join('')||'<p class="empty">Nothing recorded yet.</p>'}</div>
+    <div class="row"><h3 style="flex:1">Gear</h3><span class="sub">Attuned ${att} of ${+c.attune||3}</span></div>
+    ${its.length?`<div class="gear">${its.map(gearRow).join('')}</div>`:'<p class="empty">No gear recorded.</p>'}
+    <details><summary><h3 style="display:inline">Features, feats and spells (${feats.length})</h3></summary><div class="gear" style="margin-top:8px">${feats.map(gearRow).join('')}</div></details>
+  </article>`;
+}
+function partyTiles(){return `<div class="stack"><h2>The party</h2><div class="pick">${D.party.map(c=>{const nb=items(c).filter(e=>notable(e)&&e.active!==false);
+  return `<div class="tile" style="cursor:default"><span class="top"><span class="nm">${esc(first(c.name))}${c.id===ME?' <span class="badge">you</span>':''}</span><span class="ac">AC ${esc(c.ac??'?')}</span></span><span class="sub">${esc(c.cls||'')}</span>
+  <span class="pips">HP ${esc(c.hp??c.hpMax)}/${esc(c.hpMax)} · Speed ${esc(c.speed??'?')} · DEX ${sgn((c.saves||{}).dex||0)} · CON ${sgn((c.saves||{}).con||0)} · WIS ${sgn((c.saves||{}).wis||0)}</span>
+  ${nb.length?`<ul>${nb.slice(0,6).map(e=>`<li>${esc(e.name)}</li>`).join('')}</ul>`:''}</div>`}).join('')}</div></div>`}
+function loot(){const hs=[...D.party,...(D.stash?[D.stash]:[])];const on=hs.reduce((s,c)=>s+(+c.gold||0),0),jars=hs.reduce((s,c)=>s+(+c.jars||0),0);
+  return `<div class="stack"><h2>Party loot</h2>
+  <div class="panel row" style="gap:18px"><span><b class="n" style="font-size:1.3rem">${fmt(on)}</b> gp on hand</span><span><b class="n" style="font-size:1.3rem">${fmt(D.stash&&D.stash.bank)}</b> gp in the Vaelmar bank</span><span><b class="n" style="font-size:1.3rem">${jars}</b> ash jars</span></div>
+  ${D.stash&&D.stash.purseNote?`<p class="sub" style="margin:0">${esc(D.stash.purseNote)}</p>`:''}
+  <div class="pick" style="grid-template-columns:repeat(auto-fill,minmax(260px,1fr))">${hs.map(c=>{const it=items(c).filter(e=>!e.in);const nb=it.filter(notable);
+    return `<div class="tile" style="cursor:default"><span class="top"><span class="nm">${esc(c.id==='stash'?'Party stash':first(c.name))}</span><span class="pips">${items(c).length} items</span></span>
+    <span class="coins"><span class="gp">${fmt(c.gold)} gp</span><span>${+c.jars||0} ash jars</span></span>
+    ${nb.length?`<ul>${nb.map(e=>`<li><b>${esc(e.name)}</b>${e.container?` <span class="rar">holds ${items(c).filter(x=>x.in===e.id).length}</span>`:itemLine(e)?`<div class="rar">${esc(itemLine(e))}</div>`:''}</li>`).join('')}</ul>`:'<span class="empty">No magic or story items.</span>'}
+    ${it.length-nb.length>0?`<span class="rar">+ ${it.length-nb.length} common item${it.length-nb.length>1?'s':''}</span>`:''}</div>`}).join('')}</div></div>`}
+const CG={pack:'In Wick’s pack',atshop:'At the shop, for sale',sold:'Sold',lost:'Lost on the road',returned:'Returned'};
+const RS={party:'With the party',toShop:'Traveling to the shop',shop:'At the shop',toParty:'Traveling to the party',late:'Overdue',captured:'Missing',missing:'Missing',road:'On the road'};
+function shop(){const S=D.shop||{},r=S.runner||{};const cg=S.cargo||[];
+  return `<div class="stack"><div><h2 style="font-size:1.6rem">${esc(S.name||'The shop')}</h2><div class="sub">${esc(S.sub||'')}</div></div>
+  <div class="strip"><div class="st"><span class="lbl">Run by</span><b style="font:700 1rem var(--f-body)">${esc(S.keeper||'')}</b></div><div class="st"><span class="lbl">Upkeep</span><b>${fmt(S.upkeep)} gp</b><small>${esc(S.upkeepNote||'')}</small></div><div class="st"><span class="lbl">The runner is</span><b style="font:700 1rem var(--f-body)">${esc(RS[r.status]||'—')}</b></div></div>
+  <section class="panel stack" style="gap:6px"><span class="lbl">The runner</span><h3 style="font-size:1.4rem">${esc(r.name||'')}</h3><span class="sub">${esc(r.who||'')}</span>${r.desc?`<p style="margin:0">${esc(r.desc)}</p>`:''}</section>
+  ${(S.upgrades||[]).length?`<section class="stack"><h3>What the shop has</h3>${S.upgrades.map(u=>`<div class="panel"><b>${esc(u.name)}</b> <span class="badge">${esc(u.status==='building'?'being built':'active')}</span><p style="margin:4px 0 0">${esc(u.effect||'')}</p></div>`).join('')}</section>`:''}
+  <h3>Wick’s pack and the shop ledger</h3>
+  ${cg.length?`<div class="tablewrap"><table class="ledger"><thead><tr><th>Item</th><th>From</th><th>Where it is</th><th>Asking</th><th>Sold for</th></tr></thead><tbody>${cg.map(x=>`<tr><td><b>${esc(x.name)}</b>${(+x.qty||1)>1?' ×'+x.qty:''}<div class="rar">sent ${esc(x.sentAt||'')}</div></td><td>${esc(x.from||'')}</td><td>${esc(CG[x.status]||x.status)}</td><td class="n">${x.ask!=null?fmt(x.ask)+' gp':'—'}</td><td class="n">${x.status==='sold'?fmt(x.sold)+' gp':'—'}</td></tr>`).join('')}</tbody></table></div>`:'<p class="empty">Nothing has been sent to the shop yet. Tell the DM what you want Wick to carry.</p>'}
+  <h3>Runs</h3>
+  ${(S.runs||[]).length?`<div class="tablewrap"><table class="ledger"><thead><tr><th>When</th><th>Route</th><th>Sent</th><th>Sales</th><th>Upkeep</th></tr></thead><tbody>${S.runs.map(x=>`<tr><td>${esc(x.when||'')}</td><td>${x.route==='back'?'Back roads':'Main road'}</td><td>${esc(x.out||'')}${x.pack?`<div class="rar">${esc(x.pack)}</div>`:''}</td><td class="n">${x.sold?fmt(x.sold)+' gp':'—'}</td><td>${x.upkeep?'Paid':'Unpaid'}</td></tr>`).join('')}</tbody></table></div>`:'<p class="empty">No runs yet.</p>'}
+  </div>`}
+function house(){const H=D.house||{};const ps=H.people||[];const caps=ps.filter(p=>p.tier==='captain'),mid=ps.filter(p=>p.tier==='ledger'||p.tier==='liaison');const card=p=>`<div class="pc${p.tier==='captain'?' cap':''}"><b>${esc(p.name)}</b><span class="rar">${esc(p.role||'')}</span></div>`;
+  const wolf=D.party.find(c=>c.id===H.wolf);
+  return `<div class="stack"><div><h2 style="font-size:1.6rem">${esc(H.name||'The House')}</h2><div class="sub">${esc(H.sub||'')}</div></div>
+  <div class="strip"><div class="st"><span class="lbl">Standing with the Guild</span><b style="font:400 1.3rem var(--f-display)">${esc(H.standing||'')}</b></div><div class="st"><span class="lbl">Wears the Wolf</span><b style="font:700 1rem var(--f-body)">${esc(wolf?first(wolf.name):'')}</b></div>${H.policy&&H.policy.name?`<div class="st"><span class="lbl">House policy</span><b style="font:700 1rem var(--f-body)">${esc(H.policy.name)}</b><small>${esc(H.policy.said||'')}</small></div>`:''}</div>
+  <div class="org-top"><span class="lbl">The Seven</span><div class="row" style="gap:6px">${D.party.map(c=>`<span class="pchip${c.id===H.wolf?' wolf':''}">${esc(first(c.name))}</span>`).join('')}</div><p class="sub" style="margin:0">${esc(H.leaderNote||'')}</p></div>
+  <div class="row" style="justify-content:center">${mid.map(card).join('')}</div>
+  <div class="caps">${caps.map(c=>`<div class="stack" style="gap:6px"><span class="divn">${esc(c.div||'')}</span>${card(c)}<div class="subs">${ps.filter(p=>p.parent===c.id).map(card).join('')}</div></div>`).join('')}</div>
+  ${(H.contracts||[]).length?`<h3>Contracts you’ve been read</h3><div class="ctrs">${H.contracts.map(c=>`<div class="ctr"><b style="font:400 1.1rem var(--f-display)">${esc(c.name)}</b>${c.desk?`<span class="rar">${esc(c.desk)}</span>`:''}<p style="margin:0">${esc(c.told||'')}</p><div style="border-top:1px dashed var(--line);padding-top:6px"><span class="lbl">Latest from Bellamy</span><p style="margin:2px 0 0" class="${c.update?'':'sub'}">${esc(c.update||'No news yet. Ask the DM for an update.')}</p></div></div>`).join('')}</div>`:''}
+  </div>`}
+function journal(){const ss=(D.journal||{}).sessions||[];if(!ss.length)return'<p class="empty">No sessions yet.</p>';if(JSEL==null||!ss[JSEL])JSEL=ss.length-1;const s=ss[JSEL];const notes=((D.journal||{}).notes||[]).filter(n=>+n.session===JSEL);
+  const sec=(t,b)=>`<section class="stack" style="gap:6px"><h3>${t}</h3>${b}</section>`;
+  return `<div class="journal"><nav class="jrail">${ss.map((x,i)=>`<button class="jstep${i===JSEL?' on':''}" data-act="jsel" data-i="${i}"><span class="jn">${esc(x.num||i+1)}</span><span><b>${esc(x.title)}</b><small>${esc([x.played,x.world].filter(Boolean).join(' · '))}</small></span></button>`).join('')}</nav>
+  <article class="stack" style="max-width:820px;min-width:0"><span class="lbl">Session ${esc(s.num||JSEL+1)}</span><h2 class="big" style="font-size:2rem">${esc(s.title)}</h2>${s.quote?`<p class="sub" style="font-style:italic;margin:0">${esc(s.quote)}</p>`:''}
+  <p style="font-size:1.08rem;line-height:1.6;margin:0">${esc(s.summary||'')}</p>
+  ${sec('Highlights',`<ul class="jl">${(s.highlights||[]).map(x=>`<li>${esc(x)}</li>`).join('')}</ul>`)}
+  <div class="jgrid">${sec('People you met',`<ul class="jl">${(s.people||[]).map(x=>`<li><b>${esc(x.name)}</b> <span class="sub">${esc(x.note||'')}</span></li>`).join('')}</ul>`)}${sec('Loot',`<ul class="jl">${(s.loot||[]).map(x=>`<li><b>${esc(x.item)}</b>${x.who?` <span class="sub">→ ${esc(x.who)}</span>`:''}</li>`).join('')}</ul>`)}</div>
+  ${sec('Decisions',(s.decisions||[]).map(x=>`<div class="dec"><b>${esc(x.choice)}</b><span class="sub">${esc(x.result||'')}</span></div>`).join(''))}
+  ${(s.events||[]).length?sec('Timeline',`<ol class="tl">${s.events.map(x=>`<li><span class="tw">${esc(x.when||'—')}</span><span>${esc(x.text)}</span></li>`).join('')}</ol>`):''}
+  ${(s.threads||[]).length?sec('Still open',`<ul class="jl">${s.threads.map(x=>`<li>${esc(x)}</li>`).join('')}</ul>`):''}
+  ${notes.length?sec('Player notes',notes.map(n=>{const c=D.party.find(p=>p.id===n.by);return `<div class="panel" style="padding:8px 12px"><b>${esc(c?first(c.name):'DM')}</b><p style="margin:2px 0 0;white-space:pre-wrap">${esc(n.text)}</p></div>`}).join('')):''}
+  </article></div>`}
+function render(){renderTabs();const app=$('#app');if(!D)return;
+  if(!me()){app.innerHTML=picker();return}
+  const t=tab();app.innerHTML=t==='sheet'?sheet(me()):t==='party'?partyTiles():t==='loot'?loot():t==='shop'?shop():t==='house'?house():journal();}
+document.addEventListener('click',ev=>{const b=ev.target.closest('[data-act]');if(!b)return;const a=b.dataset.act;
+  if(a==='pick'){ME=b.dataset.id;try{localStorage.setItem('ac.me',ME)}catch(e){}location.hash='sheet';render();window.scrollTo(0,0)}
+  else if(a==='switch'){ME=null;try{localStorage.removeItem('ac.me')}catch(e){}render()}
+  else if(a==='jsel'){JSEL=+b.dataset.i;render();window.scrollTo(0,0)}});
+window.addEventListener('hashchange',()=>{render();window.scrollTo(0,0)});
+fetch('data.json',{cache:'no-store'}).then(r=>{if(!r.ok)throw new Error(r.status);return r.json()}).then(d=>{D=d;$('#foot').textContent='Updated by the DM on '+(d.updated||'')+'. Your sheet changes between sessions are made by the DM.';render()})
+  .catch(()=>{$('#app').innerHTML='<div class="panel"><h2>The ledger didn’t load</h2><p>Refresh the page. If it still doesn’t load, tell the DM.</p></div>'});
+})();
+</script>
+</body>
+</html>
