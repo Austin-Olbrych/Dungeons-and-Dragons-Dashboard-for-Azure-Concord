@@ -193,6 +193,69 @@ textarea{width:100%;resize:vertical}
 .btn.danger{color:var(--bad);border-color:var(--bad)}
 .okbox{border-left:3px solid var(--good);background:var(--good-bg);padding:8px 12px;border-radius:0 8px 8px 0}
 .pctl{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}.pctl .tick{display:inline-flex;align-items:center;gap:4px}
+/* D&D Beyond style sheet */
+:root{--fig-skin:#e7dcc6;--fig-line:#8a7f6a}
+@media (prefers-color-scheme:dark){:root{--fig-skin:#3a3f48;--fig-line:#7d8592}}
+.sgrid{display:grid;gap:14px;grid-template-columns:1fr;align-items:start}
+@media (min-width:760px){.sgrid{grid-template-columns:200px minmax(0,1fr)}.sgrid .tabsbox{grid-column:1/-1}}
+@media (min-width:1080px){.sgrid{grid-template-columns:190px 230px minmax(0,1fr)}.sgrid .tabsbox{grid-column:auto}}
+.abil2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+@media (max-width:759px){.abil2{grid-template-columns:repeat(6,minmax(0,1fr))}}
+@media (max-width:440px){.abil2{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.pass{display:flex;flex-direction:column;gap:4px;padding:10px 12px}
+.psv{display:flex;gap:8px;align-items:baseline}.psv b{min-width:2ch;font-size:1.1rem}
+.skills{padding:10px 12px}
+.sk{list-style:none;margin:6px 0 0;padding:0}
+.sk li{display:grid;grid-template-columns:12px 2.6em minmax(0,1fr) auto;gap:6px;align-items:center;padding:3px 0;border-top:1px solid var(--line);font-size:.93rem}
+.sk li:first-child{border-top:0}
+.ska{font:600 .68rem var(--f-num);color:var(--muted)}
+.dotp{width:10px;height:10px;border-radius:50%;border:1.5px solid var(--muted)}
+.dotp.p1{background:var(--ink);border-color:var(--ink)}
+.dotp.p2{background:var(--accent);border-color:var(--accent);box-shadow:0 0 0 2px var(--surface),0 0 0 3px var(--accent)}
+.tabsbox{padding:0;overflow:hidden;min-width:0}
+.stabs{display:flex;flex-wrap:wrap;border-bottom:1px solid var(--line);background:var(--surface2)}
+.stabs button{border:0;background:none;padding:9px 12px;cursor:pointer;white-space:nowrap;color:var(--muted);font-weight:500}
+.stabs button[aria-pressed="true"]{color:var(--ink);box-shadow:inset 0 -3px 0 var(--accent);background:var(--surface)}
+.tbody{padding:14px;display:flex;flex-direction:column;gap:14px}
+.tsec{display:flex;flex-direction:column;gap:6px}
+.act{border:1px solid var(--line);border-left:3px solid var(--tone,var(--line));border-radius:8px;padding:7px 10px;display:flex;flex-direction:column;gap:2px;background:var(--surface)}
+.act .s,p.s{font-size:.9rem;color:var(--muted)}
+.spl{display:flex;flex-direction:column;gap:4px}
+.sp{border:1px solid var(--line);border-radius:7px;padding:2px 8px;font-size:.88rem;display:inline-flex;gap:6px;align-items:baseline;background:var(--bg)}
+.sp small{color:var(--muted);font:500 .72rem var(--f-num)}.sp i{font-style:normal;font:700 .7rem var(--f-num);color:var(--accent)}
+table.atk tr.off td{color:var(--muted)}
+.ledger td.n,.ledger th:nth-child(n+2){white-space:nowrap}
+/* paper doll and inventory */
+.doll{display:grid;gap:8px;grid-template-columns:minmax(0,1fr) 220px minmax(0,1fr);grid-template-areas:"head fig weap" "neck fig off" "cloak fig hands" "body fig rings" "legs fig waist" "feet fig .";align-items:stretch}
+@media (max-width:640px){.doll{grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-areas:"fig fig" "head weap" "neck off" "cloak hands" "body rings" "legs waist" "feet ."}}
+.fig{grid-area:fig;display:flex;justify-content:center;align-items:center;border-radius:12px;background:radial-gradient(circle at 50% 40%,var(--surface2),transparent 70%)}
+.figsvg{width:100%;max-width:220px;height:auto;display:block}
+@media (max-width:640px){.figsvg{max-width:170px}}
+.figsvg .ov{transition:opacity .15s}.figsvg .ov:hover{opacity:.8}
+.slot{border:1px dashed var(--line);border-radius:10px;padding:5px 8px;display:flex;flex-direction:column;gap:4px;min-width:0;background:var(--bg)}
+.slot.filled{border-style:solid;background:var(--surface)}
+.none{font-size:.82rem;color:var(--muted);font-style:italic;margin:0}
+.ichip{border:1px solid var(--line);border-radius:7px;background:var(--surface2);padding:2px 7px;text-align:left;font-size:.88rem;cursor:grab;overflow-wrap:anywhere}
+.ichip.picked{outline:2px solid var(--accent)}
+[data-drop].over{outline:2px dashed var(--accent);outline-offset:2px;background:var(--surface2)}
+.armed [data-drop],.armed[data-drop]{outline:1px dashed var(--accent);outline-offset:1px;cursor:pointer}
+.invtree{display:flex;flex-direction:column;gap:10px}
+.ivs{border:1px solid var(--line);border-radius:10px;background:var(--surface);padding:4px 0}
+.ivh{display:flex;gap:8px;align-items:baseline;padding:4px 10px}
+.ivs>.none{padding:4px 10px 8px}
+details.inv{border-top:1px solid var(--line)}
+.ivs>details.inv:first-child{border-top:0}
+details.inv>summary{display:grid;grid-template-columns:16px minmax(0,1fr) auto;gap:6px;align-items:center;padding:6px 10px 6px calc(10px + var(--d,0)*18px);list-style:none}
+details.inv>summary::-webkit-details-marker{display:none}
+details.inv>summary[draggable="true"]{cursor:grab}
+.grip{color:var(--muted);font-size:.9rem}
+.invb{padding:0 10px 8px calc(32px + var(--d,0)*18px);font-size:.9rem;display:flex;flex-direction:column;gap:4px}
+.invb p{margin:0}
+details.cont>summary .nm2 b::before{content:"▸ ";color:var(--accent)}
+details.cont[open]>summary .nm2 b::before{content:"▾ "}
+.incont{border-left:2px solid var(--line);margin-left:calc(17px + var(--d,0)*18px)}
+.incont>.none{padding:4px 10px 8px}
+.badge.on{color:var(--good);border-color:var(--good)}
 body.busy{cursor:progress}body.busy .btn{pointer-events:none;opacity:.7}
 </style>
 </head>
@@ -245,36 +308,203 @@ function renderTabs(){$('#tabs').innerHTML=ME&&ME!=='pin'?TABS.map(([k,l])=>`<a 
 function picker(){return `<div class="stack"><div><h2 style="font-size:1.8rem">Who are you playing?</h2><p class="sub" style="margin:4px 0 0">Pick your character to see your sheet.</p></div>
   <div class="pick"><button class="tile dm" data-act="dmpin"><span class="top"><span class="nm">Dungeon Master</span></span><span class="sub">PIN required</span></button>${D.party.map(c=>`<button class="tile" data-act="pick" data-id="${esc(c.id)}"><span class="top"><span class="nm">${esc(first(c.name))}</span><span class="ac">AC ${esc(c.ac??'?')}</span></span><span class="sub">${esc(c.cls||'')}</span><span class="pips">HP ${esc(c.hpMax??'?')}</span></button>`).join('')}</div></div>`}
 
+/* ---------- character sheet (D&D Beyond style) ---------- */
+const SKILLS=[['acrobatics','Acrobatics','dex'],['animal-handling','Animal Handling','wis'],['arcana','Arcana','int'],['athletics','Athletics','str'],['deception','Deception','cha'],['history','History','int'],['insight','Insight','wis'],['intimidation','Intimidation','cha'],['investigation','Investigation','int'],['medicine','Medicine','wis'],['nature','Nature','int'],['perception','Perception','wis'],['performance','Performance','cha'],['persuasion','Persuasion','cha'],['religion','Religion','int'],['sleight-of-hand','Sleight of Hand','dex'],['stealth','Stealth','dex'],['survival','Survival','wis']];
+const STABS=[['actions','Actions'],['bonus','Bonus actions'],['reactions','Reactions'],['move','Movement'],['gear','Inventory'],['spells','Spells'],['features','Features'],['remind','Reminders']];
+let STAB='actions',PICK=null,DRAG=null;
+try{const s=localStorage.getItem('ac-stab');if(STABS.some(t=>t[0]===s))STAB=s}catch(e){}
+const SLOTS=[['head','Head'],['neck','Neck'],['cloak','Shoulders'],['body','Body'],['legs','Legs'],['feet','Feet'],['weap','Main hand'],['off','Off hand'],['hands','Wrists and hands'],['rings','Rings'],['waist','Belt']];
+const SLOT_L=Object.fromEntries(SLOTS);
+const CAP={head:1,neck:1,cloak:1,body:1,legs:1,feet:1,weap:1,off:1,waist:1,hands:3,rings:4};
+function guessSlot(e){const n=(e.name||'').toLowerCase();
+  if(/pants|leggings|greaves|trousers|breeches/.test(n))return'legs';
+  if(/\bring\b|signet/.test(n))return'rings';
+  if(/cloak|cape|mantle/.test(n))return'cloak';
+  if(/\bband\b|gauntlet|glove|bracer|bracelet/.test(n))return'hands';
+  if(/amulet|necklace|periapt|medallion|pendant|torc/.test(n))return'neck';
+  if(/belt|sash|girdle/.test(n))return'waist';
+  if(/boot|slipper|shoes|sandal/.test(n))return'feet';
+  if(/helm|hat\b|circlet|crown|goggles|hood|cap\b/.test(n))return'head';
+  if(/shield/.test(n))return'off';
+  if(/armor|\bmail\b|plate|leather|robe|breastplate|hide|scale|chain|vestment/.test(n))return'body';
+  if(/sword|axe|dagger|tooth|flail|hammer|whip|bow\b|shortbow|longbow|crossbow|javelin|staff|mace|spear|\brod\b|wand|trident|club|scimitar|rapier|stick|maul|pike|halberd|glaive|sickle|lance/.test(n))return'weap';
+  return null}
+const wearable=e=>!!guessSlot(e)||!!(e.slot&&e.slot!=='pack');
+function dollMap(c){const its=items(c).filter(e=>!e.in&&e.active!==false&&!e.container);const m={};for(const [k] of SLOTS)m[k]=[];
+  const put=(e,k)=>{if(m[k]&&m[k].length<CAP[k]){m[k].push(e);return true}return false};
+  its.filter(e=>e.slot&&e.slot!=='pack').forEach(e=>put(e,e.slot));
+  const rest=its.filter(e=>!e.slot);
+  rest.filter(e=>guessSlot(e)&&guessSlot(e)!=='weap').forEach(e=>put(e,guessSlot(e)));
+  rest.filter(e=>guessSlot(e)==='weap').forEach(e=>put(e,'weap')||(!/shortbow|longbow|greataxe|greatsword|maul|halberd|glaive|pike|staff/i.test(e.name)&&put(e,'off')));
+  const where={};for(const k in m)for(const e of m[k])where[e.id]=k;return {m,where}}
+const abMod=(c,a)=>{const s=(c.scores||{})[a];return s==null?0:Math.floor((s-10)/2)};
+const RESET_T={SR:'short rest',LR:'long rest',dawn:'dawn'};
+const ACT_T={action:'Action',bonus:'Bonus action',reaction:'Reaction',move:'Movement',other:'Other'};
+
+/* the figure: base body plus whatever is equipped, drawn in place */
+const COL={metal:'#9aa4ae',dark:'#4c535b',leather:'#8b5a2b',wood:'#9a6a3a',gold:'#d4a72c',cloth:'#4d6b94',robe:'#6a4f8a',pink:'#d1569a',band:'#5f84b3'};
+function weapGlyph(e,mirror){const n=(e.name||'').toLowerCase();const M=COL.metal,L=COL.leather,W=COL.wood,G=COL.gold,K=COL.dark;let g;
+  if(/bow\b|shortbow|longbow/.test(n))g=`<path d="M-4 -84 Q-38 -12 -4 60" fill="none" stroke="${W}" stroke-width="4"/><line x1="-4" y1="-84" x2="-4" y2="60" stroke="${K}" stroke-width="1"/>`;
+  else if(/crossbow/.test(n))g=`<rect x="-3" y="-50" width="6" height="56" fill="${W}"/><path d="M-26 -40 Q0 -54 26 -40" fill="none" stroke="${K}" stroke-width="3"/>`;
+  else if(/whip/.test(n))g=`<rect x="-2.5" y="-8" width="5" height="16" fill="${L}"/><path d="M0 -8 Q34 -40 10 -70 Q-12 -96 22 -114" fill="none" stroke="${L}" stroke-width="3" stroke-linecap="round"/>`;
+  else if(/flail|morningstar/.test(n))g=`<rect x="-2.5" y="-44" width="5" height="54" fill="${W}"/><path d="M0 -44 L12 -60 L18 -74" fill="none" stroke="${K}" stroke-width="2" stroke-dasharray="3 2"/><circle cx="20" cy="-82" r="9" fill="${M}" stroke="${K}"/>`;
+  else if(/hammer|maul|mace|club/.test(n))g=`<rect x="-2.5" y="-82" width="5" height="94" fill="${W}"/><rect x="-15" y="-90" width="30" height="18" rx="2" fill="${M}" stroke="${K}"/>`;
+  else if(/axe/.test(n))g=`<rect x="-2.5" y="-86" width="5" height="98" fill="${W}"/><path d="M2 -84 Q28 -78 26 -50 Q14 -58 2 -56Z" fill="${M}" stroke="${K}"/>${/great/.test(n)?`<path d="M-2 -84 Q-28 -78 -26 -50 Q-14 -58 -2 -56Z" fill="${M}" stroke="${K}"/>`:''}`;
+  else if(/staff|rod\b|wand|stick/.test(n)){const tall=/wand/.test(n)?40:/rod/.test(n)?70:124;g=`<rect x="-3" y="-${tall}" width="6" height="${tall+(/wand|rod/.test(n)?10:46)}" rx="2" fill="${W}"/>${/skull/.test(n)?`<circle cy="-${tall+8}" r="9" fill="#ece6d6" stroke="${K}"/><circle cx="-3" cy="-${tall+9}" r="2" fill="${K}"/><circle cx="3" cy="-${tall+9}" r="2" fill="${K}"/>`:`<circle cy="-${tall+5}" r="6" fill="${/rod/.test(n)?G:COL.cloth}" stroke="${K}"/>`}`}
+  else if(/javelin|spear|trident|pike|lance|glaive|halberd/.test(n))g=`<rect x="-2" y="-112" width="4" height="150" fill="${W}"/>${/trident/.test(n)?`<path d="M-10 -112 L-10 -128 M0 -112 L0 -134 M10 -112 L10 -128 M-10 -112 L10 -112" stroke="${M}" stroke-width="3" fill="none"/>`:`<path d="M-5 -110 L0 -132 L5 -110Z" fill="${M}" stroke="${K}"/>`}`;
+  else if(/dagger|knife|tooth|sickle/.test(n))g=`<path d="M-3 -6 L-3 -42 L0 -50 L3 -42 L3 -6Z" fill="${M}" stroke="${K}"/><rect x="-8" y="-8" width="16" height="4" fill="${G}"/><rect x="-2" y="-4" width="4" height="10" fill="${L}"/>`;
+  else g=`<path d="M-3.5 -6 L-3.5 -86 L0 -96 L3.5 -86 L3.5 -6Z" fill="${M}" stroke="${K}"/><rect x="-12" y="-9" width="24" height="5" rx="1" fill="${G}"/><rect x="-2.5" y="-4" width="5" height="12" fill="${L}"/><circle cy="10" r="3.5" fill="${G}"/>`;
+  return mirror?`<g transform="scale(-1,1)">${g}</g>`:g}
+function figure(c,dm){const {m}=dm;const t=list=>`<title>${esc(list.map(e=>e.name).join(', '))}</title>`;const one=k=>m[k][0];const nm=k=>(one(k)?.name||'').toLowerCase();
+  const S='var(--fig-line)',F='var(--fig-skin)';let o='';
+  const cont=items(c).filter(e=>!e.in&&e.container&&e.active!==false);
+  if(one('cloak'))o+=`<g class="ov">${t(m.cloak)}<path d="M64 80 Q100 68 136 80 L158 262 Q100 274 42 262Z" fill="${/displacement|shadow/.test(nm('cloak'))?'#3c4a66':COL.cloth}" opacity=".95"/></g>`;
+  /* base body */
+  o+=`<g class="base"><line x1="86" y1="176" x2="81" y2="282" stroke="${S}" stroke-width="22" stroke-linecap="round"/><line x1="114" y1="176" x2="119" y2="282" stroke="${S}" stroke-width="22" stroke-linecap="round"/><line x1="86" y1="176" x2="81" y2="282" stroke="${F}" stroke-width="18" stroke-linecap="round"/><line x1="114" y1="176" x2="119" y2="282" stroke="${F}" stroke-width="18" stroke-linecap="round"/>
+    <ellipse cx="76" cy="292" rx="14" ry="7" fill="${F}" stroke="${S}" stroke-width="2"/><ellipse cx="124" cy="292" rx="14" ry="7" fill="${F}" stroke="${S}" stroke-width="2"/>
+    <path d="M70 78 Q100 70 130 78 L136 152 L138 186 L62 186 L64 152Z" fill="${F}" stroke="${S}" stroke-width="2"/><rect x="92" y="62" width="16" height="16" fill="${F}" stroke="${S}" stroke-width="2"/><circle cx="100" cy="42" r="22" fill="${F}" stroke="${S}" stroke-width="2"/></g>`;
+  if(one('legs')){const hot=/hotpants|shorts/.test(nm('legs'));o+=`<g class="ov">${t(m.legs)}${hot?`<path d="M62 150 L138 150 L141 200 L106 200 L100 188 L94 200 L59 200Z" fill="${COL.pink}" stroke="${S}"/>`:`<path d="M62 150 L138 150 L134 278 L106 278 L100 190 L94 278 L66 278Z" fill="${/greave|plate/.test(nm('legs'))?COL.metal:COL.leather}" stroke="${S}"/>`}</g>`}
+  if(one('feet'))o+=`<g class="ov">${t(m.feet)}<rect x="70" y="252" width="22" height="38" rx="5" fill="${COL.leather}" stroke="${S}"/><rect x="108" y="252" width="22" height="38" rx="5" fill="${COL.leather}" stroke="${S}"/><ellipse cx="76" cy="293" rx="15" ry="7" fill="${COL.leather}" stroke="${S}"/><ellipse cx="124" cy="293" rx="15" ry="7" fill="${COL.leather}" stroke="${S}"/></g>`;
+  if(one('body')){const n=nm('body');let f=COL.cloth,extra='';
+    if(/robe|vestment/.test(n)){o+=`<g class="ov">${t(m.body)}<path d="M70 78 Q100 70 130 78 L148 274 Q100 284 52 274Z" fill="${COL.robe}" stroke="${S}"/><path d="M66 140 L134 140" stroke="${COL.gold}" stroke-width="5"/></g>`}
+    else{if(/plate/.test(n)){f=COL.metal;extra=[96,112,128,144].map(y=>`<line x1="68" y1="${y}" x2="132" y2="${y}" stroke="${COL.dark}" stroke-width="1.2"/>`).join('')+`<circle cx="70" cy="84" r="11" fill="${COL.metal}" stroke="${COL.dark}"/><circle cx="130" cy="84" r="11" fill="${COL.metal}" stroke="${COL.dark}"/>`}
+      else if(/mail|scale|chain/.test(n)){f='url(#mailpat)'}
+      else if(/leather|hide|studded/.test(n)){f=COL.leather;if(/studded/.test(n))extra=[90,104,118,132].map(y=>[80,100,120].map(x=>`<circle cx="${x}" cy="${y}" r="1.6" fill="${COL.gold}"/>`).join('')).join('')}
+      o+=`<g class="ov">${t(m.body)}<path d="M70 78 Q100 70 130 78 L136 152 L138 172 L62 172 L64 152Z" fill="${f}" stroke="${S}" stroke-width="2"/>${extra}</g>`}}
+  if(one('waist')||cont.length)o+=`<g class="ov">${one('waist')?t(m.waist):''}<rect x="62" y="146" width="76" height="8" fill="${/belt|girdle/.test(nm('waist'))?COL.leather:'#6d4522'}" stroke="${S}"/><rect x="95" y="144" width="10" height="12" rx="1" fill="${COL.gold}"/></g>`;
+  cont.slice(0,2).forEach((e,i)=>{const sat=/satchel|bag|pack|haversack|case/.test((e.name||'').toLowerCase());
+    o+=sat&&i===0?`<g class="ov"><title>${esc(e.name)}</title><path d="M130 80 L70 150" stroke="${COL.leather}" stroke-width="5"/><rect x="54" y="148" width="30" height="28" rx="5" fill="${COL.leather}" stroke="${S}"/><path d="M54 154 Q69 166 84 154" fill="#6d4522" stroke="${S}"/></g>`
+      :`<g class="ov"><title>${esc(e.name)}</title><rect x="${i?62:122}" y="152" width="16" height="20" rx="4" fill="#6d4522" stroke="${S}"/><circle cx="${i?70:130}" cy="158" r="1.8" fill="${COL.gold}"/></g>`});
+  /* arms over the torso */
+  o+=`<g class="base"><line x1="70" y1="84" x2="50" y2="166" stroke="${S}" stroke-width="16" stroke-linecap="round"/><line x1="130" y1="84" x2="150" y2="166" stroke="${S}" stroke-width="16" stroke-linecap="round"/><line x1="70" y1="84" x2="50" y2="166" stroke="${F}" stroke-width="12" stroke-linecap="round"/><line x1="130" y1="84" x2="150" y2="166" stroke="${F}" stroke-width="12" stroke-linecap="round"/><circle cx="50" cy="172" r="8" fill="${F}" stroke="${S}" stroke-width="2"/><circle cx="150" cy="172" r="8" fill="${F}" stroke="${S}" stroke-width="2"/></g>`;
+  if(one('neck'))o+=`<g class="ov">${t(m.neck)}<path d="M89 74 Q100 102 111 74" fill="none" stroke="${COL.gold}" stroke-width="2"/><circle cx="100" cy="100" r="5.5" fill="${/periapt|wound|blood/.test(nm('neck'))?'#b8343a':COL.gold}" stroke="${COL.dark}"/></g>`;
+  if(one('cloak'))o+=`<circle cx="100" cy="80" r="4" fill="${COL.gold}" stroke="${COL.dark}"/>`;
+  if(one('head')){const n=nm('head');o+=`<g class="ov">${t(m.head)}${/helm/.test(n)?`<path d="M77 44 Q77 16 100 16 Q123 16 123 44 L123 50 L114 50 L114 38 L86 38 L86 50 L77 50Z" fill="${COL.metal}" stroke="${COL.dark}"/>`:/hat/.test(n)?`<ellipse cx="100" cy="28" rx="36" ry="6" fill="${COL.leather}" stroke="${S}"/><path d="M84 28 Q86 4 100 4 Q114 4 116 28Z" fill="${COL.leather}" stroke="${S}"/>`:/hood/.test(n)?`<path d="M74 54 Q72 14 100 14 Q128 14 126 54 Q118 30 100 28 Q82 30 74 54Z" fill="${COL.cloth}" stroke="${S}"/>`:/goggles/.test(n)?`<circle cx="91" cy="40" r="7" fill="#9fd0e6" stroke="${COL.dark}" stroke-width="2"/><circle cx="109" cy="40" r="7" fill="#9fd0e6" stroke="${COL.dark}" stroke-width="2"/>`:`<path d="M79 34 Q100 26 121 34" fill="none" stroke="${COL.gold}" stroke-width="3"/><circle cx="100" cy="29" r="3" fill="#4fb3c9"/>`}</g>`}
+  const wr=[[50,152,-14],[150,152,14],[50,142,-14],[150,142,14]];
+  m.hands.forEach((e,i)=>{const [x,y,r]=wr[i]||wr[0];const n=(e.name||'').toLowerCase();
+    o+=/\bband\b|bracelet/.test(n)?`<g class="ov"><title>${esc(e.name)}</title><rect x="${x-9}" y="${y-3.5}" width="18" height="7" rx="2" transform="rotate(${r} ${x} ${y})" fill="${COL.band}" stroke="${COL.gold}" stroke-width="1.2"/></g>`
+      :/bracer/.test(n)?`<g class="ov"><title>${esc(e.name)}</title><rect x="${x-9}" y="${y-10}" width="18" height="18" rx="3" transform="rotate(${r} ${x} ${y})" fill="${COL.leather}" stroke="${S}"/></g>`
+      :`<g class="ov"><title>${esc(e.name)}</title><circle cx="50" cy="172" r="9" fill="${/gauntlet/.test(n)?COL.metal:COL.leather}" stroke="${S}"/><circle cx="150" cy="172" r="9" fill="${/gauntlet/.test(n)?COL.metal:COL.leather}" stroke="${S}"/></g>`});
+  const rp=[[44,178],[150,181],[56,180],[156,177]];
+  m.rings.forEach((e,i)=>{const [x,y]=rp[i];o+=`<g class="ov"><title>${esc(e.name)}</title><circle cx="${x}" cy="${y}" r="3.6" fill="none" stroke="${COL.gold}" stroke-width="2"/><circle cx="${x}" cy="${y-3}" r="1.8" fill="${/protection/.test((e.name||'').toLowerCase())?'#4fb3c9':/mind/.test((e.name||'').toLowerCase())?'#9a6ad1':'#c94f4f'}"/></g>`});
+  if(one('weap'))o+=`<g class="ov" transform="translate(50 172)">${t(m.weap)}${weapGlyph(one('weap'))}</g>`;
+  if(one('off'))o+=`<g class="ov" transform="translate(150 ${/shield/.test(nm('off'))?160:172})">${t(m.off)}${/shield/.test(nm('off'))?`<path d="M-24 -36 L24 -36 L24 0 Q24 28 0 40 Q-24 28 -24 0Z" fill="${COL.wood}" stroke="${COL.metal}" stroke-width="4"/><circle cy="-2" r="6" fill="${COL.metal}" stroke="${COL.dark}"/>`:weapGlyph(one('off'),true)}</g>`;
+  return `<svg class="figsvg" viewBox="-10 -40 220 350" role="img" aria-label="${esc(first(c.name))} wearing their equipped gear"><defs><pattern id="mailpat" width="6" height="6" patternUnits="userSpaceOnUse"><rect width="6" height="6" fill="#7d8790"/><circle cx="3" cy="3" r="2" fill="none" stroke="#c3cad1" stroke-width=".9"/></pattern></defs>${o}</svg>`}
+
+function gearTab(c){const dm=dollMap(c),{m,where}=dm;const can=canHandle(c.id);const all=items(c);
+  const chip=e=>`<button class="ichip${PICK&&PICK.e===e.id?' picked':''}"${can?` draggable="true" data-drag="${esc(e.id)}" data-h="${esc(c.id)}" data-act="pick-item" data-e="${esc(e.id)}"`:''} title="${esc(e.name)}">${esc(e.name)}${e.attune&&!e.attuned?' <span class="badge warn">not attuned</span>':''}</button>`;
+  const slotBox=([k,l])=>`<div class="slot${m[k].length?' filled':''}" style="grid-area:${k}" data-drop="slot:${k}" data-h="${esc(c.id)}"><span class="lbl">${l}</span>${m[k].length?m[k].map(chip).join(''):'<span class="none">empty</span>'}</div>`;
+  const kids=id=>all.filter(e=>e.in===id);
+  const row=(e,depth)=>{const k=where[e.id];const inn=e.container?kids(e.id):[];const b=[];
+    if(k)b.push(`<span class="badge on">${esc(SLOT_L[k])}</span>`);else if(e.active===false&&!e.in&&wearable(e))b.push('<span class="badge">stowed</span>');
+    if(e.attune)b.push(e.attuned?'<span class="badge">attuned</span>':'<span class="badge warn">not attuned</span>');if((+e.qty||1)>1)b.push('<span class="badge">×'+esc(e.qty)+'</span>');
+    const ask=(dmx(c.id).asks||{})[e.id];
+    return `<details class="inv${e.container?' cont':''}"${e.container?` open data-drop="in:${esc(e.id)}" data-h="${esc(c.id)}"`:''} style="--d:${depth}">
+      <summary${can?` draggable="true" data-drag="${esc(e.id)}" data-h="${esc(c.id)}"`:''}><span class="grip" aria-hidden="true">${can?'⠿':''}</span><span class="nm2"><b>${esc(e.name)}</b>${e.rarity?` <span class="rar">${esc(e.rarity)}</span>`:''}</span><span class="row" style="gap:5px">${b.join('')}${pips(e)}</span></summary>
+      <div class="invb">${e.desc?`<p>${esc(e.desc)}</p>`:''}${(e.fx||[]).length?`<ul class="jl">${e.fx.map(f=>`<li>${esc(fxLine(f))}</li>`).join('')}</ul>`:''}${ask?`<p class="dmnote">DM: ${esc(ask)}</p>`:''}${ME==='dm'?dmItemBtns(c.id,e):''}${itemActions(c.id,e,true)}</div>
+      ${e.container?`<div class="incont">${inn.length?inn.map(x=>row(x,depth+1)).join(''):`<p class="none">Empty. Drag things here to put them in the ${esc(e.name)}.</p>`}</div>`:''}</details>`};
+  const top=all.filter(e=>!e.in);
+  const eq=top.filter(e=>where[e.id]),bags=top.filter(e=>e.container),loose=top.filter(e=>!where[e.id]&&!e.container);
+  const att=all.filter(e=>e.attune&&e.attuned&&e.active!==false).length;
+  const pk=PICK&&PICK.h===c.id&&all.find(e=>e.id===PICK.e);
+  return `<div class="stack">
+    ${can?`<p class="sub" style="margin:0">${pk?`<b>Moving ${esc(pk.name)}.</b> Tap a slot, a bag, or Carried to put it there. <button class="btn sm" data-act="pick-cancel">Cancel</button>`:'Drag gear onto the figure or a slot to equip it, onto a bag to pack it, or onto Carried to take it off. On a phone, tap an item’s Move button, then tap where it goes.'}</p>`:''}
+    <div class="doll${pk?' armed':''}">
+      <div class="fig" data-drop="auto" data-h="${esc(c.id)}">${figure(c,dm)}</div>
+      ${SLOTS.map(slotBox).join('')}
+    </div>
+    <div class="row"><h3 style="flex:1">Inventory</h3><span class="sub">Attuned ${att} of ${+c.attune||3}</span></div>
+    <div class="invtree${pk?' armed':''}">
+      <section class="ivs" data-drop="auto" data-h="${esc(c.id)}"><div class="ivh"><span class="lbl">Equipped</span><span class="sub">${eq.length}</span></div>${eq.length?eq.map(e=>row(e,0)).join(''):'<p class="none">Nothing equipped.</p>'}</section>
+      ${bags.map(e=>`<section class="ivs">${row(e,0)}</section>`).join('')}
+      <section class="ivs" data-drop="pack" data-h="${esc(c.id)}"><div class="ivh"><span class="lbl">Carried</span><span class="sub">${loose.length}</span></div>${loose.length?loose.map(e=>row(e,0)).join(''):'<p class="none">Nothing loose.</p>'}</section>
+    </div></div>`}
+
+function dropPlan(c,eid,zone){const e=items(c).find(x=>x.id===eid);if(!e)return {err:'That item isn’t here any more.'};
+  if(zone==='auto'){const g=e.slot&&e.slot!=='pack'?e.slot:guessSlot(e);if(!g)return {err:`${e.name} doesn’t go in an equipment slot. Drop it on a slot box if you want it there anyway.`};zone='slot:'+g}
+  const calls=[],P=(id,patch)=>calls.push({holder_id:c.id,entry_id:id,patch,actor:actor()});
+  if(zone.startsWith('slot:')){const k=zone.slice(5);if(!CAP[k])return {err:'Unknown slot.'};const {m}=dollMap(c);const there=m[k].filter(x=>x.id!==eid);
+    if(e.container)return {err:'Bags hang from your belt on their own. Drop things into the bag instead.'};
+    if(there.length>=CAP[k]){if(CAP[k]>1)return {err:`${SLOT_L[k]} is full. Take something off first.`};
+      const o=there[0];if(k==='weap'&&!m.off.length&&guessSlot(o)==='weap')P(o.id,{slot:'off',active:true});else P(o.id,{slot:'pack',active:false})}
+    if(k==='off'&&m.off.length===0&&m.weap.some(x=>x.id===eid)){}
+    P(eid,{slot:k,active:true,in:null});const two=k==='weap'&&/great|maul|halberd|glaive|pike|shortbow|longbow|two-handed/i.test(e.name)&&m.off.some(x=>x.id!==eid);return {calls,msg:`${e.name}: ${SLOT_L[k]}${e.attune&&!e.attuned?' (it needs attunement before it works)':''}${two?'. It takes two hands, so free your off hand':''}`}}
+  if(zone==='pack'){P(eid,wearable(e)?{slot:'pack',active:false,in:null}:{in:null,active:true});return {calls,msg:`${e.name}: carried`}}
+  if(zone.startsWith('in:')){const cid=zone.slice(3);if(cid===eid)return {err:'A bag can’t go inside itself.'};
+    let p=items(c).find(x=>x.id===cid);while(p){if(p.id===eid)return {err:'That would put the bag inside itself.'};p=p.in?items(c).find(x=>x.id===p.in):null}
+    if(e.in===cid)return {calls:[]};const bag=items(c).find(x=>x.id===cid);P(eid,{in:cid,active:false});return {calls,msg:`${e.name}: in the ${bag?bag.name:'bag'}`}}
+  return {err:'You can’t put that there.'}}
+async function doDrop(h,eid,zone){const c=h==='stash'?D.stash:D.party.find(x=>x.id===h);if(!c||!canHandle(h))return;PICK=null;
+  const p=dropPlan(c,eid,zone);if(p.err){toast(p.err,true);render();return}if(!p.calls.length){render();return}
+  if(BUSY)return;BUSY=true;document.body.classList.add('busy');
+  try{for(const a of p.calls)await rpc('p_update_entry',a);await load();toast(p.msg);render()}
+  catch(e){toast(e.message||'That didn’t save. Try again.',true)}finally{BUSY=false;document.body.classList.remove('busy')}}
+
 function sheet(c){
   const mod=s=>s==null?'?':sgn(Math.floor((s-10)/2));
+  const X=c.dnd||{};const pb=+X.pb||4;
   const hp=c.hp??c.hpMax,pct=c.hpMax?Math.max(0,Math.min(100,Math.round(100*hp/c.hpMax))):0;
   const stat=(l,v,sub)=>`<div class="st"><span class="lbl">${l}</span><b>${esc(v??'?')}</b>${sub?`<small>${esc(sub)}</small>`:''}</div>`;
   const G={def:['When you’re attacked','t-def'],react:['Your reactions','t-react'],save:['Saves and auras','t-save'],off:['When you attack','t-off'],note:['Don’t forget','t-note'],att:['Not attuned yet','t-att']};
-  const groups={};const add=(k,e,line)=>(groups[k]=groups[k]||[]).push({e,line});
+  const groups={};const add=(k,e,line,f)=>(groups[k]=groups[k]||[]).push({e,line,f});
   for(const e of c.entries||[]){
     if(e.attune&&!e.attuned&&e.active!==false){add('att',e,'Its bonuses are off until you attune to it.');continue}
     if(!isOn(e))continue;
-    for(const f of e.fx||[])add({defense:'def',damage:'def',reaction:'react',save:'save',aura:'save',offense:'off'}[f.w]||'note',e,fxLine(f));
+    for(const f of e.fx||[])add({defense:'def',damage:'def',reaction:'react',save:'save',aura:'save',offense:'off'}[f.w]||'note',e,fxLine(f),f);
   }
-  const its=items(c).filter(e=>!e.in),feats=(c.entries||[]).filter(e=>(e.kind||'item')!=='item');
-  const inside=id=>items(c).filter(e=>e.in===id);
-  const gearRow=e=>{const b=[];if(e.attune)b.push(e.attuned?'<span class="badge">attuned</span>':'<span class="badge warn">not attuned</span>');if(e.active===false)b.push('<span class="badge">packed</span>');if((+e.qty||1)>1)b.push('<span class="badge">×'+esc(e.qty)+'</span>');const inn=e.container?inside(e.id):[];
-    const ask=(dmx(c.id).asks||{})[e.id];
-    return `<div class="gr${isOn(e)?'':' off'}"><span class="n2"><b>${esc(e.name)}</b>${e.rarity?` <span class="rar">${esc(e.rarity)}</span>`:''}</span><span class="row" style="gap:5px">${b.join('')}${pips(e)}</span>${e.desc?`<span class="d">${esc(e.desc)}</span>`:''}${inn.length?`<span class="d"><b>Holds:</b> ${esc(inn.map(x=>x.name).join(', '))}</span>`:''}${ask?`<span class="d dmnote">DM: ${esc(ask)}</span>`:''}${ME==='dm'?`<span class="d">${dmItemBtns(c.id,e)}</span>`:''}${(e.kind||'item')==='item'?`<span class="d">${itemActions(c.id,e)}</span>`:(+e.uses||0)>0&&canHandle(c.id)?`<span class="d"><div class="acts"><button class="btn sm" data-act="use" data-h="${esc(c.id)}" data-e="${esc(e.id)}" data-v="${Math.max(0,(+e.left||0)-1)}"${(+e.left||0)<=0?' disabled':''}>Use one</button>${ME==='dm'?`<button class="btn sm" data-act="use" data-h="${esc(c.id)}" data-e="${esc(e.id)}" data-v="${+e.uses}">Refill</button>`:''}</div></span>`:''}</div>`};
-  const att=items(c).filter(e=>e.attune&&e.attuned&&e.active!==false).length;
+  const feats=(c.entries||[]).filter(e=>(e.kind||'item')!=='item');
+  const gearRow=e=>{const b=[];if((+e.qty||1)>1)b.push('<span class="badge">×'+esc(e.qty)+'</span>');const ask=(dmx(c.id).asks||{})[e.id];
+    return `<div class="gr${isOn(e)?'':' off'}"><span class="n2"><b>${esc(e.name)}</b>${e.rarity?` <span class="rar">${esc(e.rarity)}</span>`:''}</span><span class="row" style="gap:5px">${b.join('')}${pips(e)}</span>${e.desc?`<span class="d">${esc(e.desc)}</span>`:''}${(e.fx||[]).length&&!e.desc?`<span class="d">${esc(e.fx.map(fxLine).join(' '))}</span>`:''}${ask?`<span class="d dmnote">DM: ${esc(ask)}</span>`:''}${ME==='dm'?`<span class="d">${dmItemBtns(c.id,e)}</span>`:''}${(+e.uses||0)>0&&canHandle(c.id)?`<span class="d"><div class="acts"><button class="btn sm" data-act="use" data-h="${esc(c.id)}" data-e="${esc(e.id)}" data-v="${Math.max(0,(+e.left||0)-1)}"${(+e.left||0)<=0?' disabled':''}>Use one</button>${ME==='dm'?`<button class="btn sm" data-act="use" data-h="${esc(c.id)}" data-e="${esc(e.id)}" data-v="${+e.uses}">Refill</button>`:''}</div></span>`:''}</div>`};
+  /* skills */
+  const sk=X.skills||{};const skB=k=>{const s=SKILLS.find(x=>x[0]===k);const p=+sk[k]||0;return abMod(c,s[2])+(p===2?2*pb:p===1?pb:X.half?Math.floor(pb/2):0)};
+  const pas=k=>10+skB(k)+((X.adv||[]).includes(k)?5:0);
+  const skills=`<section class="panel skills"><div class="row"><span class="lbl" style="flex:1">Skills</span><span class="sub">Prof ${sgn(pb)}</span></div><ul class="sk">${SKILLS.map(([k,l,a])=>{const p=+sk[k]||0;return `<li><span class="dotp p${p}" title="${p===2?'Expertise':p===1?'Proficient':X.half?'Jack of All Trades (half)':'Not proficient'}"></span><span class="ska">${a.toUpperCase()}</span><span class="skn">${l}${(X.adv||[]).includes(k)?' <span class="badge">adv</span>':''}</span><b class="n">${sgn(skB(k))}</b></li>`}).join('')}</ul>
+    ${X.skills?'<p class="sub" style="margin:6px 0 0">Worked out from your scores. If an item changes a skill, D&amp;D Beyond has the final number.</p>':'<p class="sub">Skill proficiencies haven’t been loaded for this character yet.</p>'}</section>`;
+  const left=`<section class="stack" style="gap:10px">${c.scores?`<div class="abil2">${ABIL.map(a=>`<div class="ab"><span class="lbl">${a.toUpperCase()}</span><b>${mod(c.scores[a])}</b><small>${esc(c.scores[a]??'')}</small><span class="sv">save ${(c.saves||{})[a]!=null?sgn(c.saves[a]):'?'}</span></div>`).join('')}</div>`:''}
+    ${X.skills?`<div class="panel pass"><span class="lbl">Passive senses</span><div class="psv"><b class="n">${pas('perception')}</b><span>Perception</span></div><div class="psv"><b class="n">${pas('investigation')}</b><span>Investigation</span></div><div class="psv"><b class="n">${pas('insight')}</b><span>Insight</span></div>${(X.senses||[]).length?`<div class="sub">${esc(X.senses.join(', '))}</div>`:''}</div>`:''}
+    ${(X.profs||X.langs)?`<details class="panel"><summary class="lbl">Proficiencies and languages</summary><p style="margin:6px 0 0"><b>Weapons, armor, tools:</b> ${esc((X.profs||[]).join(', '))}</p><p style="margin:4px 0 0"><b>Languages:</b> ${esc((X.langs||[]).join(', '))}</p></details>`:''}</section>`;
+  /* action-type tabs */
+  const acts=t=>(X.acts||[]).filter(a=>a.t===t);
+  const actCard=a=>`<div class="act"><div class="row" style="gap:6px"><b style="flex:1">${esc(a.n)}</b>${a.u?`<span class="badge">${a.u} / ${esc(RESET_T[a.r]||'rest')}</span>`:a.r?`<span class="badge">per ${esc(RESET_T[a.r]||'rest')}</span>`:''}</div>${a.d?`<span class="s">${esc(a.d)}</span>`:''}</div>`;
+  const fxCard=x=>`<div class="act t-${x.k}"><div class="row" style="gap:6px"><b style="flex:1">${esc(x.e.name)}</b>${pips(x.e)}</div><span class="s">${esc(x.line)}</span></div>`;
+  const spellsT=t=>(X.spells||[]).filter(s=>s.t===t);
+  const lvlName=l=>l===0?'Cantrips':'Level '+l;
+  const spellChips=list=>{if(!list.length)return'';const by={};list.forEach(s=>(by[s.l]=by[s.l]||[]).push(s));return Object.keys(by).sort((a,b)=>a-b).map(l=>`<div class="spl"><span class="lbl">${lvlName(+l)}</span><div class="row" style="gap:5px">${by[l].map(s=>`<span class="sp" title="${esc(s.r)}${s.c?' · concentration':''}">${esc(s.n)}${s.c?' <i>C</i>':''}<small>${esc(s.r)}</small></span>`).join('')}</div></div>`).join('')};
+  const sec=(title,body,extra)=>body?`<section class="tsec"><div class="row"><span class="lbl" style="flex:1">${title}</span>${extra||''}</div>${body}</section>`:'';
+  const weapRows=(X.weapons||[]).map(w=>{const pr=(w.props||'').toLowerCase();const rngd=/ammunition|range/.test(pr)||(/\//.test(w.range)&&!/thrown/.test(pr));const a=rngd?'dex':/finesse/.test(pr)?(abMod(c,'dex')>abMod(c,'str')?'dex':'str'):'str';const md=abMod(c,a);
+    return `<tr class="${w.eq?'':'off'}"><td><b>${esc(w.n)}</b>${w.eq?'':' <span class="badge">not equipped</span>'}<div class="sub">${esc(w.props)}</div></td><td class="n">${esc(w.range)} ft</td><td class="n">${sgn(md+pb)}</td><td class="n">${esc(w.dmg)}${md?sgn(md):''} <span class="sub">${esc(w.dt)}</span></td></tr>`}).join('');
+  const atkBlock=(weapRows||c.toHit!=null)?`${c.toHit!=null?`<div class="act"><div class="row"><b style="flex:1">${esc(c.atkLabel||'Main attack')}</b><b class="n">${sgn(c.toHit)}</b></div>${c.atkNote?`<span class="s">${esc(c.atkNote)}</span>`:''}</div>`:''}${weapRows?`<div class="tablewrap"><table class="ledger atk"><thead><tr><th>Weapon</th><th>Range</th><th>Hit</th><th>Damage</th></tr></thead><tbody>${weapRows}</tbody></table></div><p class="sub" style="margin:4px 0 0">From your D&amp;D Beyond weapon list, assuming proficiency. Magic weapon bonuses are in Reminders.</p>`:''}`:'';
+  const spellHead=(c.dc!=null||c.toHit!=null)&&(X.spells||[]).length?`<span class="sub">Save DC ${esc(c.dc??'?')}</span>`:'';
+  const offFx=(groups.off||[]),reactFx=(groups.react||[]);
+  const BASIC={actions:'Attack, Dash, Disengage, Dodge, Help, Hide, Influence, Magic, Ready, Search, Study, Utilize.',bonus:'Two-Weapon Fighting: after attacking with a Light weapon, attack with a different Light weapon.',reactions:'Opportunity Attack: when a creature you can see leaves your reach, make one melee attack against it.'};
+  const moveRx=/dash|disengage|\bmove\b|movement|speed|jump|fly|flight|teleport|step of the wind|fleet step|tactical shift/i;
+  const MOVE_SP=/^(misty step|dimension door|fly|longstrider|haste|water walk|blink|expeditious retreat|jump|spider climb|thunder step|teleport|far step|levitate)$/i;
+  let body='';
+  if(STAB==='actions')body=sec('Attacks',atkBlock)+sec('Features',acts('action').map(actCard).join(''))+sec('Spells you cast as an action',spellChips(spellsT('action')),spellHead)+sec('When you attack (from your gear)',offFx.map(x=>fxCard({...x,k:'off'})).join(''))+sec('Everyone can',`<p class="s" style="margin:0">${BASIC.actions}</p>`);
+  else if(STAB==='bonus')body=sec('Features',acts('bonus').map(actCard).join(''))+sec('Spells you cast as a bonus action',spellChips(spellsT('bonus')),spellHead)+sec('Everyone can',`<p class="s" style="margin:0">${BASIC.bonus}</p>`);
+  else if(STAB==='reactions')body=sec('Features',acts('reaction').map(actCard).join(''))+sec('From your gear and feats',reactFx.map(x=>fxCard({...x,k:'react'})).join(''))+sec('Spells you cast as a reaction',spellChips(spellsT('reaction')))+sec('Everyone can',`<p class="s" style="margin:0">${BASIC.reactions}</p>`);
+  else if(STAB==='move'){const sp=X.speed||{};const st=(c.scores||{}).str;
+    const mv=[...acts('move'),...(X.acts||[]).filter(a=>a.t!=='move'&&(moveRx.test(a.n)||/\b(dash|disengage)\b/i.test(a.d||'')))];
+    body=`<div class="strip">${stat('Walk',c.speed!=null?c.speed+' ft':(sp.walk||'?')+' ft',sp.bonus?`includes +${sp.bonus} ft`:'')}${stat('Climb',Math.floor((c.speed||sp.walk||30)/2)+' ft','costs double')}${stat('Swim',Math.floor((c.speed||sp.walk||30)/2)+' ft','costs double')}${sp.fly?stat('Fly',(c.speed||sp.walk)+' ft','while '+sp.fly+' is up'):''}${st!=null?stat('Long jump',st+' ft','running start; half standing'):''}${st!=null?stat('High jump',Math.max(0,3+abMod(c,'str'))+' ft','running start; half standing'):''}</div>`
+      +sec('Ways you can move',mv.map(a=>actCard({...a,n:a.n+(a.t!=='move'?' · '+ACT_T[a.t]:'')})).join(''))
+      +sec('Movement spells',spellChips((X.spells||[]).filter(s=>MOVE_SP.test(s.n))))
+      +sec('Rules of thumb',`<ul class="jl"><li>Difficult terrain, climbing, swimming and crawling cost 1 extra foot per foot.</li><li>Standing up from Prone costs half your speed. Dropping Prone is free.</li><li>You can split movement before, between and after attacks.</li><li>Dragging or carrying a grappled creature costs 1 extra foot per foot.</li>${(X.senses||[]).length?`<li>${esc(X.senses.join(', '))}.</li>`:''}</ul>`);}
+  else if(STAB==='gear')body=gearTab(c);
+  else if(STAB==='spells'){const all=X.spells||[];const by={};all.forEach(s=>(by[s.l]=by[s.l]||[]).push(s));
+    body=all.length?`<div class="strip">${c.dc!=null?stat('Spell save DC',c.dc):''}${c.toHit!=null&&/spell/i.test(c.atkLabel||'')?stat('Spell attack',sgn(c.toHit)):''}</div>`+Object.keys(by).sort((a,b)=>a-b).map(l=>sec(lvlName(+l),`<div class="tablewrap"><table class="ledger"><tbody>${by[l].map(s=>`<tr><td><b>${esc(s.n)}</b>${s.c?' <span class="badge">concentration</span>':''}</td><td>${esc(ACT_T[s.t]||'')}</td><td class="n">${esc(s.r)}</td></tr>`).join('')}</tbody></table></div>`)).join(''):'<p class="empty">No spells.</p>';}
+  else if(STAB==='features')body=sec('Limited uses and other features',acts('other').map(actCard).join(''))+sec('Features, feats and ongoing effects on this site',feats.length?`<div class="gear">${feats.map(gearRow).join('')}</div>`:'');
+  else body=`<div class="alerts">${Object.keys(G).filter(k=>groups[k]).map(k=>`<section class="ag ${G[k][1]}"><span class="lbl">${G[k][0]}</span>${groups[k].map(x=>`<div class="al"><span class="t">${esc(x.e.name)} ${pips(x.e)}</span><span class="s">${esc(x.line)}</span></div>`).join('')}</section>`).join('')||'<p class="empty">Nothing recorded yet.</p>'}</div>`;
+  if(!body.trim())body='<p class="empty">Nothing here for this character.</p>';
   return `<article class="stack">
     <header class="sh-head"><div><h2 class="big">${esc(c.name)}</h2><div class="sub">${esc(c.cls||'')}</div></div><div class="row">${canHandle(c.id)&&c.id!=='stash'?`<button class="btn" data-act="sheet-edit">${EDIT?'Cancel':'Update HP and gold'}</button>`:''}${c.ddb?`<a href="${esc(c.ddb)}" target="_blank" rel="noopener">Open on D&D Beyond</a>`:''}</div></header>
     ${EDIT&&canHandle(c.id)?`<div class="panel row" style="align-items:end"><label class="field"><span class="lbl">Current HP (max ${esc(c.hpMax??'?')})</span><input type="number" min="0" id="se-hp" value="${esc(c.hp??c.hpMax??'')}"></label><label class="field"><span class="lbl">Gold (gp)</span><input type="number" min="0" id="se-gold" value="${esc(c.gold??0)}"></label><label class="field"><span class="lbl">Ash jars</span><input type="number" min="0" id="se-jars" value="${esc(c.jars??0)}"></label><button class="btn primary" data-act="sheet-save">Save</button></div>`:''}
     ${ME==='dm'&&dmx(c.id).notes&&DMED!=='sheet:'+c.id?`<div class="dmbox"><span class="lbl">DM only</span><p style="margin:2px 0 0">${esc(dmx(c.id).notes)}</p></div>`:''}
     ${ME==='dm'?dmSheetPanel(c):''}
-    <div class="strip">${stat('AC',c.ac,c.acNote)}${stat('HP',(hp??'?')+'/'+(c.hpMax??'?'))}${stat('Speed',c.speed!=null?c.speed+' ft':null)}${stat('Init',c.init!=null?sgn(c.init):null)}${c.dc!=null?stat('Save DC',c.dc):''}${c.toHit!=null?stat(c.atkLabel||'To hit',sgn(c.toHit),c.atkNote):''}${stat('Gold',fmt(c.gold)+' gp',c.jars?c.jars+' ash jar'+(c.jars===1?'':'s'):'')}</div>
+    <div class="strip">${stat('AC',c.ac,c.acNote)}${stat('HP',(hp??'?')+'/'+(c.hpMax??'?'))}${stat('Speed',c.speed!=null?c.speed+' ft':null)}${stat('Initiative',c.init!=null?sgn(c.init):null)}${stat('Proficiency',sgn(pb))}${c.dc!=null?stat('Save DC',c.dc):''}${stat('Gold',fmt(c.gold)+' gp',c.jars?c.jars+' ash jar'+(c.jars===1?'':'s'):'')}</div>
     ${c.hpMax?`<div class="hpbar${pct<35?' low':''}" aria-hidden="true"><span style="width:${pct}%"></span></div>`:''}
-    ${c.scores?`<div class="abil">${ABIL.map(a=>`<div class="ab"><span class="lbl">${a.toUpperCase()}</span><b>${mod(c.scores[a])}</b><small>${esc(c.scores[a]??'')}</small><span class="sv">save ${(c.saves||{})[a]!=null?sgn(c.saves[a]):'?'}</span></div>`).join('')}</div>`:''}
-    <h3>What to remember in a fight</h3>
-    <div class="alerts">${Object.keys(G).filter(k=>groups[k]).map(k=>`<section class="ag ${G[k][1]}"><span class="lbl">${G[k][0]}</span>${groups[k].map(x=>`<div class="al"><span class="t">${esc(x.e.name)} ${pips(x.e)}</span><span class="s">${esc(x.line)}</span></div>`).join('')}</section>`).join('')||'<p class="empty">Nothing recorded yet.</p>'}</div>
-    <div class="row"><h3 style="flex:1">Gear</h3><span class="sub">Attuned ${att} of ${+c.attune||3}</span></div>
-    ${its.length?`<div class="gear">${its.map(gearRow).join('')}</div>`:'<p class="empty">No gear recorded.</p>'}
-    <details><summary><h3 style="display:inline">Features, feats and spells (${feats.length})</h3></summary><div class="gear" style="margin-top:8px">${feats.map(gearRow).join('')}</div></details>
+    <div class="sgrid">${left}${skills}
+      <section class="panel tabsbox"><nav class="stabs" aria-label="Sheet sections">${STABS.map(([k,l])=>`<button data-act="stab" data-v="${k}" aria-pressed="${STAB===k}">${l}</button>`).join('')}</nav><div class="tbody">${body}</div></section>
+    </div>
   </article>`;
 }
 function partyTiles(){return `<div class="stack"><h2>The party</h2><div class="pick">${D.party.map(c=>{const nb=items(c).filter(e=>notable(e)&&e.active!==false);
@@ -316,11 +546,16 @@ const canHandle=id=>ME==='dm'||id===ME||id==='stash';
 const dmx=id=>(DMX&&DMX[id])||{};
 
 /* ---------- item actions ---------- */
-function itemActions(holderId,e){
+function itemActions(holderId,e,onSheet){
   if(!canHandle(holderId)||e.kind&&e.kind!=='item')return'';
   const targets=ME==='dm'?[...D.party.map(c=>c.id),'stash'].filter(x=>x!==holderId):holderId==='stash'?[ME]:['stash'];
   if(SEND&&SEND.h===holderId&&SEND.e===e.id)return `<div class="sendbox"><label class="field"><span class="lbl">Asking price (gp, optional)</span><input type="number" min="0" id="ask-${esc(e.id)}" placeholder="e.g. 250"></label><button class="btn primary" data-act="send-go" data-h="${esc(holderId)}" data-e="${esc(e.id)}">Give to Wick</button><button class="btn" data-act="send-cancel">Cancel</button></div>`;
-  return `<div class="acts">${!e.in&&e.slot!=='pack'?`<button class="btn sm" data-act="wear" data-h="${esc(holderId)}" data-e="${esc(e.id)}" data-v="${e.active===false?'1':'0'}">${e.active===false?'Wear or use':'Pack it'}</button>`:''}
+  const H=holderId==='stash'?null:D.party.find(c=>c.id===holderId);const da=(z,l)=>`<button class="btn sm" data-act="drop" data-h="${esc(holderId)}" data-e="${esc(e.id)}" data-z="${z}">${l}</button>`;
+  let eq='';
+  if(e.in)eq=da('pack','Take it out');
+  else if(H&&!e.container&&wearable(e))eq=dollMap(H).where[e.id]?da('pack','Unequip'):da('auto','Equip');
+  else if(H&&!e.container&&(e.fx||[]).length)eq=`<button class="btn sm" data-act="wear" data-h="${esc(holderId)}" data-e="${esc(e.id)}" data-v="${e.active===false?'1':'0'}">${e.active===false?'Turn it on':'Put it away'}</button>`;
+  return `<div class="acts">${eq}${onSheet?`<button class="btn sm" data-act="pick-item" data-h="${esc(holderId)}" data-e="${esc(e.id)}">Move…</button>`:''}
     ${(+e.uses||0)>0?`<button class="btn sm" data-act="use" data-h="${esc(holderId)}" data-e="${esc(e.id)}" data-v="${Math.max(0,(+e.left||0)-1)}"${(+e.left||0)<=0?' disabled':''}>Use one</button>${ME==='dm'?`<button class="btn sm" data-act="use" data-h="${esc(holderId)}" data-e="${esc(e.id)}" data-v="${+e.uses}">Refill</button>`:''}`:''}
     ${targets.map(t=>`<button class="btn sm" data-act="move" data-h="${esc(holderId)}" data-e="${esc(e.id)}" data-to="${esc(t)}">${t==='stash'?'To party loot':'To '+esc(holderName(t))}</button>`).join('')}
     <button class="btn sm" data-act="send" data-h="${esc(holderId)}" data-e="${esc(e.id)}">Send to the shop</button></div>`;
@@ -713,11 +948,13 @@ function render(){renderTabs();const app=$('#app');if(!D)return;
   const t=tab();const chips=ME==='dm'?`<div class="row" style="margin-bottom:12px">${D.party.map(c=>`<button class="btn${c.id===viewed().id?' on':''}" data-act="view" data-id="${esc(c.id)}">${esc(first(c.name))}</button>`).join('')}</div>`:'';
   const chips2=ME==='dm'&&(t==='sheet'||t==='encounter')?chips:'';
   app.innerHTML=t==='sheet'?chips2+sheet(viewed()):t==='encounter'?chips2+encounter(viewed()):t==='party'?partyTiles():t==='loot'?loot():t==='shop'?shop():t==='house'?house():journal();}
-document.addEventListener('click',ev=>{const b=ev.target.closest('[data-act]');if(!b)return;const a=b.dataset.act;
+document.addEventListener('click',ev=>{
+  if(PICK&&!ev.target.closest('[data-act="pick-cancel"]')){const z=ev.target.closest('[data-drop]');if(z&&z.dataset.h===PICK.h){ev.preventDefault();doDrop(PICK.h,PICK.e,z.dataset.drop);return}}
+  const b=ev.target.closest('[data-act]');if(!b)return;const a=b.dataset.act;
   if(a.startsWith('dm-')){if(ME==='dm')dmClick(a,b);return}
   if(a==='pick'){ME=b.dataset.id;LOPEN=null;SEND=null;location.hash='sheet';render();window.scrollTo(0,0)}
   else if(a==='dmpin'){ME='pin';PINERR='';render()}
-  else if(a==='switch'){ME=null;VIEW=null;DMX=null;PIN=null;DMED=null;IEDIT=null;RROLL=null;SELLING=null;LOPEN=null;SEND=null;EDIT=false;render()}
+  else if(a==='switch'){PICK=null;ME=null;VIEW=null;DMX=null;PIN=null;DMED=null;IEDIT=null;RROLL=null;SELLING=null;LOPEN=null;SEND=null;EDIT=false;render()}
   else if(a==='lopen'){LOPEN=LOPEN===b.dataset.id?null:b.dataset.id;SEND=null;render();const o=$('#lopen');o&&o.scrollIntoView({behavior:'smooth',block:'start'})}
   else if(a==='lclose'){LOPEN=null;SEND=null;render()}
   else if(a==='move')act('p_move_item',{from_id:b.dataset.h,to_id:b.dataset.to,entry_id:b.dataset.e,actor:actor()},'Moved to '+holderName(b.dataset.to));
@@ -730,10 +967,19 @@ document.addEventListener('click',ev=>{const b=ev.target.closest('[data-act]');i
   else if(a==='delnote')act('dm_delete_note',{pin:PIN,note_id:b.dataset.id},'Note deleted');
   else if(a==='sheet-edit'){EDIT=!EDIT;render()}
   else if(a==='sheet-save'){const c=viewed();const g=id=>{const x=document.getElementById(id);return x&&x.value!==''?Math.floor(+x.value):undefined};const patch={};for(const k of ['hp','gold','jars']){const v=g('se-'+k);if(v!==undefined)patch[k]=v}EDIT=false;act('p_update_sheet',{holder_id:c.id,patch,actor:actor()},'Sheet saved')}
-  else if(a==='view'){VIEW=b.dataset.id;DMED=null;IEDIT=null;render()}
+  else if(a==='stab'){STAB=b.dataset.v;PICK=null;try{localStorage.setItem('ac-stab',STAB)}catch(e){}render()}
+  else if(a==='pick-item'){ev.preventDefault();PICK=PICK&&PICK.e===b.dataset.e?null:{h:b.dataset.h,e:b.dataset.e};render()}
+  else if(a==='pick-cancel'){PICK=null;render()}
+  else if(a==='drop')doDrop(b.dataset.h,b.dataset.e,b.dataset.z);
+  else if(a==='view'){VIEW=b.dataset.id;PICK=null;DMED=null;IEDIT=null;render()}
   else if(a==='eq'){EQ[b.dataset.k]=b.dataset.v;if(b.dataset.k==='kind')EQ.close=b.dataset.v==='melee';render()}
   else if(a==='eqset'){const S=EQ[b.dataset.k];S.has(b.dataset.v)?S.delete(b.dataset.v):S.add(b.dataset.v);render()}
   else if(a==='jsel'){JSEL=+b.dataset.i;DMED=null;render();window.scrollTo(0,0)}});
+const clearOver=()=>document.querySelectorAll('.over').forEach(x=>x.classList.remove('over'));
+document.addEventListener('dragstart',ev=>{const d=ev.target.closest&&ev.target.closest('[data-drag]');if(!d)return;DRAG={h:d.dataset.h,e:d.dataset.drag};try{ev.dataTransfer.setData('text/plain',d.dataset.drag);ev.dataTransfer.effectAllowed='move'}catch(e){}});
+document.addEventListener('dragend',()=>{DRAG=null;clearOver()});
+document.addEventListener('dragover',ev=>{if(!DRAG)return;const z=ev.target.closest&&ev.target.closest('[data-drop]');if(!z||z.dataset.h!==DRAG.h)return;ev.preventDefault();if(!z.classList.contains('over')){clearOver();z.classList.add('over')}});
+document.addEventListener('drop',ev=>{if(!DRAG)return;const z=ev.target.closest&&ev.target.closest('[data-drop]');clearOver();if(!z||z.dataset.h!==DRAG.h)return;ev.preventDefault();const d=DRAG;DRAG=null;doDrop(d.h,d.e,z.dataset.drop)});
 document.addEventListener('change',ev=>{const el=ev.target;if(el.dataset.dmchg){if(ME==='dm')dmChange(el);return}if(el.dataset.eqc){EQ[el.dataset.eqc]=el.checked;render()}else if(el.dataset.eqs){EQ[el.dataset.eqs]=el.value;render()}});
 document.addEventListener('submit',async ev=>{if(ev.target.id!=='pinform')return;ev.preventDefault();const p=$('#pin').value;
   try{const r=await rpc('dm_get',{pin:p});if(!r||r.error){PINERR=(r&&r.error)||'That PIN didn’t work.';render();return}DMX=r.docs||{};PIN=p;ME='dm';PINERR='';location.hash='sheet';render()}catch(e){PINERR=e.message;render()}});

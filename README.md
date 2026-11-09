@@ -8,3 +8,7 @@ The Three Roads campaign's shared ledger. Each player picks their character and 
 - `tools/build_seed.py` — builds the starting data from the DM ledger. Its output (`seed.sql`, `install.sql`) contains DM secrets and is git-ignored.
 
 The publishable key in `index.html` is meant to be public; the database's security rules decide what it can do. Never commit a secret or service_role key.
+
+## Character sheet details from D&D Beyond
+
+`tools/ddb_sheets.json` holds skills, actions, spells, weapons and speeds pulled from each character's D&D Beyond page. `python3 tools/build_fix2.py` turns it into `supabase/fix-2.sql`, which sets a `dnd` field on each character and leaves everything else alone. Run it in the Supabase SQL editor whenever the file is refreshed.
