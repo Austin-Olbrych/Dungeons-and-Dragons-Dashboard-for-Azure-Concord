@@ -53,6 +53,8 @@ main{padding-block:16px 48px}
 .pick{display:grid;gap:12px;grid-template-columns:repeat(auto-fill,minmax(220px,1fr))}
 .tile{text-align:left;border:1px solid var(--line);border-radius:12px;background:var(--surface);padding:12px 14px;cursor:pointer;display:flex;flex-direction:column;gap:6px;color:inherit;min-width:0}
 .tile:hover{border-color:var(--accent)}
+.tile.dm{border:2px solid var(--ink)}
+.btn.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
 .tile .nm{font:400 1.35rem var(--f-display)}
 .tile .top{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
 .tile .ac{font:600 1.05rem var(--f-num)}
@@ -126,7 +128,61 @@ table.ledger{width:100%;border-collapse:collapse;font-size:.95rem}
 @media (max-width:480px){.tl li{grid-template-columns:1fr;gap:2px}}
 .tw{font:600 .82rem var(--f-num);color:var(--muted)}
 a{color:var(--accent)}
+.enc{display:grid;gap:16px;grid-template-columns:1fr}
+@media (min-width:880px){.enc{grid-template-columns:minmax(0,5fr) minmax(0,6fr);align-items:start}}
+.seg{display:flex;flex-wrap:wrap;border:1px solid var(--line);border-radius:9px;overflow:hidden;background:var(--surface)}
+.seg button{border:0;background:none;padding:7px 12px;cursor:pointer;flex:1 0 auto;color:var(--muted);font-weight:500}
+.seg button+button{border-left:1px solid var(--line)}
+.seg button[aria-pressed="true"]{background:var(--surface2);color:var(--ink);box-shadow:inset 0 -2px 0 var(--accent)}
+.chip{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:4px 11px;cursor:pointer;font-size:.9rem}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.chk{display:inline-flex;gap:6px;align-items:center;cursor:pointer;font-size:.93rem}
+.chk input{accent-color:var(--accent);width:16px;height:16px}
+.field{display:flex;flex-direction:column;gap:4px}
+select{font:inherit;color:inherit;background:var(--surface);border:1px solid var(--line);border-radius:7px;padding:6px 8px;max-width:16rem}
+.verdict{border:1px solid var(--line);border-radius:12px;padding:12px 16px;background:var(--surface);display:flex;flex-direction:column}
+.verdict b{font:400 1.5rem var(--f-display)}
+.verdict.good{background:var(--good-bg);border-color:var(--good)}.verdict.good b{color:var(--good)}
+.verdict.bad{background:var(--bad-bg);border-color:var(--bad)}.verdict.bad b{color:var(--bad)}
+.why{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:3px;font-size:.93rem}
+.why .up{color:var(--good)}.why .down{color:var(--bad)}
+.alarm{border-left:3px solid var(--bad);background:var(--bad-bg);padding:8px 12px;border-radius:0 8px 8px 0;font-weight:500}
+table.brk{width:100%;border-collapse:collapse;font-size:.9rem;margin-top:6px}
+.brk td{padding:3px 4px;border-bottom:1px solid var(--line)}
+.brk td.n{text-align:right}
 .foot{color:var(--muted);font-size:.82rem;padding-block:24px}
+input,textarea{font:inherit;color:inherit;background:var(--surface);border:1px solid var(--line);border-radius:7px;padding:6px 8px;min-width:0}
+input[type=number]{width:8rem;font-family:var(--f-num)}
+textarea{width:100%;resize:vertical}
+.btn.sm{padding:2px 9px;font-size:.84rem}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn[disabled]{opacity:.45;cursor:default}
+.acts{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}
+.sendbox{display:flex;flex-wrap:wrap;gap:8px;align-items:end;margin-top:6px}
+.warn{color:var(--bad)}
+.dmbox{border:1px dashed #7b3b5c;border-radius:8px;padding:8px 10px;background:var(--surface)}
+.dmbox>.lbl,.dmbox>summary{color:#7b3b5c}
+@media (prefers-color-scheme:dark){.dmbox{border-color:#d08bb0}.dmbox>.lbl,.dmbox>summary{color:#d08bb0}}
+.dmnote{color:#7b3b5c;font-style:italic}
+@media (prefers-color-scheme:dark){.dmnote{color:#d08bb0}}
+.tile.sel{border-color:var(--ink);box-shadow:0 0 0 1px var(--ink)}
+.heat{display:grid;grid-template-columns:repeat(10,1fr);gap:3px}
+.heat span{height:10px;border-radius:2px;background:var(--surface2);border:1px solid var(--line)}
+.heat span.on{background:var(--bad);border-color:var(--bad)}
+.bar5{display:inline-grid;grid-template-columns:repeat(5,10px);gap:2px;vertical-align:middle}
+.bar5 span{height:9px;border-radius:2px;border:1px solid var(--line);background:var(--surface2)}
+.bar5.good span.on{background:var(--good);border-color:var(--good)}.bar5.mid span.on{background:var(--accent);border-color:var(--accent)}.bar5.bad span.on{background:var(--bad);border-color:var(--bad)}
+.meters{display:flex;flex-wrap:wrap;gap:4px 12px;font:600 .78rem var(--f-num);color:var(--muted);margin-top:4px}
+.sees{font-size:.88rem;margin-top:4px}
+.midrow{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}.midrow .pc{max-width:360px}
+.slide{position:relative;height:12px;border-radius:6px;background:linear-gradient(90deg,var(--bad),var(--accent) 50%,var(--good));margin:6px 6px 0}
+.slide span{position:absolute;top:-5px;width:6px;height:22px;margin-left:-3px;border-radius:3px;background:var(--ink);box-shadow:0 0 0 2px var(--bg)}
+.nlog{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.nlog li{border-left:3px solid var(--accent);background:var(--surface);border-radius:0 8px 8px 0;padding:6px 10px}
+.paper{margin-top:8px;padding:14px 16px;border:1px solid var(--line);border-radius:6px;background:var(--bg);font-family:var(--f-display);line-height:1.55;white-space:pre-wrap;max-width:62ch}
+#toast{position:fixed;left:50%;bottom:calc(16px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:8px 14px;border-radius:8px;font-size:.92rem;z-index:20;max-width:calc(100% - 32px)}
+#toast.bad{background:var(--bad);color:#fff}
+body.busy{cursor:progress}body.busy .btn{pointer-events:none;opacity:.7}
 </style>
 </head>
 <body>
@@ -136,6 +192,7 @@ a{color:var(--accent)}
 </div></header>
 <main class="wrap" id="app"><p class="empty">Opening the ledger…</p></main>
 <div class="wrap foot" id="foot"></div>
+<div id="toast" role="status" aria-live="polite" hidden></div>
 <script>
 (function(){
 const $=s=>document.querySelector(s);
@@ -143,9 +200,8 @@ const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&
 const sgn=n=>(n>=0?'+':'')+n;
 const fmt=n=>(+n||0).toLocaleString('en-US');
 const ABIL=['str','dex','con','int','wis','cha'];
-const TABS=[['sheet','My sheet'],['party','Party'],['loot','Loot'],['shop','Shop'],['house','The House'],['journal','Journal']];
-let D=null,ME=null,JSEL=null;
-try{ME=localStorage.getItem('ac.me')}catch(e){}
+const TABS=[['sheet','Sheet'],['encounter','Encounter'],['party','Party'],['loot','Loot'],['shop','Shop'],['house','The House'],['journal','Journal']];
+let D=null,ME=null,JSEL=null,VIEW=null,PINERR='';
 const first=s=>String(s||'').split(' ')[0];
 const isOn=e=>e.active!==false&&(!e.attune||e.attuned);
 const items=c=>(c.entries||[]).filter(e=>(e.kind||'item')==='item');
@@ -168,14 +224,15 @@ function fxLine(f){const ak=ATK[f.a]||'';let s='';
 }
 function itemLine(e){const f=(e.fx||[])[0];const t=f?fxLine(f):(e.desc||'');return t.length>110?t.slice(0,108)+'…':t}
 function pips(e){const m=+e.uses||0;if(!m)return'';if(m>6)return`<span class="pips">${+e.left||0}/${m}</span>`;let s='';for(let i=0;i<m;i++)s+=`<span class="pip${i<(+e.left||0)?' on':''}"></span>`;return`<span class="pips" title="${+e.left||0} of ${m} left">${s}</span>`}
-const me=()=>D&&D.party.find(c=>c.id===ME);
+const me=()=>D&&(ME==='dm'?{id:'dm',name:'the DM'}:D.party.find(c=>c.id===ME));
+const viewed=()=>D&&D.party.find(c=>c.id===(ME==='dm'?(VIEW||D.party[0].id):ME));
 
 function tab(){const h=(location.hash||'').slice(1);return TABS.some(t=>t[0]===h)?h:'sheet'}
-function renderTabs(){$('#tabs').innerHTML=ME?TABS.map(([k,l])=>`<a href="#${k}"${tab()===k?' aria-current="page"':''}>${l}</a>`).join(''):'';
-  const m=me();$('#who').innerHTML=m?`Playing as <b>${esc(m.name)}</b> · <button class="btn" style="padding:1px 8px;font-size:.82rem" data-act="switch">Switch</button>`:'Three Roads campaign'}
+function renderTabs(){$('#tabs').innerHTML=ME&&ME!=='pin'?TABS.map(([k,l])=>`<a href="#${k}"${tab()===k?' aria-current="page"':''}>${l}</a>`).join(''):'';
+  const m=ME==='pin'?null:me();$('#who').innerHTML=m?`${ME==='dm'?'Viewing as':'Playing as'} <b>${esc(m.name)}</b> · <button class="btn" style="padding:1px 8px;font-size:.82rem" data-act="switch">Switch</button>`:'Three Roads campaign'}
 
-function picker(){return `<div class="stack"><div><h2 style="font-size:1.8rem">Who are you playing?</h2><p class="sub" style="margin:4px 0 0">Pick your character. This device will remember it.</p></div>
-  <div class="pick">${D.party.map(c=>`<button class="tile" data-act="pick" data-id="${esc(c.id)}"><span class="top"><span class="nm">${esc(first(c.name))}</span><span class="ac">AC ${esc(c.ac??'?')}</span></span><span class="sub">${esc(c.cls||'')}</span><span class="pips">HP ${esc(c.hpMax??'?')}</span></button>`).join('')}</div></div>`}
+function picker(){return `<div class="stack"><div><h2 style="font-size:1.8rem">Who are you playing?</h2><p class="sub" style="margin:4px 0 0">Pick your character to see your sheet.</p></div>
+  <div class="pick"><button class="tile dm" data-act="dmpin"><span class="top"><span class="nm">Dungeon Master</span></span><span class="sub">PIN required</span></button>${D.party.map(c=>`<button class="tile" data-act="pick" data-id="${esc(c.id)}"><span class="top"><span class="nm">${esc(first(c.name))}</span><span class="ac">AC ${esc(c.ac??'?')}</span></span><span class="sub">${esc(c.cls||'')}</span><span class="pips">HP ${esc(c.hpMax??'?')}</span></button>`).join('')}</div></div>`}
 
 function sheet(c){
   const mod=s=>s==null?'?':sgn(Math.floor((s-10)/2));
@@ -191,10 +248,13 @@ function sheet(c){
   const its=items(c).filter(e=>!e.in),feats=(c.entries||[]).filter(e=>(e.kind||'item')!=='item');
   const inside=id=>items(c).filter(e=>e.in===id);
   const gearRow=e=>{const b=[];if(e.attune)b.push(e.attuned?'<span class="badge">attuned</span>':'<span class="badge warn">not attuned</span>');if(e.active===false)b.push('<span class="badge">packed</span>');if((+e.qty||1)>1)b.push('<span class="badge">×'+esc(e.qty)+'</span>');const inn=e.container?inside(e.id):[];
-    return `<div class="gr${isOn(e)?'':' off'}"><span class="n2"><b>${esc(e.name)}</b>${e.rarity?` <span class="rar">${esc(e.rarity)}</span>`:''}</span><span class="row" style="gap:5px">${b.join('')}${pips(e)}</span>${e.desc?`<span class="d">${esc(e.desc)}</span>`:''}${inn.length?`<span class="d"><b>Holds:</b> ${esc(inn.map(x=>x.name).join(', '))}</span>`:''}</div>`};
+    const ask=(dmx(c.id).asks||{})[e.id];
+    return `<div class="gr${isOn(e)?'':' off'}"><span class="n2"><b>${esc(e.name)}</b>${e.rarity?` <span class="rar">${esc(e.rarity)}</span>`:''}</span><span class="row" style="gap:5px">${b.join('')}${pips(e)}</span>${e.desc?`<span class="d">${esc(e.desc)}</span>`:''}${inn.length?`<span class="d"><b>Holds:</b> ${esc(inn.map(x=>x.name).join(', '))}</span>`:''}${ask?`<span class="d dmnote">DM: ${esc(ask)}</span>`:''}${(e.kind||'item')==='item'?`<span class="d">${itemActions(c.id,e)}</span>`:(+e.uses||0)>0&&canHandle(c.id)?`<span class="d"><div class="acts"><button class="btn sm" data-act="use" data-h="${esc(c.id)}" data-e="${esc(e.id)}" data-v="${Math.max(0,(+e.left||0)-1)}"${(+e.left||0)<=0?' disabled':''}>Use one</button>${ME==='dm'?`<button class="btn sm" data-act="use" data-h="${esc(c.id)}" data-e="${esc(e.id)}" data-v="${+e.uses}">Refill</button>`:''}</div></span>`:''}</div>`};
   const att=items(c).filter(e=>e.attune&&e.attuned&&e.active!==false).length;
   return `<article class="stack">
-    <header class="sh-head"><div><h2 class="big">${esc(c.name)}</h2><div class="sub">${esc(c.cls||'')}</div></div>${c.ddb?`<a href="${esc(c.ddb)}" target="_blank" rel="noopener">Open on D&D Beyond</a>`:''}</header>
+    <header class="sh-head"><div><h2 class="big">${esc(c.name)}</h2><div class="sub">${esc(c.cls||'')}</div></div><div class="row">${canHandle(c.id)&&c.id!=='stash'?`<button class="btn" data-act="sheet-edit">${EDIT?'Cancel':'Update HP and gold'}</button>`:''}${c.ddb?`<a href="${esc(c.ddb)}" target="_blank" rel="noopener">Open on D&D Beyond</a>`:''}</div></header>
+    ${EDIT&&canHandle(c.id)?`<div class="panel row" style="align-items:end"><label class="field"><span class="lbl">Current HP (max ${esc(c.hpMax??'?')})</span><input type="number" min="0" id="se-hp" value="${esc(c.hp??c.hpMax??'')}"></label><label class="field"><span class="lbl">Gold (gp)</span><input type="number" min="0" id="se-gold" value="${esc(c.gold??0)}"></label><label class="field"><span class="lbl">Ash jars</span><input type="number" min="0" id="se-jars" value="${esc(c.jars??0)}"></label><button class="btn primary" data-act="sheet-save">Save</button></div>`:''}
+    ${ME==='dm'&&dmx(c.id).notes?`<div class="dmbox"><span class="lbl">DM only</span><p style="margin:2px 0 0">${esc(dmx(c.id).notes)}</p></div>`:''}
     <div class="strip">${stat('AC',c.ac,c.acNote)}${stat('HP',(hp??'?')+'/'+(c.hpMax??'?'))}${stat('Speed',c.speed!=null?c.speed+' ft':null)}${stat('Init',c.init!=null?sgn(c.init):null)}${c.dc!=null?stat('Save DC',c.dc):''}${c.toHit!=null?stat(c.atkLabel||'To hit',sgn(c.toHit),c.atkNote):''}${stat('Gold',fmt(c.gold)+' gp',c.jars?c.jars+' ash jar'+(c.jars===1?'':'s'):'')}</div>
     ${c.hpMax?`<div class="hpbar${pct<35?' low':''}" aria-hidden="true"><span style="width:${pct}%"></span></div>`:''}
     ${c.scores?`<div class="abil">${ABIL.map(a=>`<div class="ab"><span class="lbl">${a.toUpperCase()}</span><b>${mod(c.scores[a])}</b><small>${esc(c.scores[a]??'')}</small><span class="sv">save ${(c.saves||{})[a]!=null?sgn(c.saves[a]):'?'}</span></div>`).join('')}</div>`:''}
@@ -209,38 +269,137 @@ function partyTiles(){return `<div class="stack"><h2>The party</h2><div class="p
   return `<div class="tile" style="cursor:default"><span class="top"><span class="nm">${esc(first(c.name))}${c.id===ME?' <span class="badge">you</span>':''}</span><span class="ac">AC ${esc(c.ac??'?')}</span></span><span class="sub">${esc(c.cls||'')}</span>
   <span class="pips">HP ${esc(c.hp??c.hpMax)}/${esc(c.hpMax)} · Speed ${esc(c.speed??'?')} · DEX ${sgn((c.saves||{}).dex||0)} · CON ${sgn((c.saves||{}).con||0)} · WIS ${sgn((c.saves||{}).wis||0)}</span>
   ${nb.length?`<ul>${nb.slice(0,6).map(e=>`<li>${esc(e.name)}</li>`).join('')}</ul>`:''}</div>`}).join('')}</div></div>`}
+/* ---------- database ---------- */
+const SB_URL='https://yvdmorqaieqlduqplckm.supabase.co';
+const SB_KEY='sb_publishable_qW8mC2-abmbxWLUMsIwXyQ_Ar9uchsy';
+const DDB={coach:'https://www.dndbeyond.com/characters/153975538/dXtMBs',cramaris:'https://www.dndbeyond.com/characters/169161427/EqnDg5',gogeezle:'https://www.dndbeyond.com/characters/155350715/yKa2dC',gorc:'https://www.dndbeyond.com/characters/168193010/xYBNhA',gror:'https://www.dndbeyond.com/characters/168320554/d1WwtS',rina:'https://www.dndbeyond.com/characters/169373740/iMVFrX',slav:'https://www.dndbeyond.com/characters/168328776/HzD7RL'};
+async function api(path,opts={}){
+  const r=await fetch(SB_URL+path,{...opts,headers:{apikey:SB_KEY,'Content-Type':'application/json',...(opts.headers||{})}});
+  const t=await r.text();let j=null;try{j=t?JSON.parse(t):null}catch(e){}
+  if(!r.ok)throw new Error((j&&(j.message||j.error_description||j.hint))||('The ledger answered with an error ('+r.status+').'));
+  return j;
+}
+const rpc=(fn,args)=>api('/rest/v1/rpc/'+fn,{method:'POST',body:JSON.stringify(args)});
+let DMX=null,PIN=null,LOPEN=null,SEND=null,EDIT=false,BUSY=false;
+async function load(){
+  const [docs,notes,act]=await Promise.all([
+    api('/rest/v1/docs?select=id,kind,data,updated_at'),
+    api('/rest/v1/notes?select=id,session,author,body,created_at&order=created_at.asc'),
+    api('/rest/v1/activity?select=actor,action,detail,created_at&order=id.desc&limit=40')]);
+  const of=k=>docs.filter(d=>d.kind===k);
+  const one=k=>(of(k)[0]||{}).data||{};
+  const party=of('char').map(d=>({...d.data,id:d.id,ddb:DDB[d.id]})).sort((a,b)=>(a.order??99)-(b.order??99));
+  const st=of('stash')[0];
+  D={party,stash:st?{...st.data,id:st.id}:null,shop:one('shop'),house:one('house'),
+    journal:{sessions:one('journal').sessions||[],notes:(notes||[]).map(n=>({id:n.id,session:n.session,by:n.author,text:n.body,at:n.created_at}))},
+    activity:act||[],updated:docs.map(d=>d.updated_at).sort().pop()};
+}
+function toast(m,bad){const t=$('#toast');t.textContent=m;t.className=bad?'bad':'';t.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>t.hidden=true,bad?6000:2600)}
+async function act(fn,args,msg){if(BUSY)return;BUSY=true;document.body.classList.add('busy');
+  try{const r=await rpc(fn,args);if(typeof r==='string'&&/wrong pin/i.test(r))throw new Error(r);await load();toast(msg);render()}
+  catch(e){toast(e.message||'That didn’t save. Try again.',true)}finally{BUSY=false;document.body.classList.remove('busy')}}
+const actor=()=>ME;
+const holderName=id=>id==='stash'?'Party loot':first((D.party.find(c=>c.id===id)||{}).name||id);
+const canHandle=id=>ME==='dm'||id===ME||id==='stash';
+const dmx=id=>(DMX&&DMX[id])||{};
+
+/* ---------- item actions ---------- */
+function itemActions(holderId,e){
+  if(!canHandle(holderId)||e.kind&&e.kind!=='item')return'';
+  const targets=ME==='dm'?[...D.party.map(c=>c.id),'stash'].filter(x=>x!==holderId):holderId==='stash'?[ME]:['stash'];
+  if(SEND&&SEND.h===holderId&&SEND.e===e.id)return `<div class="sendbox"><label class="field"><span class="lbl">Asking price (gp, optional)</span><input type="number" min="0" id="ask-${esc(e.id)}" placeholder="e.g. 250"></label><button class="btn primary" data-act="send-go" data-h="${esc(holderId)}" data-e="${esc(e.id)}">Give to Wick</button><button class="btn" data-act="send-cancel">Cancel</button></div>`;
+  return `<div class="acts">${!e.in&&e.slot!=='pack'?`<button class="btn sm" data-act="wear" data-h="${esc(holderId)}" data-e="${esc(e.id)}" data-v="${e.active===false?'1':'0'}">${e.active===false?'Wear or use':'Pack it'}</button>`:''}
+    ${(+e.uses||0)>0?`<button class="btn sm" data-act="use" data-h="${esc(holderId)}" data-e="${esc(e.id)}" data-v="${Math.max(0,(+e.left||0)-1)}"${(+e.left||0)<=0?' disabled':''}>Use one</button>${ME==='dm'?`<button class="btn sm" data-act="use" data-h="${esc(holderId)}" data-e="${esc(e.id)}" data-v="${+e.uses}">Refill</button>`:''}`:''}
+    ${targets.map(t=>`<button class="btn sm" data-act="move" data-h="${esc(holderId)}" data-e="${esc(e.id)}" data-to="${esc(t)}">${t==='stash'?'To party loot':'To '+esc(holderName(t))}</button>`).join('')}
+    <button class="btn sm" data-act="send" data-h="${esc(holderId)}" data-e="${esc(e.id)}">Send to the shop</button></div>`;
+}
+
+/* ---------- loot ---------- */
 function loot(){const hs=[...D.party,...(D.stash?[D.stash]:[])];const on=hs.reduce((s,c)=>s+(+c.gold||0),0),jars=hs.reduce((s,c)=>s+(+c.jars||0),0);
+  const open=LOPEN&&hs.find(c=>c.id===LOPEN);
+  const list=c=>{const it=items(c);const top=it.filter(e=>!e.in);return `<section class="panel stack" id="lopen"><div class="row"><h2 style="flex:1">${esc(holderName(c.id))}</h2><button class="btn" data-act="lclose">Close</button></div>
+    ${canHandle(c.id)?`<p class="sub" style="margin:0">${c.id==='stash'?'Take something, or send it to the shop with Wick.':'Hand things to the party loot, or send them to the shop with Wick.'}</p>`:''}
+    <div class="gear">${top.length?top.map(e=>`<div class="gr"><span class="n2"><b>${esc(e.name)}</b>${(+e.qty||1)>1?' ×'+esc(e.qty):''}${e.rarity?` <span class="rar">${esc(e.rarity)}</span>`:''}</span><span class="row" style="gap:5px">${e.attune?(e.attuned?'<span class="badge">attuned</span>':'<span class="badge warn">not attuned</span>'):''}${pips(e)}</span>${e.desc||itemLine(e)?`<span class="d">${esc(itemLine(e)||e.desc)}</span>`:''}${e.container?`<span class="d"><b>Holds:</b> ${esc(it.filter(x=>x.in===e.id).map(x=>x.name).join(', ')||'nothing')}</span>`:''}${dmx(c.id).asks&&dmx(c.id).asks[e.id]?`<span class="d dmnote">DM: ${esc(dmx(c.id).asks[e.id])}</span>`:''}<span class="d">${itemActions(c.id,e)}</span></div>`).join(''):'<p class="empty" style="padding:10px">Nothing here.</p>'}</div></section>`};
   return `<div class="stack"><h2>Party loot</h2>
   <div class="panel row" style="gap:18px"><span><b class="n" style="font-size:1.3rem">${fmt(on)}</b> gp on hand</span><span><b class="n" style="font-size:1.3rem">${fmt(D.stash&&D.stash.bank)}</b> gp in the Vaelmar bank</span><span><b class="n" style="font-size:1.3rem">${jars}</b> ash jars</span></div>
   ${D.stash&&D.stash.purseNote?`<p class="sub" style="margin:0">${esc(D.stash.purseNote)}</p>`:''}
+  ${open?list(open):''}
   <div class="pick" style="grid-template-columns:repeat(auto-fill,minmax(260px,1fr))">${hs.map(c=>{const it=items(c).filter(e=>!e.in);const nb=it.filter(notable);
-    return `<div class="tile" style="cursor:default"><span class="top"><span class="nm">${esc(c.id==='stash'?'Party stash':first(c.name))}</span><span class="pips">${items(c).length} items</span></span>
+    return `<button class="tile${LOPEN===c.id?' sel':''}" data-act="lopen" data-id="${esc(c.id)}"><span class="top"><span class="nm">${esc(holderName(c.id))}${c.id===ME?' <span class="badge">you</span>':''}</span><span class="pips">${items(c).length} items</span></span>
     <span class="coins"><span class="gp">${fmt(c.gold)} gp</span><span>${+c.jars||0} ash jars</span></span>
     ${nb.length?`<ul>${nb.map(e=>`<li><b>${esc(e.name)}</b>${e.container?` <span class="rar">holds ${items(c).filter(x=>x.in===e.id).length}</span>`:itemLine(e)?`<div class="rar">${esc(itemLine(e))}</div>`:''}</li>`).join('')}</ul>`:'<span class="empty">No magic or story items.</span>'}
-    ${it.length-nb.length>0?`<span class="rar">+ ${it.length-nb.length} common item${it.length-nb.length>1?'s':''}</span>`:''}</div>`}).join('')}</div></div>`}
+    ${it.length-nb.length>0?`<span class="rar">+ ${it.length-nb.length} common item${it.length-nb.length>1?'s':''}</span>`:''}</button>`}).join('')}</div>
+  ${activityHTML()}</div>`}
+const ACT_L={move:'moved',send_to_shop:'sent to the shop',update_item:'updated',update_sheet:'updated their sheet',dm_put:'DM edit'};
+function activityHTML(){const a=(D.activity||[]).filter(x=>x.action!=='dm_put').slice(0,15);if(!a.length)return'';
+  return `<details class="panel"><summary class="lbl">Recent changes</summary><ul class="jl" style="margin-top:8px">${a.map(x=>{const d=x.detail||{};const who=x.actor==='dm'?'DM':holderName(x.actor||'');
+    const what=x.action==='move'?`moved ${d.item||'an item'} from ${holderName(d.from)} to ${holderName(d.to)}`:x.action==='send_to_shop'?`sent ${d.item||'an item'} to the shop${d.asking!=null?' asking '+fmt(d.asking)+' gp':''}`:x.action==='update_sheet'?`updated ${holderName(d.holder)}: ${Object.entries(d.change||{}).map(([k,v])=>k+' '+v).join(', ')}`:ACT_L[x.action]||x.action;
+    return `<li><b>${esc(who)}</b> ${esc(what)} <span class="rar">${esc(new Date(x.created_at).toLocaleString('en-US',{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'}))}</span></li>`}).join('')}</ul></details>`}
+
+/* ---------- shop ---------- */
 const CG={pack:'In Wick’s pack',atshop:'At the shop, for sale',sold:'Sold',lost:'Lost on the road',returned:'Returned'};
-const RS={party:'With the party',toShop:'Traveling to the shop',shop:'At the shop',toParty:'Traveling to the party',late:'Overdue',captured:'Missing',missing:'Missing',road:'On the road'};
-function shop(){const S=D.shop||{},r=S.runner||{};const cg=S.cargo||[];
+const RS={party:'With the party',toShop:'Traveling to the shop',shop:'At the shop',toParty:'Traveling to the party',late:'Overdue',captured:'Captured',missing:'Missing',road:'On the road'};
+function shop(){const S=D.shop||{},r=S.runner||{};const cg=S.cargo||[];const X=dmx('shop');
+  const heat=+S.heat||0,thr=Math.max(1,Math.min(19,(+(S.base??2))+heat)),loy=Math.max(0,Math.min(6,+r.loyalty||0));
+  const ups=ME==='dm'&&X.upgrades?X.upgrades:(S.upgrades||[]);
   return `<div class="stack"><div><h2 style="font-size:1.6rem">${esc(S.name||'The shop')}</h2><div class="sub">${esc(S.sub||'')}</div></div>
-  <div class="strip"><div class="st"><span class="lbl">Run by</span><b style="font:700 1rem var(--f-body)">${esc(S.keeper||'')}</b></div><div class="st"><span class="lbl">Upkeep</span><b>${fmt(S.upkeep)} gp</b><small>${esc(S.upkeepNote||'')}</small></div><div class="st"><span class="lbl">The runner is</span><b style="font:700 1rem var(--f-body)">${esc(RS[r.status]||'—')}</b></div></div>
-  <section class="panel stack" style="gap:6px"><span class="lbl">The runner</span><h3 style="font-size:1.4rem">${esc(r.name||'')}</h3><span class="sub">${esc(r.who||'')}</span>${r.desc?`<p style="margin:0">${esc(r.desc)}</p>`:''}</section>
-  ${(S.upgrades||[]).length?`<section class="stack"><h3>What the shop has</h3>${S.upgrades.map(u=>`<div class="panel"><b>${esc(u.name)}</b> <span class="badge">${esc(u.status==='building'?'being built':'active')}</span><p style="margin:4px 0 0">${esc(u.effect||'')}</p></div>`).join('')}</section>`:''}
+  <div class="strip"><div class="st"><span class="lbl">Run by</span><b style="font:700 1rem var(--f-body)">${esc(S.keeper||'')}</b></div><div class="st"><span class="lbl">Upkeep</span><b>${fmt(S.upkeep)} gp</b><small>${esc(S.upkeepNote||'')}</small></div><div class="st"><span class="lbl">The runner is</span><b style="font:700 1rem var(--f-body)">${esc(RS[r.status]||'—')}</b></div>
+    <div class="st"><span class="lbl">Heat</span><b>${heat} / 10</b><small>How hard people are watching the roads</small></div><div class="st"><span class="lbl">Run DC</span><b>${thr+1}</b><small>Wick needs ${thr+1}+ on the main road (${thr*5}% risk)</small></div></div>
+  <div class="heat">${Array.from({length:10},(_,i)=>`<span class="${i<heat?'on':''}"></span>`).join('')}</div>
+  <section class="panel stack" style="gap:6px"><span class="lbl">The runner</span><h3 style="font-size:1.4rem">${esc(r.name||'')}</h3><span class="sub">${esc(r.who||'')}</span>${r.desc?`<p style="margin:0">${esc(r.desc)}</p>`:''}
+    <div class="row"><span class="lbl">Loyalty</span><span class="pips">${[1,2,3,4,5,6].map(i=>`<span class="pip${i<=loy?' on':''}"></span>`).join('')}</span><span class="sub">${loy} of 6. If he’s questioned, he keeps quiet on a d6 roll of ${loy} or less.</span></div>
+    ${r.stats?`<p class="sub" style="margin:0">${esc(r.stats)}</p>`:''}
+    ${ME==='dm'&&X.runner?`<div class="dmbox"><span class="lbl">DM only</span><p style="margin:2px 0"><b>Why he might talk:</b> ${esc(X.runner.weak||'')}</p><p style="margin:2px 0"><b>What he knows:</b> ${esc(X.runner.knows||'')}</p></div>`:''}</section>
+  ${ups.length?`<section class="stack"><h3>${ME==='dm'?'Upgrades':'What the shop has'}</h3>${ups.map(u=>`<div class="panel"><b>${esc(u.name)}</b> <span class="badge">${esc({active:'active',building:'being built',planned:'planned',notfound:'not found yet',locked:'locked',lost:'lost'}[u.status]||u.status)}</span><p style="margin:4px 0 0">${esc(u.effect||'')}</p>${ME==='dm'&&u.risk?`<p class="sub" style="margin:4px 0 0"><b>Risk:</b> ${esc(u.risk)}</p>`:''}</div>`).join('')}</section>`:''}
   <h3>Wick’s pack and the shop ledger</h3>
-  ${cg.length?`<div class="tablewrap"><table class="ledger"><thead><tr><th>Item</th><th>From</th><th>Where it is</th><th>Asking</th><th>Sold for</th></tr></thead><tbody>${cg.map(x=>`<tr><td><b>${esc(x.name)}</b>${(+x.qty||1)>1?' ×'+x.qty:''}<div class="rar">sent ${esc(x.sentAt||'')}</div></td><td>${esc(x.from||'')}</td><td>${esc(CG[x.status]||x.status)}</td><td class="n">${x.ask!=null?fmt(x.ask)+' gp':'—'}</td><td class="n">${x.status==='sold'?fmt(x.sold)+' gp':'—'}</td></tr>`).join('')}</tbody></table></div>`:'<p class="empty">Nothing has been sent to the shop yet. Tell the DM what you want Wick to carry.</p>'}
+  <p class="sub" style="margin:0">Send something with Wick from your Sheet or from Party loot. The DM marks it delivered, sold or lost.</p>
+  ${cg.length?`<div class="tablewrap"><table class="ledger"><thead><tr><th>Item</th><th>From</th><th>Where it is</th><th>Asking</th><th>Sold for</th></tr></thead><tbody>${cg.map(x=>`<tr><td><b>${esc(x.name)}</b>${(+x.qty||1)>1?' ×'+x.qty:''}<div class="rar">sent ${esc(x.sentAt||'')}${x.by?' by '+esc(x.by==='dm'?'the DM':holderName(x.by)):''}</div></td><td>${esc(x.from||'')}</td><td>${esc(CG[x.status]||x.status)}</td><td class="n">${x.ask!=null?fmt(x.ask)+' gp':'—'}</td><td class="n">${x.status==='sold'?fmt(x.sold)+' gp':'—'}</td></tr>`).join('')}</tbody></table></div>`:'<p class="empty">Nothing has been sent to the shop yet.</p>'}
   <h3>Runs</h3>
   ${(S.runs||[]).length?`<div class="tablewrap"><table class="ledger"><thead><tr><th>When</th><th>Route</th><th>Sent</th><th>Sales</th><th>Upkeep</th></tr></thead><tbody>${S.runs.map(x=>`<tr><td>${esc(x.when||'')}</td><td>${x.route==='back'?'Back roads':'Main road'}</td><td>${esc(x.out||'')}${x.pack?`<div class="rar">${esc(x.pack)}</div>`:''}</td><td class="n">${x.sold?fmt(x.sold)+' gp':'—'}</td><td>${x.upkeep?'Paid':'Unpaid'}</td></tr>`).join('')}</tbody></table></div>`:'<p class="empty">No runs yet.</p>'}
+  ${ME==='dm'&&X.trouble?`<details class="dmbox"><summary class="lbl">DM only · the run tables</summary><span class="lbl">Trouble on the road (d6)</span><ol class="jl">${X.trouble.map(t=>`<li>${esc(t.t)}</li>`).join('')}</ol><span class="lbl">What he lets slip (d4)</span><ol class="jl">${(X.spill||[]).map(t=>`<li>${esc(t)}</li>`).join('')}</ol><span class="lbl">Rumors (d6)</span><ol class="jl">${(X.rumors||[]).map(t=>`<li>${esc(t)}</li>`).join('')}</ol></details>`:''}
   </div>`}
-function house(){const H=D.house||{};const ps=H.people||[];const caps=ps.filter(p=>p.tier==='captain'),mid=ps.filter(p=>p.tier==='ledger'||p.tier==='liaison');const card=p=>`<div class="pc${p.tier==='captain'?' cap':''}"><b>${esc(p.name)}</b><span class="rar">${esc(p.role||'')}</span></div>`;
-  const wolf=D.party.find(c=>c.id===H.wolf);
+
+/* ---------- the house ---------- */
+const LOY_L=['Plotting against you','Restless','Wary','Steady','Loyal','Devoted'],RES_L=['Contempt','Doubtful','Unconvinced','Respects you','Impressed','In awe'];
+const STAND_L=['Overthrow brewing','Openly defied','Tolerated','Accepted','Respected','Unquestioned'];
+function standing(H){const cs=(H.people||[]).filter(p=>p.tier==='captain'||p.tier==='ledger');let w=0,t=0;for(const p of cs){const i=Math.max(1,+p.influence||1);w+=i;t+=i*((+p.loyalty||0)+(+p.respect||0))/2}return w?t/w:0}
+function house(){const H=D.house||{};const ps=H.people||[];const X=dmx('house');const XP=X.people||{};
+  const st=standing(H),band=Math.max(0,Math.min(5,Math.round(st)));
+  const bar=(v,k)=>`<span class="bar5 ${v>=4?'good':v>=2?'mid':'bad'}" title="${k} ${v}">${[1,2,3,4,5].map(i=>`<span class="${i<=v?'on':''}"></span>`).join('')}</span>`;
+  const card=p=>{const x=XP[p.id]||{};return `<div class="pc${p.tier==='captain'?' cap':''}"><b>${esc(p.name)}</b><span class="rar">${esc(p.role||'')}</span>
+    ${p.link==='runner'?'':`<span class="meters"><span>L ${bar(+p.loyalty||0,'Loyalty')}</span><span>R ${bar(+p.respect||0,'Respect')}</span>${p.tier!=='outside'?`<span class="rar">Influence ${+p.influence||0}</span>`:''}</span>
+    <span class="rar">${esc(LOY_L[+p.loyalty||0]||'')} · ${esc(RES_L[+p.respect||0]||'')}</span>`}
+    ${p.sees?`<span class="sees">${esc(p.sees)}</span>`:''}
+    ${ME==='dm'&&(x.secret||x.up||x.down)?`<details class="dmbox"><summary class="lbl">DM only</summary>${x.secret?`<p style="margin:4px 0"><b>Secret:</b> ${esc(x.secret)}</p>`:''}${x.up?`<p style="margin:4px 0"><b>Raises loyalty:</b> ${esc(x.up)}</p>`:''}${x.down?`<p style="margin:4px 0"><b>Lowers loyalty:</b> ${esc(x.down)}</p>`:''}${x.notes?`<p style="margin:4px 0"><b>Notes:</b> ${esc(x.notes)}</p>`:''}</details>`:''}</div>`};
+  const caps=ps.filter(p=>p.tier==='captain'),mid=ps.filter(p=>p.tier==='ledger'||p.tier==='liaison'),outs=ps.filter(p=>p.tier==='outside');
+  const wolf=D.party.find(c=>c.id===H.wolf);const name=id=>(ps.find(p=>p.id===id)||{}).name||id;
+  const fin=H.fin;let finRow='';
+  if(fin){const sk=+((fin.skim||{})[fin.involve||'hands'])||0;const ear=caps.reduce((s,p)=>s+(+p.take||0),0),skim=Math.round(ear*sk/100),cost=caps.reduce((s,p)=>s+(+p.cost||0),0)+(fin.overhead||[]).filter(o=>!o.when||o.when===(fin.involve||'hands')).reduce((s,o)=>s+(+o.gp||0),0),net=ear-skim-cost;
+    finRow=`<div class="st"><span class="lbl">The House’s books</span><b class="${net<0?'warn':''}">${net<0?'−':'+'}${fmt(Math.abs(net))} gp</b><small>a session: earns ${fmt(ear)}, captains keep ${sk}%, costs ${fmt(cost)}</small></div>`}
+  const story=(X.policy||{}).story||[];const delivered=H.delivered||[];
   return `<div class="stack"><div><h2 style="font-size:1.6rem">${esc(H.name||'The House')}</h2><div class="sub">${esc(H.sub||'')}</div></div>
-  <div class="strip"><div class="st"><span class="lbl">Standing with the Guild</span><b style="font:400 1.3rem var(--f-display)">${esc(H.standing||'')}</b></div><div class="st"><span class="lbl">Wears the Wolf</span><b style="font:700 1rem var(--f-body)">${esc(wolf?first(wolf.name):'')}</b></div>${H.policy&&H.policy.name?`<div class="st"><span class="lbl">House policy</span><b style="font:700 1rem var(--f-body)">${esc(H.policy.name)}</b><small>${esc(H.policy.said||'')}</small></div>`:''}</div>
+  <section class="panel stack" style="gap:6px"><div class="row"><span class="lbl" style="flex:1">Standing with the Guild</span><span class="pips">${st.toFixed(1)} of 5</span></div>
+    <b style="font:400 1.5rem var(--f-display)">${STAND_L[band]}</b>
+    <div class="slide"><span style="left:${st/5*100}%"></span></div><div class="row sub" style="justify-content:space-between"><span>0 · ${STAND_L[0]}</span><span>5 · ${STAND_L[5]}</span></div>
+    ${H.standingNote?`<p style="margin:0">${esc(H.standingNote)}</p>`:''}
+    <p class="sub" style="margin:0">Each captain and the Ledgerkeeper score the average of their loyalty and respect, weighted by their influence.</p></section>
+  <div class="strip"><div class="st"><span class="lbl">Wears the Wolf</span><b style="font:700 1rem var(--f-body)">${esc(wolf?first(wolf.name):'')}</b></div>${H.policy&&H.policy.name?`<div class="st"><span class="lbl">House policy</span><b style="font:700 1rem var(--f-body)">${esc(H.policy.name)}</b><small>${esc(H.policy.said||'')}</small></div>`:''}${finRow}</div>
   <div class="org-top"><span class="lbl">The Seven</span><div class="row" style="gap:6px">${D.party.map(c=>`<span class="pchip${c.id===H.wolf?' wolf':''}">${esc(first(c.name))}</span>`).join('')}</div><p class="sub" style="margin:0">${esc(H.leaderNote||'')}</p></div>
-  <div class="row" style="justify-content:center">${mid.map(card).join('')}</div>
+  <div class="midrow">${mid.map(card).join('')}</div>
   <div class="caps">${caps.map(c=>`<div class="stack" style="gap:6px"><span class="divn">${esc(c.div||'')}</span>${card(c)}<div class="subs">${ps.filter(p=>p.parent===c.id).map(card).join('')}</div></div>`).join('')}</div>
-  ${(H.contracts||[]).length?`<h3>Contracts you’ve been read</h3><div class="ctrs">${H.contracts.map(c=>`<div class="ctr"><b style="font:400 1.1rem var(--f-display)">${esc(c.name)}</b>${c.desk?`<span class="rar">${esc(c.desk)}</span>`:''}<p style="margin:0">${esc(c.told||'')}</p><div style="border-top:1px dashed var(--line);padding-top:6px"><span class="lbl">Latest from Bellamy</span><p style="margin:2px 0 0" class="${c.update?'':'sub'}">${esc(c.update||'No news yet. Ask the DM for an update.')}</p></div></div>`).join('')}</div>`:''}
+  ${outs.length?`<div class="stack" style="gap:6px"><span class="lbl">Outside the House</span><div class="caps">${outs.map(card).join('')}</div></div>`:''}
+  ${(H.contracts||[]).length?`<h3>Contracts you’ve been read</h3><div class="ctrs">${H.contracts.map(c=>`<div class="ctr"><b style="font:400 1.1rem var(--f-display)">${esc(c.name)}</b>${c.desk?`<span class="rar">${esc(c.desk)}</span>`:''}<p style="margin:0">${esc(c.told||'')}</p><div style="border-top:1px dashed var(--line);padding-top:6px"><span class="lbl">Latest from Bellamy</span><p style="margin:2px 0 0" class="${c.update?'':'sub'}">${esc(c.update||'No news yet. Ask the DM for an update.')}</p></div>${ME==='dm'&&(X.contracts||{})[c.name]?`<p class="dmnote" style="margin:0">DM: ${esc(X.contracts[c.name])}</p>`:''}</div>`).join('')}</div>`:''}
+  ${ME==='dm'?`<details class="dmbox"><summary class="lbl">DM only · tensions and story</summary>
+    ${(X.ties||[]).length?`<span class="lbl">Tensions inside the House</span><ul class="jl">${X.ties.map(t=>`<li><b>${esc(name(t.a))}</b> ${esc(t.verb)} <b>${esc(t.bName||name(t.b))}</b>: <span class="sub">${esc(t.note||'')}</span></li>`).join('')}</ul>`:''}
+    ${story.map(s=>`<div class="stack" style="gap:4px;margin-top:8px"><b>${esc(s.t)}</b>${s.tie?` <span class="badge">${esc(s.tie)}</span>`:''}<p style="margin:0">${esc(s.detail||'')}</p>${s.how?`<p class="sub" style="margin:0"><b>How it reaches them:</b> ${esc(s.how)}</p>`:''}${s.letter?`<details><summary class="lbl">Read the letter</summary><div class="paper">${esc(s.letter)}</div>${(s.letterNotes||[]).length?`<ul class="jl">${s.letterNotes.map(n=>`<li><b>${esc(n[0])}</b> ${esc(n[1])}</li>`).join('')}</ul>`:''}</details>`:''}</div>`).join('')}
+  </details>`:''}
   </div>`}
-function journal(){const ss=(D.journal||{}).sessions||[];if(!ss.length)return'<p class="empty">No sessions yet.</p>';if(JSEL==null||!ss[JSEL])JSEL=ss.length-1;const s=ss[JSEL];const notes=((D.journal||{}).notes||[]).filter(n=>+n.session===JSEL);
+
+/* ---------- journal ---------- */
+function journal(){const ss=(D.journal||{}).sessions||[];if(!ss.length)return'<p class="empty">No sessions yet.</p>';if(JSEL==null||!ss[JSEL])JSEL=ss.length-1;const s=ss[JSEL];
+  const notes=((D.journal||{}).notes||[]).filter(n=>+n.session===JSEL);const X=dmx('journal');
   const sec=(t,b)=>`<section class="stack" style="gap:6px"><h3>${t}</h3>${b}</section>`;
+  const who=n=>n.by==='dm'?'DM':holderName(n.by);
   return `<div class="journal"><nav class="jrail">${ss.map((x,i)=>`<button class="jstep${i===JSEL?' on':''}" data-act="jsel" data-i="${i}"><span class="jn">${esc(x.num||i+1)}</span><span><b>${esc(x.title)}</b><small>${esc([x.played,x.world].filter(Boolean).join(' · '))}</small></span></button>`).join('')}</nav>
   <article class="stack" style="max-width:820px;min-width:0"><span class="lbl">Session ${esc(s.num||JSEL+1)}</span><h2 class="big" style="font-size:2rem">${esc(s.title)}</h2>${s.quote?`<p class="sub" style="font-style:italic;margin:0">${esc(s.quote)}</p>`:''}
   <p style="font-size:1.08rem;line-height:1.6;margin:0">${esc(s.summary||'')}</p>
@@ -249,18 +408,144 @@ function journal(){const ss=(D.journal||{}).sessions||[];if(!ss.length)return'<p
   ${sec('Decisions',(s.decisions||[]).map(x=>`<div class="dec"><b>${esc(x.choice)}</b><span class="sub">${esc(x.result||'')}</span></div>`).join(''))}
   ${(s.events||[]).length?sec('Timeline',`<ol class="tl">${s.events.map(x=>`<li><span class="tw">${esc(x.when||'—')}</span><span>${esc(x.text)}</span></li>`).join('')}</ol>`):''}
   ${(s.threads||[]).length?sec('Still open',`<ul class="jl">${s.threads.map(x=>`<li>${esc(x)}</li>`).join('')}</ul>`):''}
-  ${notes.length?sec('Player notes',notes.map(n=>{const c=D.party.find(p=>p.id===n.by);return `<div class="panel" style="padding:8px 12px"><b>${esc(c?first(c.name):'DM')}</b><p style="margin:2px 0 0;white-space:pre-wrap">${esc(n.text)}</p></div>`}).join('')):''}
+  ${ME==='dm'&&(X.dm||{})[String(JSEL)]?`<div class="dmbox"><span class="lbl">DM only</span><p style="margin:4px 0 0;white-space:pre-wrap">${esc(X.dm[String(JSEL)])}</p></div>`:''}
+  ${sec('Notes from the table',`<div class="stack" style="gap:8px">${notes.length?`<ol class="nlog">${notes.map(n=>`<li><div class="row"><b style="flex:1">${esc(who(n))}</b><span class="rar">${esc(new Date(n.at).toLocaleString('en-US',{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'}))}</span>${ME==='dm'?`<button class="btn sm" data-act="delnote" data-id="${esc(n.id)}">Delete</button>`:''}</div><p style="margin:2px 0 0;white-space:pre-wrap">${esc(n.text)}</p></li>`).join('')}</ol>`:'<p class="empty">No notes yet.</p>'}
+    <div class="panel stack" style="gap:8px"><label class="field"><span class="lbl">Add a note as ${esc(ME==='dm'?'the DM':holderName(ME))}</span><textarea id="note-text" rows="3" placeholder="What do you remember, suspect, or want to follow up on?"></textarea></label><div class="row" style="justify-content:flex-end"><button class="btn primary" data-act="addnote">Add note</button></div></div></div>`)}
   </article></div>`}
+
+/* ---------- DM PIN ---------- */
+function pinForm(err){return `<div class="stack" style="max-width:420px"><h2 style="font-size:1.6rem">Dungeon Master</h2><p class="sub" style="margin:0">Enter your PIN to see the DM-only details.</p>
+  <form id="pinform" class="panel stack" style="gap:8px"><label class="field"><span class="lbl">PIN</span><input type="password" id="pin" autocomplete="current-password" required></label>${err?`<p class="warn" style="margin:0">${esc(err)}</p>`:''}<div class="row"><button class="btn primary" type="submit">Unlock</button><button class="btn" type="button" data-act="switch">Back</button></div></form></div>`}
+
+/* ---------- encounter reminders ---------- */
+const EQ={mode:'attacked',kind:'melee',ab:'dex',magic:true,dmg:'slashing',close:true,seven:true,you:new Set(),tgt:new Set(),aura:new Set()};
+const DMG=['bludgeoning','piercing','slashing','fire','cold','lightning','thunder','acid','poison','necrotic','radiant','psychic','force'];
+const YOU_C=[['prone','Prone'],['restrained','Restrained'],['blinded','Blinded'],['poisoned','Poisoned'],['frightened','Frightened'],['invisible','Invisible'],['dodging','Dodging'],['incap','Stunned, paralyzed or unconscious']];
+const TGT_C=[['prone','Prone'],['restrained','Restrained'],['blinded','Blinded'],['incap','Stunned, paralyzed or unconscious'],['invisible','Invisible'],['dodging','Dodging']];
+const isBandAC=(e,f)=>/gauntlet band/i.test(e.name)&&f.w==='defense'&&f.t==='ac';
+function fxOf(c,pred){const o=[];for(const e of c.entries||[]){if(!isOn(e))continue;for(const f of e.fx||[])if(pred(f,e))o.push({f,e,c})}return o}
+const mAtk=(a,k)=>!a||a==='any'||a===k||(a==='weapon'&&(k==='melee'||k==='ranged'));
+const mSave=(a,ab,mg)=>!a||a==='any'||a===ab||(a==='magic'&&mg)||(a==='mental-magic'&&mg&&['int','wis','cha'].includes(ab));
+function mDmg(f,t){if(f.a==='nonmagical'&&EQ.magic)return false;const d=String(f.d||'').toLowerCase();if(!d||d==='all')return true;return d.split(/[,\s]+/).includes(t)}
+function encAnalyze(c){
+  const R={adv:[],dis:[],nums:[],mine:[],allies:[],dmg:[],notes:[],alarms:[]};const Y=EQ.you,T=EQ.tgt,k=EQ.kind,close=EQ.close;
+  const allyFx=pred=>{const o=[];for(const a of D.party){if(a.id===c.id)continue;for(const x of fxOf(a,pred))o.push(x)}return o};
+  if(EQ.mode==='attacked'){
+    if(Y.has('prone'))(close&&k==='melee'?R.adv:R.dis).push(close&&k==='melee'?'You’re prone and they’re within 5 ft':'You’re prone and they’re at range');
+    if(Y.has('restrained'))R.adv.push('You’re restrained');
+    if(Y.has('blinded'))R.adv.push('You’re blinded');
+    if(Y.has('incap')){R.adv.push('You’re stunned, paralyzed or unconscious');if(close)R.alarms.push('A hit from within 5 ft is a critical hit while you’re paralyzed or unconscious.')}
+    if(Y.has('invisible'))R.dis.push('You’re invisible');
+    if(Y.has('dodging')&&!Y.has('incap'))R.dis.push('You took the Dodge action');
+    for(const {f,e} of fxOf(c,f=>f.w==='defense'&&mAtk(f.a,k)&&f.t!=='ac'))(f.t==='atkdis'?R.dis:R.adv).push(e.name+(f.n?': '+f.n:''));
+    const acb=fxOf(c,(f,e)=>f.w==='defense'&&f.t==='ac'&&mAtk(f.a,k)&&(!isBandAC(e,f)||EQ.seven));
+    const base=+c.ac||0,tot=base+acb.reduce((s,x)=>s+(parseInt(x.f.v)||0),0);
+    R.nums.push({label:'Your AC',val:tot,parts:[['Sheet AC',base],...acb.map(x=>[x.e.name,parseInt(x.f.v)||0])]});
+    const trig=['attacked','hit','damaged','anyroll'].concat(k==='spell'?['spell']:[]);
+    for(const x of fxOf(c,f=>f.w==='reaction'&&f.s!=='ally'&&trig.includes(f.a)))R.mine.push(x);
+    for(const x of allyFx(f=>f.w==='reaction'&&f.s==='ally'&&trig.includes(f.a)))R.allies.push(x);
+    for(const {f,e} of fxOf(c,f=>f.w==='damage')){if(f.t==='condimmune'){R.dmg.push(['Can’t be '+(f.d||''),e.name]);continue}if(!mDmg(f,EQ.dmg))continue;
+      if(f.t==='reduce'&&!/bludg|pierc|slash/.test(EQ.dmg))continue;R.dmg.push([{resist:'Resistant: take half',immune:'Immune: take none',vuln:'Vulnerable: take double',absorb:'Absorb it: heal instead',reduce:'Reduce it by '+(f.v||'?')}[f.t]||f.t,e.name])}
+  }else if(EQ.mode==='attacking'){
+    const ranged=k==='ranged'||(k==='spell'&&!close);
+    if(T.has('prone'))(close&&!ranged?R.adv:R.dis).push(close&&!ranged?'Target is prone and you’re within 5 ft':'Target is prone and you’re at range');
+    if(T.has('restrained'))R.adv.push('Target is restrained');
+    if(T.has('blinded'))R.adv.push('Target is blinded');
+    if(T.has('incap')){R.adv.push('Target is stunned, paralyzed or unconscious');if(close)R.alarms.push('A hit from within 5 ft is a critical hit if the target is paralyzed or unconscious.')}
+    if(T.has('invisible'))R.dis.push('Target is invisible');
+    if(T.has('dodging')&&!T.has('incap'))R.dis.push('Target took the Dodge action');
+    if(Y.has('blinded'))R.dis.push('You’re blinded');if(Y.has('poisoned'))R.dis.push('You’re poisoned');if(Y.has('frightened'))R.dis.push('You’re frightened and can see the source');if(Y.has('restrained'))R.dis.push('You’re restrained');if(Y.has('prone'))R.dis.push('You’re prone');if(Y.has('invisible'))R.adv.push('The target can’t see you');
+    for(const {f,e} of fxOf(c,f=>f.w==='offense'&&(f.t==='adv'||f.t==='dis')&&mAtk(f.a,k)))(f.t==='adv'?R.adv:R.dis).push(e.name+(f.n?': '+f.n:''));
+    if(c.toHit!=null){const hb=fxOf(c,f=>f.w==='offense'&&f.t==='hit'&&mAtk(f.a,k));R.nums.push({label:c.atkLabel||'To hit',val:'+'+(+c.toHit),parts:[['Sheet',+c.toHit],...hb.map(x=>[x.e.name,x.f.v])],note:c.atkNote})}
+    for(const x of fxOf(c,f=>f.w==='offense'&&['rider','dmg','crit'].includes(f.t)&&mAtk(f.a,k)))R.mine.push(x);
+  }else{
+    const ab=EQ.ab;
+    if(['str','dex'].includes(ab)&&Y.has('incap'))R.alarms.push('You automatically fail STR and DEX saves while stunned, paralyzed or unconscious.');
+    if(ab==='dex'&&Y.has('restrained'))R.dis.push('You’re restrained');
+    if(ab==='dex'&&Y.has('dodging')&&!Y.has('incap'))R.adv.push('You took the Dodge action');
+    for(const {f,e} of fxOf(c,f=>f.w==='save'&&(f.t==='adv'||f.t==='dis')&&mSave(f.a,ab,EQ.magic)))(f.t==='adv'?R.adv:R.dis).push(e.name+(f.n?': '+f.n:''));
+    const sb=fxOf(c,f=>f.w==='save'&&f.t==='bonus'&&mSave(f.a,ab,EQ.magic));
+    const aur=[];for(const a of D.party)for(const x of fxOf(a,f=>f.w==='aura'&&f.t==='savebonus'))if(EQ.aura.has(a.id+'|'+x.e.id))aur.push(x);
+    const base=+((c.saves||{})[ab]||0);const parts=[['Sheet '+ab.toUpperCase()+' save',base],...sb.map(x=>[x.e.name,x.f.v]),...aur.map(x=>[x.e.name+' ('+first(x.c.name)+')',x.f.v])];
+    const tot=base+[...sb,...aur].reduce((s,x)=>s+(parseInt(x.f.v)||0),0);
+    R.nums.push({label:ab.toUpperCase()+' save',val:sgn(tot),parts});
+    if(ab==='dex')for(const {e} of fxOf(c,f=>f.w==='save'&&f.t==='evasion'))R.alarms.push(e.name+': on a DEX save for half damage, a success means no damage and a failure means half.');
+    for(const x of fxOf(c,f=>(f.w==='save'&&f.t==='reroll')||(f.w==='reaction'&&f.s!=='ally'&&['save','damaged','anyroll'].concat(EQ.magic?['spell']:[]).includes(f.a))))R.mine.push(x);
+    for(const x of allyFx(f=>f.w==='reaction'&&f.s==='ally'&&['save','damaged','anyroll'].includes(f.a)))R.allies.push(x);
+    for(const {f,e} of fxOf(c,f=>f.w==='damage'&&f.t!=='condimmune'&&mDmg(f,EQ.dmg)))if(!(f.t==='reduce'&&!/bludg|pierc|slash/.test(EQ.dmg)))R.dmg.push([{resist:'Resistant: take half',immune:'Immune: take none',vuln:'Vulnerable: take double',absorb:'Absorb it: heal instead',reduce:'Reduce it by '+(f.v||'?')}[f.t]||f.t,e.name]);
+    for(const {f,e} of fxOf(c,f=>f.w==='damage'&&f.t==='condimmune'))R.dmg.push(['Can’t be '+(f.d||''),e.name]);
+  }
+  {const g={};for(const x of R.allies){const k=x.e.name+'|'+(x.f.n||'')+'|'+(x.f.v||'');(g[k]=g[k]||{...x,who:[]}).who.push(first(x.c.name))}R.allies=Object.values(g);}
+  if(EQ.seven)R.notes.push('All seven bands are within 60 ft: Unbroken Circle gives everyone +1 AC and advantage on death saves.');
+  for(const {f,e} of fxOf(c,(f,en)=>f.w==='note'&&/gauntlet|band/i.test(en.name)===false&&/attack|save|hit|damage|reaction|bonus action|turn|0 hp|drop/i.test(f.n||'')))R.notes.push(e.name+': '+f.n);
+  return R;
+}
+function encounter(c){
+  const R=encAnalyze(c);const m=EQ.mode;
+  let v='flat',big='Straight roll',sm='Roll 1d20';
+  if(R.adv.length&&R.dis.length){sm='Advantage and disadvantage cancel out'}else if(R.adv.length){v=m==='attacked'?'bad':'good';big=m==='attacked'?'They roll with advantage':'Roll with advantage';sm='2d20, keep the higher'}else if(R.dis.length){v=m==='attacked'?'good':'bad';big=m==='attacked'?'They roll with disadvantage':'Roll with disadvantage';sm='2d20, keep the lower'}
+  const seg=(k,opts,cur)=>`<div class="seg">${opts.map(([v2,l])=>`<button data-act="eq" data-k="${k}" data-v="${v2}" aria-pressed="${cur===v2}">${l}</button>`).join('')}</div>`;
+  const chips=(k,list)=>`<div class="row" style="gap:6px">${list.map(([v2,l])=>`<button class="chip" data-act="eqset" data-k="${k}" data-v="${v2}" aria-pressed="${EQ[k].has(v2)}">${l}</button>`).join('')}</div>`;
+  const auras=[];for(const a of D.party)for(const x of fxOf(a,f=>f.w==='aura'))auras.push({key:a.id+'|'+x.e.id,lab:`Within ${x.f.r||'?'} ft of ${first(a.name)} (${x.e.name})`});
+  const card=(x,ally)=>`<div class="al t-${ally?'react':x.f.w==='offense'?'off':'react'}"><span class="t">${esc(x.e.name)} ${ally&&(x.who||[]).length>1?'':pips(x.e)}${ally?` <span class="rar">· ${esc((x.who||[first(x.c.name)]).join(', '))}${x.f.r?', within '+esc(x.f.r)+' ft':''}</span>`:''}</span><span class="s">${esc(fxLine(x.f))}</span></div>`;
+  const reasons=[...R.adv.map(r=>`<li class="up">+ ${esc(r)}</li>`),...R.dis.map(r=>`<li class="down">− ${esc(r)}</li>`)].join('');
+  return `<div class="enc">
+    <section class="panel stack">
+      <span class="lbl">What’s happening to ${esc(first(c.name))}</span>
+      ${seg('mode',[['attacked','I’m being attacked'],['attacking','I’m attacking'],['save','I’m making a save']],m)}
+      ${m==='save'?seg('ab',ABIL.map(a=>[a,a.toUpperCase()]),EQ.ab):seg('kind',[['melee','Melee'],['ranged','Ranged'],['spell','Spell attack']],EQ.kind)}
+      <div class="row">${m!=='save'?`<label class="chk"><input type="checkbox" id="eq-close" data-eqc="close"${EQ.close?' checked':''}> Within 5 ft of each other</label>`:''}
+        <label class="chk"><input type="checkbox" id="eq-magic" data-eqc="magic"${EQ.magic?' checked':''}> ${m==='save'?'It’s from a spell or magic':'The attack is magical'}</label>
+        <label class="chk"><input type="checkbox" id="eq-seven" data-eqc="seven"${EQ.seven?' checked':''}> All seven bands within 60 ft</label></div>
+      ${m!=='attacking'?`<label class="field"><span class="lbl">Damage type</span><select id="eq-dmg" data-eqs="dmg">${DMG.map(d=>`<option value="${d}"${d===EQ.dmg?' selected':''}>${cap(d)}</option>`).join('')}</select></label>`:''}
+      ${auras.length&&m==='save'?`<div class="stack" style="gap:6px"><span class="lbl">Auras you’re standing in</span>${chips('aura',auras.map(a=>[a.key,a.lab]))}</div>`:''}
+      <details${EQ.you.size||EQ.tgt.size?' open':''}><summary class="lbl">Conditions</summary><div class="stack" style="gap:8px;margin-top:8px"><span class="lbl">You are</span>${chips('you',YOU_C)}${m==='attacking'?`<span class="lbl">Your target is</span>${chips('tgt',TGT_C)}`:''}</div></details>
+    </section>
+    <section class="stack">
+      <div class="verdict ${v}"><b>${big}</b><span class="sub">${sm}</span></div>
+      ${reasons?`<ul class="why">${reasons}</ul>`:''}
+      ${R.alarms.map(a=>`<div class="alarm">${esc(a)}</div>`).join('')}
+      ${R.nums.map(n=>`<div class="panel"><div class="row"><span class="lbl" style="flex:1">${esc(n.label)}</span><b class="n" style="font-size:1.8rem">${esc(n.val)}</b></div><table class="brk">${n.parts.map(([a,b])=>`<tr><td>${esc(a)}</td><td class="n">${typeof b==='number'?(b>=0?'+':'')+b:esc(b)}</td></tr>`).join('')}</table>${n.note?`<p class="sub" style="margin:4px 0 0">${esc(n.note)}</p>`:''}</div>`).join('')}
+      ${R.mine.length?`<div class="stack" style="gap:6px"><span class="lbl">${m==='attacking'?'When you hit':'You can use'}</span>${R.mine.map(x=>card(x)).join('')}</div>`:''}
+      ${R.allies.length?`<div class="stack" style="gap:6px"><span class="lbl">Allies who can help, if they’re in range</span>${R.allies.map(x=>card(x,true)).join('')}</div>`:''}
+      ${R.dmg.length?`<div class="stack" style="gap:6px"><span class="lbl">The damage you take</span>${R.dmg.map(([a,b])=>`<div class="al t-save"><span class="t">${esc(a)}</span><span class="s">${esc(b)}</span></div>`).join('')}</div>`:m!=='attacking'?`<p class="sub" style="margin:0">You take ${esc(EQ.dmg)} damage normally.</p>`:''}
+      ${R.notes.length?`<div class="stack" style="gap:6px"><span class="lbl">Also remember</span><ul class="jl">${R.notes.map(n=>`<li>${esc(n)}</li>`).join('')}</ul></div>`:''}
+    </section></div>`;
+}
+
 function render(){renderTabs();const app=$('#app');if(!D)return;
+  if(ME==='pin'){app.innerHTML=pinForm(PINERR);const f=$('#pin');f&&f.focus();return}
   if(!me()){app.innerHTML=picker();return}
-  const t=tab();app.innerHTML=t==='sheet'?sheet(me()):t==='party'?partyTiles():t==='loot'?loot():t==='shop'?shop():t==='house'?house():journal();}
+  const t=tab();const chips=ME==='dm'?`<div class="row" style="margin-bottom:12px">${D.party.map(c=>`<button class="btn${c.id===viewed().id?' on':''}" data-act="view" data-id="${esc(c.id)}">${esc(first(c.name))}</button>`).join('')}</div>`:'';
+  const chips2=ME==='dm'&&(t==='sheet'||t==='encounter')?chips:'';
+  app.innerHTML=t==='sheet'?chips2+sheet(viewed()):t==='encounter'?chips2+encounter(viewed()):t==='party'?partyTiles():t==='loot'?loot():t==='shop'?shop():t==='house'?house():journal();}
 document.addEventListener('click',ev=>{const b=ev.target.closest('[data-act]');if(!b)return;const a=b.dataset.act;
-  if(a==='pick'){ME=b.dataset.id;try{localStorage.setItem('ac.me',ME)}catch(e){}location.hash='sheet';render();window.scrollTo(0,0)}
-  else if(a==='switch'){ME=null;try{localStorage.removeItem('ac.me')}catch(e){}render()}
+  if(a==='pick'){ME=b.dataset.id;LOPEN=null;SEND=null;location.hash='sheet';render();window.scrollTo(0,0)}
+  else if(a==='dmpin'){ME='pin';PINERR='';render()}
+  else if(a==='switch'){ME=null;VIEW=null;DMX=null;PIN=null;LOPEN=null;SEND=null;EDIT=false;render()}
+  else if(a==='lopen'){LOPEN=LOPEN===b.dataset.id?null:b.dataset.id;SEND=null;render();const o=$('#lopen');o&&o.scrollIntoView({behavior:'smooth',block:'start'})}
+  else if(a==='lclose'){LOPEN=null;SEND=null;render()}
+  else if(a==='move')act('p_move_item',{from_id:b.dataset.h,to_id:b.dataset.to,entry_id:b.dataset.e,actor:actor()},'Moved to '+holderName(b.dataset.to));
+  else if(a==='wear')act('p_update_entry',{holder_id:b.dataset.h,entry_id:b.dataset.e,patch:{active:b.dataset.v==='1'},actor:actor()},'Updated');
+  else if(a==='use')act('p_update_entry',{holder_id:b.dataset.h,entry_id:b.dataset.e,patch:{left:+b.dataset.v},actor:actor()},'Updated');
+  else if(a==='send'){SEND={h:b.dataset.h,e:b.dataset.e};render();const i=document.getElementById('ask-'+b.dataset.e);i&&i.focus()}
+  else if(a==='send-cancel'){SEND=null;render()}
+  else if(a==='send-go'){const i=document.getElementById('ask-'+b.dataset.e);const v=i&&i.value!==''?Math.max(0,Math.floor(+i.value)):null;SEND=null;act('p_send_to_shop',{from_id:b.dataset.h,entry_id:b.dataset.e,asking:v,actor:actor()},'Wick has it. It’s on the shop ledger.')}
+  else if(a==='addnote'){const t=$('#note-text');if(!t||!t.value.trim())return;const body=t.value.trim();(async()=>{try{await api('/rest/v1/notes',{method:'POST',headers:{Prefer:'return=minimal'},body:JSON.stringify({session:JSEL,author:ME,body})});await load();toast('Note added');render()}catch(e){toast(e.message,true)}})()}
+  else if(a==='delnote')act('dm_delete_note',{pin:PIN,note_id:b.dataset.id},'Note deleted');
+  else if(a==='sheet-edit'){EDIT=!EDIT;render()}
+  else if(a==='sheet-save'){const c=viewed();const g=id=>{const x=document.getElementById(id);return x&&x.value!==''?Math.floor(+x.value):undefined};const patch={};for(const k of ['hp','gold','jars']){const v=g('se-'+k);if(v!==undefined)patch[k]=v}EDIT=false;act('p_update_sheet',{holder_id:c.id,patch,actor:actor()},'Sheet saved')}
+  else if(a==='view'){VIEW=b.dataset.id;render()}
+  else if(a==='eq'){EQ[b.dataset.k]=b.dataset.v;if(b.dataset.k==='kind')EQ.close=b.dataset.v==='melee';render()}
+  else if(a==='eqset'){const S=EQ[b.dataset.k];S.has(b.dataset.v)?S.delete(b.dataset.v):S.add(b.dataset.v);render()}
   else if(a==='jsel'){JSEL=+b.dataset.i;render();window.scrollTo(0,0)}});
+document.addEventListener('change',ev=>{const el=ev.target;if(el.dataset.eqc){EQ[el.dataset.eqc]=el.checked;render()}else if(el.dataset.eqs){EQ[el.dataset.eqs]=el.value;render()}});
+document.addEventListener('submit',async ev=>{if(ev.target.id!=='pinform')return;ev.preventDefault();const p=$('#pin').value;
+  try{const r=await rpc('dm_get',{pin:p});if(!r||r.error){PINERR=(r&&r.error)||'That PIN didn’t work.';render();return}DMX=r.docs||{};PIN=p;ME='dm';PINERR='';location.hash='sheet';render()}catch(e){PINERR=e.message;render()}});
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&D&&!BUSY)load().then(()=>{if(!document.activeElement||!/INPUT|TEXTAREA/.test(document.activeElement.tagName))render()}).catch(()=>{})});
 window.addEventListener('hashchange',()=>{render();window.scrollTo(0,0)});
-fetch('data.json',{cache:'no-store'}).then(r=>{if(!r.ok)throw new Error(r.status);return r.json()}).then(d=>{D=d;$('#foot').textContent='Updated by the DM on '+(d.updated||'')+'. Your sheet changes between sessions are made by the DM.';render()})
-  .catch(()=>{$('#app').innerHTML='<div class="panel"><h2>The ledger didn’t load</h2><p>Refresh the page. If it still doesn’t load, tell the DM.</p></div>'});
+load().then(()=>{$('#foot').textContent='Live from the party ledger. Changes save as you make them.';render()})
+  .catch(e=>{$('#app').innerHTML='<div class="panel"><h2>The ledger didn’t load</h2><p>'+esc(e.message)+'</p><p class="sub">Refresh the page. If the free database has paused after a quiet week, the DM can wake it from the Supabase dashboard.</p></div>'});
 })();
 </script>
 </body>
