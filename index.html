@@ -182,6 +182,17 @@ textarea{width:100%;resize:vertical}
 .paper{margin-top:8px;padding:14px 16px;border:1px solid var(--line);border-radius:6px;background:var(--bg);font-family:var(--f-display);line-height:1.55;white-space:pre-wrap;max-width:62ch}
 #toast{position:fixed;left:50%;bottom:calc(16px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:8px 14px;border-radius:8px;font-size:.92rem;z-index:20;max-width:calc(100% - 32px)}
 #toast.bad{background:var(--bad);color:#fff}
+.fgrid{display:grid;gap:8px;grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}
+.fgrid.six{grid-template-columns:repeat(6,minmax(0,1fr))}
+@media (max-width:480px){.fgrid.six{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.fgrid input,.fgrid select{width:100%;max-width:none}
+.dmbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;border:1px dashed #7b3b5c;border-radius:8px;padding:6px 10px}
+.dmbar>.lbl{color:#7b3b5c}
+.btn.dmb{border-color:#7b3b5c;color:#7b3b5c}
+@media (prefers-color-scheme:dark){.dmbar{border-color:#d08bb0}.dmbar>.lbl,.btn.dmb{color:#d08bb0;border-color:#d08bb0}}
+.btn.danger{color:var(--bad);border-color:var(--bad)}
+.okbox{border-left:3px solid var(--good);background:var(--good-bg);padding:8px 12px;border-radius:0 8px 8px 0}
+.pctl{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}.pctl .tick{display:inline-flex;align-items:center;gap:4px}
 body.busy{cursor:progress}body.busy .btn{pointer-events:none;opacity:.7}
 </style>
 </head>
@@ -249,12 +260,13 @@ function sheet(c){
   const inside=id=>items(c).filter(e=>e.in===id);
   const gearRow=e=>{const b=[];if(e.attune)b.push(e.attuned?'<span class="badge">attuned</span>':'<span class="badge warn">not attuned</span>');if(e.active===false)b.push('<span class="badge">packed</span>');if((+e.qty||1)>1)b.push('<span class="badge">×'+esc(e.qty)+'</span>');const inn=e.container?inside(e.id):[];
     const ask=(dmx(c.id).asks||{})[e.id];
-    return `<div class="gr${isOn(e)?'':' off'}"><span class="n2"><b>${esc(e.name)}</b>${e.rarity?` <span class="rar">${esc(e.rarity)}</span>`:''}</span><span class="row" style="gap:5px">${b.join('')}${pips(e)}</span>${e.desc?`<span class="d">${esc(e.desc)}</span>`:''}${inn.length?`<span class="d"><b>Holds:</b> ${esc(inn.map(x=>x.name).join(', '))}</span>`:''}${ask?`<span class="d dmnote">DM: ${esc(ask)}</span>`:''}${(e.kind||'item')==='item'?`<span class="d">${itemActions(c.id,e)}</span>`:(+e.uses||0)>0&&canHandle(c.id)?`<span class="d"><div class="acts"><button class="btn sm" data-act="use" data-h="${esc(c.id)}" data-e="${esc(e.id)}" data-v="${Math.max(0,(+e.left||0)-1)}"${(+e.left||0)<=0?' disabled':''}>Use one</button>${ME==='dm'?`<button class="btn sm" data-act="use" data-h="${esc(c.id)}" data-e="${esc(e.id)}" data-v="${+e.uses}">Refill</button>`:''}</div></span>`:''}</div>`};
+    return `<div class="gr${isOn(e)?'':' off'}"><span class="n2"><b>${esc(e.name)}</b>${e.rarity?` <span class="rar">${esc(e.rarity)}</span>`:''}</span><span class="row" style="gap:5px">${b.join('')}${pips(e)}</span>${e.desc?`<span class="d">${esc(e.desc)}</span>`:''}${inn.length?`<span class="d"><b>Holds:</b> ${esc(inn.map(x=>x.name).join(', '))}</span>`:''}${ask?`<span class="d dmnote">DM: ${esc(ask)}</span>`:''}${ME==='dm'?`<span class="d">${dmItemBtns(c.id,e)}</span>`:''}${(e.kind||'item')==='item'?`<span class="d">${itemActions(c.id,e)}</span>`:(+e.uses||0)>0&&canHandle(c.id)?`<span class="d"><div class="acts"><button class="btn sm" data-act="use" data-h="${esc(c.id)}" data-e="${esc(e.id)}" data-v="${Math.max(0,(+e.left||0)-1)}"${(+e.left||0)<=0?' disabled':''}>Use one</button>${ME==='dm'?`<button class="btn sm" data-act="use" data-h="${esc(c.id)}" data-e="${esc(e.id)}" data-v="${+e.uses}">Refill</button>`:''}</div></span>`:''}</div>`};
   const att=items(c).filter(e=>e.attune&&e.attuned&&e.active!==false).length;
   return `<article class="stack">
     <header class="sh-head"><div><h2 class="big">${esc(c.name)}</h2><div class="sub">${esc(c.cls||'')}</div></div><div class="row">${canHandle(c.id)&&c.id!=='stash'?`<button class="btn" data-act="sheet-edit">${EDIT?'Cancel':'Update HP and gold'}</button>`:''}${c.ddb?`<a href="${esc(c.ddb)}" target="_blank" rel="noopener">Open on D&D Beyond</a>`:''}</div></header>
     ${EDIT&&canHandle(c.id)?`<div class="panel row" style="align-items:end"><label class="field"><span class="lbl">Current HP (max ${esc(c.hpMax??'?')})</span><input type="number" min="0" id="se-hp" value="${esc(c.hp??c.hpMax??'')}"></label><label class="field"><span class="lbl">Gold (gp)</span><input type="number" min="0" id="se-gold" value="${esc(c.gold??0)}"></label><label class="field"><span class="lbl">Ash jars</span><input type="number" min="0" id="se-jars" value="${esc(c.jars??0)}"></label><button class="btn primary" data-act="sheet-save">Save</button></div>`:''}
-    ${ME==='dm'&&dmx(c.id).notes?`<div class="dmbox"><span class="lbl">DM only</span><p style="margin:2px 0 0">${esc(dmx(c.id).notes)}</p></div>`:''}
+    ${ME==='dm'&&dmx(c.id).notes&&DMED!=='sheet:'+c.id?`<div class="dmbox"><span class="lbl">DM only</span><p style="margin:2px 0 0">${esc(dmx(c.id).notes)}</p></div>`:''}
+    ${ME==='dm'?dmSheetPanel(c):''}
     <div class="strip">${stat('AC',c.ac,c.acNote)}${stat('HP',(hp??'?')+'/'+(c.hpMax??'?'))}${stat('Speed',c.speed!=null?c.speed+' ft':null)}${stat('Init',c.init!=null?sgn(c.init):null)}${c.dc!=null?stat('Save DC',c.dc):''}${c.toHit!=null?stat(c.atkLabel||'To hit',sgn(c.toHit),c.atkNote):''}${stat('Gold',fmt(c.gold)+' gp',c.jars?c.jars+' ash jar'+(c.jars===1?'':'s'):'')}</div>
     ${c.hpMax?`<div class="hpbar${pct<35?' low':''}" aria-hidden="true"><span style="width:${pct}%"></span></div>`:''}
     ${c.scores?`<div class="abil">${ABIL.map(a=>`<div class="ab"><span class="lbl">${a.toUpperCase()}</span><b>${mod(c.scores[a])}</b><small>${esc(c.scores[a]??'')}</small><span class="sv">save ${(c.saves||{})[a]!=null?sgn(c.saves[a]):'?'}</span></div>`).join('')}</div>`:''}
@@ -319,7 +331,8 @@ function loot(){const hs=[...D.party,...(D.stash?[D.stash]:[])];const on=hs.redu
   const open=LOPEN&&hs.find(c=>c.id===LOPEN);
   const list=c=>{const it=items(c);const top=it.filter(e=>!e.in);return `<section class="panel stack" id="lopen"><div class="row"><h2 style="flex:1">${esc(holderName(c.id))}</h2><button class="btn" data-act="lclose">Close</button></div>
     ${canHandle(c.id)?`<p class="sub" style="margin:0">${c.id==='stash'?'Take something, or send it to the shop with Wick.':'Hand things to the party loot, or send them to the shop with Wick.'}</p>`:''}
-    <div class="gear">${top.length?top.map(e=>`<div class="gr"><span class="n2"><b>${esc(e.name)}</b>${(+e.qty||1)>1?' ×'+esc(e.qty):''}${e.rarity?` <span class="rar">${esc(e.rarity)}</span>`:''}</span><span class="row" style="gap:5px">${e.attune?(e.attuned?'<span class="badge">attuned</span>':'<span class="badge warn">not attuned</span>'):''}${pips(e)}</span>${e.desc||itemLine(e)?`<span class="d">${esc(itemLine(e)||e.desc)}</span>`:''}${e.container?`<span class="d"><b>Holds:</b> ${esc(it.filter(x=>x.in===e.id).map(x=>x.name).join(', ')||'nothing')}</span>`:''}${dmx(c.id).asks&&dmx(c.id).asks[e.id]?`<span class="d dmnote">DM: ${esc(dmx(c.id).asks[e.id])}</span>`:''}<span class="d">${itemActions(c.id,e)}</span></div>`).join(''):'<p class="empty" style="padding:10px">Nothing here.</p>'}</div></section>`};
+    <div class="gear">${top.length?top.map(e=>`<div class="gr"><span class="n2"><b>${esc(e.name)}</b>${(+e.qty||1)>1?' ×'+esc(e.qty):''}${e.rarity?` <span class="rar">${esc(e.rarity)}</span>`:''}</span><span class="row" style="gap:5px">${e.attune?(e.attuned?'<span class="badge">attuned</span>':'<span class="badge warn">not attuned</span>'):''}${pips(e)}</span>${e.desc||itemLine(e)?`<span class="d">${esc(itemLine(e)||e.desc)}</span>`:''}${e.container?`<span class="d"><b>Holds:</b> ${esc(it.filter(x=>x.in===e.id).map(x=>x.name).join(', ')||'nothing')}</span>`:''}${dmx(c.id).asks&&dmx(c.id).asks[e.id]?`<span class="d dmnote">DM: ${esc(dmx(c.id).asks[e.id])}</span>`:''}${ME==='dm'?`<span class="d">${dmItemBtns(c.id,e)}</span>`:''}<span class="d">${itemActions(c.id,e)}</span></div>`).join(''):'<p class="empty" style="padding:10px">Nothing here.</p>'}</div>
+    ${ME==='dm'?(DMED==='add:'+c.id?dmAddForm(c.id):`<div><button class="btn sm dmb" data-act="dm-open" data-v="add:${esc(c.id)}">Add an item here</button></div>`):''}</section>`};
   return `<div class="stack"><h2>Party loot</h2>
   <div class="panel row" style="gap:18px"><span><b class="n" style="font-size:1.3rem">${fmt(on)}</b> gp on hand</span><span><b class="n" style="font-size:1.3rem">${fmt(D.stash&&D.stash.bank)}</b> gp in the Vaelmar bank</span><span><b class="n" style="font-size:1.3rem">${jars}</b> ash jars</span></div>
   ${D.stash&&D.stash.purseNote?`<p class="sub" style="margin:0">${esc(D.stash.purseNote)}</p>`:''}
@@ -346,6 +359,7 @@ function shop(){const S=D.shop||{},r=S.runner||{};const cg=S.cargo||[];const X=d
   <div class="strip"><div class="st"><span class="lbl">Run by</span><b style="font:700 1rem var(--f-body)">${esc(S.keeper||'')}</b></div><div class="st"><span class="lbl">Upkeep</span><b>${fmt(S.upkeep)} gp</b><small>${esc(S.upkeepNote||'')}</small></div><div class="st"><span class="lbl">The runner is</span><b style="font:700 1rem var(--f-body)">${esc(RS[r.status]||'—')}</b></div>
     <div class="st"><span class="lbl">Heat</span><b>${heat} / 10</b><small>How hard people are watching the roads</small></div><div class="st"><span class="lbl">Run DC</span><b>${thr+1}</b><small>Wick needs ${thr+1}+ on the main road (${thr*5}% risk)</small></div></div>
   <div class="heat">${Array.from({length:10},(_,i)=>`<span class="${i<heat?'on':''}"></span>`).join('')}</div>
+  ${ME==='dm'?dmShopPanel():''}
   <section class="panel stack" style="gap:6px"><span class="lbl">The runner</span><h3 style="font-size:1.4rem">${esc(r.name||'')}</h3><span class="sub">${esc(r.who||'')}</span>${r.desc?`<p style="margin:0">${esc(r.desc)}</p>`:''}
     <div class="row"><span class="lbl">Loyalty</span><span class="pips">${[1,2,3,4,5,6].map(i=>`<span class="pip${i<=loy?' on':''}"></span>`).join('')}</span><span class="sub">${loy} of 6. If he’s questioned, he keeps quiet on a d6 roll of ${loy} or less.</span></div>
     ${r.stats?`<p class="sub" style="margin:0">${esc(r.stats)}</p>`:''}
@@ -353,7 +367,7 @@ function shop(){const S=D.shop||{},r=S.runner||{};const cg=S.cargo||[];const X=d
   ${ups.length?`<section class="stack"><h3>${ME==='dm'?'Upgrades':'What the shop has'}</h3>${ups.map(u=>`<div class="panel"><b>${esc(u.name)}</b> <span class="badge">${esc({active:'active',building:'being built',planned:'planned',notfound:'not found yet',locked:'locked',lost:'lost'}[u.status]||u.status)}</span><p style="margin:4px 0 0">${esc(u.effect||'')}</p>${ME==='dm'&&u.risk?`<p class="sub" style="margin:4px 0 0"><b>Risk:</b> ${esc(u.risk)}</p>`:''}</div>`).join('')}</section>`:''}
   <h3>Wick’s pack and the shop ledger</h3>
   <p class="sub" style="margin:0">Send something with Wick from your Sheet or from Party loot. The DM marks it delivered, sold or lost.</p>
-  ${cg.length?`<div class="tablewrap"><table class="ledger"><thead><tr><th>Item</th><th>From</th><th>Where it is</th><th>Asking</th><th>Sold for</th></tr></thead><tbody>${cg.map(x=>`<tr><td><b>${esc(x.name)}</b>${(+x.qty||1)>1?' ×'+x.qty:''}<div class="rar">sent ${esc(x.sentAt||'')}${x.by?' by '+esc(x.by==='dm'?'the DM':holderName(x.by)):''}</div></td><td>${esc(x.from||'')}</td><td>${esc(CG[x.status]||x.status)}</td><td class="n">${x.ask!=null?fmt(x.ask)+' gp':'—'}</td><td class="n">${x.status==='sold'?fmt(x.sold)+' gp':'—'}</td></tr>`).join('')}</tbody></table></div>`:'<p class="empty">Nothing has been sent to the shop yet.</p>'}
+  ${cg.length?`<div class="tablewrap"><table class="ledger"><thead><tr><th>Item</th><th>From</th><th>Where it is</th><th>Asking</th><th>Sold for</th>${ME==='dm'?'<th></th>':''}</tr></thead><tbody>${cg.map(x=>`<tr><td><b>${esc(x.name)}</b>${(+x.qty||1)>1?' ×'+x.qty:''}<div class="rar">sent ${esc(x.sentAt||'')}${x.by?' by '+esc(x.by==='dm'?'the DM':holderName(x.by)):''}</div></td><td>${esc(x.from||'')}</td><td>${esc(CG[x.status]||x.status)}</td><td class="n">${x.ask!=null?fmt(x.ask)+' gp':'—'}</td><td class="n">${x.status==='sold'?fmt(x.sold)+' gp':'—'}</td>${ME==='dm'?`<td>${cargoDmBtns(x)}</td>`:''}</tr>`).join('')}</tbody></table></div>`:'<p class="empty">Nothing has been sent to the shop yet.</p>'}
   <h3>Runs</h3>
   ${(S.runs||[]).length?`<div class="tablewrap"><table class="ledger"><thead><tr><th>When</th><th>Route</th><th>Sent</th><th>Sales</th><th>Upkeep</th></tr></thead><tbody>${S.runs.map(x=>`<tr><td>${esc(x.when||'')}</td><td>${x.route==='back'?'Back roads':'Main road'}</td><td>${esc(x.out||'')}${x.pack?`<div class="rar">${esc(x.pack)}</div>`:''}</td><td class="n">${x.sold?fmt(x.sold)+' gp':'—'}</td><td>${x.upkeep?'Paid':'Unpaid'}</td></tr>`).join('')}</tbody></table></div>`:'<p class="empty">No runs yet.</p>'}
   ${ME==='dm'&&X.trouble?`<details class="dmbox"><summary class="lbl">DM only · the run tables</summary><span class="lbl">Trouble on the road (d6)</span><ol class="jl">${X.trouble.map(t=>`<li>${esc(t.t)}</li>`).join('')}</ol><span class="lbl">What he lets slip (d4)</span><ol class="jl">${(X.spill||[]).map(t=>`<li>${esc(t)}</li>`).join('')}</ol><span class="lbl">Rumors (d6)</span><ol class="jl">${(X.rumors||[]).map(t=>`<li>${esc(t)}</li>`).join('')}</ol></details>`:''}
@@ -369,7 +383,7 @@ function house(){const H=D.house||{};const ps=H.people||[];const X=dmx('house');
   const card=p=>{const x=XP[p.id]||{};return `<div class="pc${p.tier==='captain'?' cap':''}"><b>${esc(p.name)}</b><span class="rar">${esc(p.role||'')}</span>
     ${p.link==='runner'?'':`<span class="meters"><span>L ${bar(+p.loyalty||0,'Loyalty')}</span><span>R ${bar(+p.respect||0,'Respect')}</span>${p.tier!=='outside'?`<span class="rar">Influence ${+p.influence||0}</span>`:''}</span>
     <span class="rar">${esc(LOY_L[+p.loyalty||0]||'')} · ${esc(RES_L[+p.respect||0]||'')}</span>`}
-    ${p.sees?`<span class="sees">${esc(p.sees)}</span>`:''}
+    ${p.sees?`<span class="sees">${esc(p.sees)}</span>`:''}${dmPersonCtl(p)}
     ${ME==='dm'&&(x.secret||x.up||x.down)?`<details class="dmbox"><summary class="lbl">DM only</summary>${x.secret?`<p style="margin:4px 0"><b>Secret:</b> ${esc(x.secret)}</p>`:''}${x.up?`<p style="margin:4px 0"><b>Raises loyalty:</b> ${esc(x.up)}</p>`:''}${x.down?`<p style="margin:4px 0"><b>Lowers loyalty:</b> ${esc(x.down)}</p>`:''}${x.notes?`<p style="margin:4px 0"><b>Notes:</b> ${esc(x.notes)}</p>`:''}</details>`:''}</div>`};
   const caps=ps.filter(p=>p.tier==='captain'),mid=ps.filter(p=>p.tier==='ledger'||p.tier==='liaison'),outs=ps.filter(p=>p.tier==='outside');
   const wolf=D.party.find(c=>c.id===H.wolf);const name=id=>(ps.find(p=>p.id===id)||{}).name||id;
@@ -383,12 +397,14 @@ function house(){const H=D.house||{};const ps=H.people||[];const X=dmx('house');
     <div class="slide"><span style="left:${st/5*100}%"></span></div><div class="row sub" style="justify-content:space-between"><span>0 · ${STAND_L[0]}</span><span>5 · ${STAND_L[5]}</span></div>
     ${H.standingNote?`<p style="margin:0">${esc(H.standingNote)}</p>`:''}
     <p class="sub" style="margin:0">Each captain and the Ledgerkeeper score the average of their loyalty and respect, weighted by their influence.</p></section>
+  ${ME==='dm'?dmHousePanel():''}
+  ${(H.delivered||[]).length?`<section class="stack" style="gap:8px"><h3>Delivered to the party</h3>${H.delivered.map(x=>`<div class="ctr"><b style="font:400 1.1rem var(--f-display)">${esc(x.t)}</b>${x.at?`<span class="rar">Received ${esc(x.at)}</span>`:''}${x.letter?`<details><summary class="lbl">Read the letter</summary><div class="paper">${esc(x.letter)}</div></details>`:''}</div>`).join('')}</section>`:''}
   <div class="strip"><div class="st"><span class="lbl">Wears the Wolf</span><b style="font:700 1rem var(--f-body)">${esc(wolf?first(wolf.name):'')}</b></div>${H.policy&&H.policy.name?`<div class="st"><span class="lbl">House policy</span><b style="font:700 1rem var(--f-body)">${esc(H.policy.name)}</b><small>${esc(H.policy.said||'')}</small></div>`:''}${finRow}</div>
   <div class="org-top"><span class="lbl">The Seven</span><div class="row" style="gap:6px">${D.party.map(c=>`<span class="pchip${c.id===H.wolf?' wolf':''}">${esc(first(c.name))}</span>`).join('')}</div><p class="sub" style="margin:0">${esc(H.leaderNote||'')}</p></div>
   <div class="midrow">${mid.map(card).join('')}</div>
   <div class="caps">${caps.map(c=>`<div class="stack" style="gap:6px"><span class="divn">${esc(c.div||'')}</span>${card(c)}<div class="subs">${ps.filter(p=>p.parent===c.id).map(card).join('')}</div></div>`).join('')}</div>
   ${outs.length?`<div class="stack" style="gap:6px"><span class="lbl">Outside the House</span><div class="caps">${outs.map(card).join('')}</div></div>`:''}
-  ${(H.contracts||[]).length?`<h3>Contracts you’ve been read</h3><div class="ctrs">${H.contracts.map(c=>`<div class="ctr"><b style="font:400 1.1rem var(--f-display)">${esc(c.name)}</b>${c.desk?`<span class="rar">${esc(c.desk)}</span>`:''}<p style="margin:0">${esc(c.told||'')}</p><div style="border-top:1px dashed var(--line);padding-top:6px"><span class="lbl">Latest from Bellamy</span><p style="margin:2px 0 0" class="${c.update?'':'sub'}">${esc(c.update||'No news yet. Ask the DM for an update.')}</p></div>${ME==='dm'&&(X.contracts||{})[c.name]?`<p class="dmnote" style="margin:0">DM: ${esc(X.contracts[c.name])}</p>`:''}</div>`).join('')}</div>`:''}
+  ${(H.contracts||[]).length?`<h3>Contracts you’ve been read</h3><div class="ctrs">${H.contracts.map((c,ci)=>`<div class="ctr"><b style="font:400 1.1rem var(--f-display)">${esc(c.name)}</b>${c.desk?`<span class="rar">${esc(c.desk)}</span>`:''}<p style="margin:0">${esc(c.told||'')}</p><div style="border-top:1px dashed var(--line);padding-top:6px"><span class="lbl">Latest from Bellamy</span><p style="margin:2px 0 0" class="${c.update?'':'sub'}">${esc(c.update||'No news yet. Ask the DM for an update.')}</p></div>${ME==='dm'&&(X.contracts||{})[c.name]&&DMED!=='ctr:'+ci?`<p class="dmnote" style="margin:0">DM: ${esc(X.contracts[c.name])}</p>`:''}${dmContractCtl(c,ci)}</div>`).join('')}</div>`:''}
   ${ME==='dm'?`<details class="dmbox"><summary class="lbl">DM only · tensions and story</summary>
     ${(X.ties||[]).length?`<span class="lbl">Tensions inside the House</span><ul class="jl">${X.ties.map(t=>`<li><b>${esc(name(t.a))}</b> ${esc(t.verb)} <b>${esc(t.bName||name(t.b))}</b>: <span class="sub">${esc(t.note||'')}</span></li>`).join('')}</ul>`:''}
     ${story.map(s=>`<div class="stack" style="gap:4px;margin-top:8px"><b>${esc(s.t)}</b>${s.tie?` <span class="badge">${esc(s.tie)}</span>`:''}<p style="margin:0">${esc(s.detail||'')}</p>${s.how?`<p class="sub" style="margin:0"><b>How it reaches them:</b> ${esc(s.how)}</p>`:''}${s.letter?`<details><summary class="lbl">Read the letter</summary><div class="paper">${esc(s.letter)}</div>${(s.letterNotes||[]).length?`<ul class="jl">${s.letterNotes.map(n=>`<li><b>${esc(n[0])}</b> ${esc(n[1])}</li>`).join('')}</ul>`:''}</details>`:''}</div>`).join('')}
@@ -401,7 +417,7 @@ function journal(){const ss=(D.journal||{}).sessions||[];if(!ss.length)return'<p
   const sec=(t,b)=>`<section class="stack" style="gap:6px"><h3>${t}</h3>${b}</section>`;
   const who=n=>n.by==='dm'?'DM':holderName(n.by);
   return `<div class="journal"><nav class="jrail">${ss.map((x,i)=>`<button class="jstep${i===JSEL?' on':''}" data-act="jsel" data-i="${i}"><span class="jn">${esc(x.num||i+1)}</span><span><b>${esc(x.title)}</b><small>${esc([x.played,x.world].filter(Boolean).join(' · '))}</small></span></button>`).join('')}</nav>
-  <article class="stack" style="max-width:820px;min-width:0"><span class="lbl">Session ${esc(s.num||JSEL+1)}</span><h2 class="big" style="font-size:2rem">${esc(s.title)}</h2>${s.quote?`<p class="sub" style="font-style:italic;margin:0">${esc(s.quote)}</p>`:''}
+  <article class="stack" style="max-width:820px;min-width:0">${ME==='dm'?dmJournalPanel(s,JSEL):''}<span class="lbl">Session ${esc(s.num||JSEL+1)}</span><h2 class="big" style="font-size:2rem">${esc(s.title)}</h2>${s.quote?`<p class="sub" style="font-style:italic;margin:0">${esc(s.quote)}</p>`:''}
   <p style="font-size:1.08rem;line-height:1.6;margin:0">${esc(s.summary||'')}</p>
   ${sec('Highlights',`<ul class="jl">${(s.highlights||[]).map(x=>`<li>${esc(x)}</li>`).join('')}</ul>`)}
   <div class="jgrid">${sec('People you met',`<ul class="jl">${(s.people||[]).map(x=>`<li><b>${esc(x.name)}</b> <span class="sub">${esc(x.note||'')}</span></li>`).join('')}</ul>`)}${sec('Loot',`<ul class="jl">${(s.loot||[]).map(x=>`<li><b>${esc(x.item)}</b>${x.who?` <span class="sub">→ ${esc(x.who)}</span>`:''}</li>`).join('')}</ul>`)}</div>
@@ -412,6 +428,184 @@ function journal(){const ss=(D.journal||{}).sessions||[];if(!ss.length)return'<p
   ${sec('Notes from the table',`<div class="stack" style="gap:8px">${notes.length?`<ol class="nlog">${notes.map(n=>`<li><div class="row"><b style="flex:1">${esc(who(n))}</b><span class="rar">${esc(new Date(n.at).toLocaleString('en-US',{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'}))}</span>${ME==='dm'?`<button class="btn sm" data-act="delnote" data-id="${esc(n.id)}">Delete</button>`:''}</div><p style="margin:2px 0 0;white-space:pre-wrap">${esc(n.text)}</p></li>`).join('')}</ol>`:'<p class="empty">No notes yet.</p>'}
     <div class="panel stack" style="gap:8px"><label class="field"><span class="lbl">Add a note as ${esc(ME==='dm'?'the DM':holderName(ME))}</span><textarea id="note-text" rows="3" placeholder="What do you remember, suspect, or want to follow up on?"></textarea></label><div class="row" style="justify-content:flex-end"><button class="btn primary" data-act="addnote">Add note</button></div></div></div>`)}
   </article></div>`}
+
+/* ---------- DM editor ---------- */
+const clone=o=>JSON.parse(JSON.stringify(o));
+const val=id=>{const x=document.getElementById(id);return x?(x.type==='checkbox'?x.checked:x.value):undefined};
+const num=id=>{const v=val(id);return v===''||v==null||v===false?undefined:Number(v)};
+const newId=()=>'n'+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+const today=()=>new Date().toLocaleDateString('en-US',{month:'short',day:'numeric'});
+let IEDIT=null,IDEL=null,DMED=null,RROLL=null,SELLING=null;
+// Re-read the latest copy, apply one change, write it back. Keeps a player's edit made a moment ago.
+async function rawPut(id,mutate,secret){
+  let cur,kind;
+  if(secret){const r=await rpc('dm_get',{pin:PIN});if(r&&r.error)throw new Error(r.error);cur=(r.docs||{})[id]||{}}
+  else{const rows=await api('/rest/v1/docs?select=kind,data&id=eq.'+encodeURIComponent(id));if(!rows||!rows.length)throw new Error('Record not found: '+id);cur=rows[0].data;kind=rows[0].kind}
+  const next=mutate(clone(cur));
+  const r=await rpc('dm_put',{pin:PIN,doc_id:id,doc_kind:kind||'char',doc_data:next,secret:!!secret});
+  if(r!=='Saved.')throw new Error(r||'Not saved.');
+  return next;
+}
+async function dmDo(fn,msg){if(BUSY)return;BUSY=true;document.body.classList.add('busy');
+  try{await fn();await load();const g=await rpc('dm_get',{pin:PIN});if(g&&!g.error)DMX=g.docs||{};toast(msg||'Saved');render()}
+  catch(e){toast(e.message||'That didn’t save.',true)}finally{BUSY=false;document.body.classList.remove('busy')}}
+const stashGold=dl=>rawPut('stash',d=>{d.gold=Math.max(0,Math.floor((+d.gold||0)+dl));return d});
+
+/* sheets and items */
+const SHEET_F=[['name','Name','text'],['cls','Class line','text'],['ac','AC','number'],['acNote','AC note','text'],['hp','Current HP','number'],['hpMax','Max HP','number'],['speed','Speed','number'],['init','Initiative','number'],['dc','Save DC','number'],['toHit','To hit','number'],['atkLabel','Attack label','text'],['atkNote','Attack note','text'],['gold','Gold','number'],['jars','Ash jars','number'],['attune','Attune slots','number']];
+function dmSheetPanel(c){
+  if(DMED!=='sheet:'+c.id)return `<div class="dmbar"><span class="lbl">DM tools</span><button class="btn sm" data-act="dm-open" data-v="sheet:${esc(c.id)}">Edit this sheet</button><button class="btn sm" data-act="dm-open" data-v="add:${esc(c.id)}">Add an item or feature</button></div>${DMED==='add:'+c.id?dmAddForm(c.id):''}`;
+  const x=dmx(c.id);
+  return `<section class="dmbox stack"><div class="row"><span class="lbl" style="flex:1">Editing ${esc(first(c.name))}</span><button class="btn sm" data-act="dm-close">Cancel</button></div>
+    <div class="fgrid">${SHEET_F.map(([k,l,t])=>`<label class="field"><span class="lbl">${l}</span><input type="${t}" id="ds-${k}" value="${esc(c[k]??'')}"></label>`).join('')}</div>
+    <span class="lbl">Saving throws</span><div class="fgrid six">${ABIL.map(a=>`<label class="field"><span class="lbl">${a.toUpperCase()}</span><input type="number" id="ds-s-${a}" value="${esc((c.saves||{})[a]??'')}"></label>`).join('')}</div>
+    <span class="lbl">Ability scores</span><div class="fgrid six">${ABIL.map(a=>`<label class="field"><span class="lbl">${a.toUpperCase()}</span><input type="number" id="ds-a-${a}" value="${esc((c.scores||{})[a]??'')}"></label>`).join('')}</div>
+    <label class="field"><span class="lbl">DM-only note on this character</span><textarea id="ds-dmnote" rows="2">${esc(x.notes||'')}</textarea></label>
+    <div class="row" style="justify-content:flex-end"><button class="btn primary" data-act="dm-sheet-save" data-id="${esc(c.id)}">Save sheet</button></div></section>`;
+}
+function dmSheetSave(id){
+  const f={};for(const [k,,t] of SHEET_F){const v=val('ds-'+k);if(v===undefined)continue;f[k]=t==='number'?(v===''?null:Number(v)):v}
+  const sv={},sc={};for(const a of ABIL){const s=num('ds-s-'+a),o=num('ds-a-'+a);if(s!==undefined)sv[a]=s;if(o!==undefined)sc[a]=o}
+  const note=val('ds-dmnote');
+  dmDo(async()=>{await rawPut(id,d=>{Object.assign(d,f);d.saves={...(d.saves||{}),...sv};d.scores={...(d.scores||{}),...sc};return d});
+    if(note!==(dmx(id).notes||''))await rawPut(id,d=>{d.notes=note;d.asks=d.asks||{};return d},true);DMED=null},'Sheet saved');
+}
+const RESET_O=[['','No recharge'],['SR','Short rest'],['LR','Long rest'],['dawn','Dawn'],['once','Once ever']];
+const KIND_O=[['item','Item'],['feature','Class feature'],['feat','Feat'],['spell','Spell'],['condition','Ongoing effect']];
+const optsH=(list,cur)=>list.map(([v,l])=>`<option value="${esc(v)}"${String(cur??'')===v?' selected':''}>${esc(l)}</option>`).join('');
+function itemForm(h,e,isNew){const p=isNew?'na':'ie';const ask=isNew?'':((dmx(h).asks||{})[e.id]||'');
+  return `<div class="dmbox stack" style="margin-top:6px"><div class="fgrid">
+    <label class="field"><span class="lbl">Name</span><input type="text" id="${p}-name" value="${esc(e.name||'')}"></label>
+    <label class="field"><span class="lbl">Kind</span><select id="${p}-kind">${optsH(KIND_O,e.kind||'item')}</select></label>
+    <label class="field"><span class="lbl">Rarity</span><input type="text" id="${p}-rarity" value="${esc(e.rarity||'')}"></label>
+    <label class="field"><span class="lbl">Quantity</span><input type="number" min="1" id="${p}-qty" value="${esc(e.qty??1)}"></label>
+    <label class="field"><span class="lbl">Uses (max)</span><input type="number" min="0" id="${p}-uses" value="${esc(e.uses??0)}"></label>
+    <label class="field"><span class="lbl">Uses left</span><input type="number" min="0" id="${p}-left" value="${esc(e.left??e.uses??0)}"></label>
+    <label class="field"><span class="lbl">Recharges</span><select id="${p}-reset">${optsH(RESET_O,e.reset||'')}</select></label></div>
+    <label class="field"><span class="lbl">What it does</span><textarea id="${p}-desc" rows="3">${esc(e.desc||'')}</textarea></label>
+    <div class="row"><label class="chk"><input type="checkbox" id="${p}-attune"${e.attune?' checked':''}> Requires attunement</label><label class="chk"><input type="checkbox" id="${p}-attuned"${e.attuned?' checked':''}> Attuned</label><label class="chk"><input type="checkbox" id="${p}-active"${e.active!==false?' checked':''}> Worn or in use</label></div>
+    ${isNew?'':`<label class="field"><span class="lbl">Question for the player (DM only)</span><input type="text" id="${p}-ask" value="${esc(ask)}"></label>`}
+    <p class="sub" style="margin:0">Combat effects (the Encounter tab’s reminders) are kept as they are; ask Claude to add or change those.</p>
+    <div class="row">${isNew?`<button class="btn primary" data-act="dm-add-save" data-h="${esc(h)}">Add</button><button class="btn" data-act="dm-close">Cancel</button>`
+      :`<button class="btn primary" data-act="dm-item-save" data-h="${esc(h)}" data-e="${esc(e.id)}">Save item</button><button class="btn" data-act="dm-item-cancel">Cancel</button><span style="flex:1"></span>${IDEL===e.id?`<span class="warn">Delete ${esc(e.name)} for good?</span><button class="btn danger" data-act="dm-item-del" data-h="${esc(h)}" data-e="${esc(e.id)}">Delete</button>`:`<button class="btn danger" data-act="dm-item-askdel" data-e="${esc(e.id)}">Delete</button>`}`}</div></div>`}
+function readItem(p){const o={name:(val(p+'-name')||'').trim()||'Unnamed',kind:val(p+'-kind')||'item',rarity:val(p+'-rarity')||'',qty:num(p+'-qty')||1,uses:num(p+'-uses')||0,reset:val(p+'-reset')||'',desc:val(p+'-desc')||'',attune:!!val(p+'-attune'),attuned:!!val(p+'-attuned'),active:!!val(p+'-active')};o.left=Math.min(o.uses,num(p+'-left')??o.uses);return o}
+function dmAddForm(h){return itemForm(h,{kind:'item',qty:1,uses:0,active:true},true)}
+function dmItemBtns(h,e){if(ME!=='dm')return'';if(IEDIT&&IEDIT.h===h&&IEDIT.e===e.id)return itemForm(h,e,false);
+  return `<div class="acts">${e.attune?`<button class="btn sm dmb" data-act="dm-attune" data-h="${esc(h)}" data-e="${esc(e.id)}" data-v="${e.attuned?'0':'1'}">${e.attuned?'Unattune':'Mark attuned'}</button>`:''}<button class="btn sm dmb" data-act="dm-item-edit" data-h="${esc(h)}" data-e="${esc(e.id)}">Edit</button></div>`}
+const patchEntry=(h,eid,fn)=>rawPut(h,d=>{d.entries=(d.entries||[]).map(x=>x.id===eid?fn(x):x);return d});
+
+/* shop */
+function dmShopPanel(){const S=D.shop||{},X=dmx('shop'),r=S.runner||{};const heat=+S.heat||0;
+  const route=(RROLL&&RROLL.route)||'main';const thr=Math.max(1,Math.min(19,(+(S.base??2))+heat-(route==='back'?2:0)));
+  const R=RROLL&&RROLL.d20?RROLL:null;const pack=(S.cargo||[]).filter(x=>x.status==='pack');
+  return `<section class="dmbox stack"><span class="lbl">DM tools · the shop</span>
+    <div class="row"><span class="lbl">Heat</span><button class="btn sm" data-act="dm-shop-n" data-k="heat" data-d="-1">−</button><b class="n">${heat}</b><button class="btn sm" data-act="dm-shop-n" data-k="heat" data-d="1">+</button>
+      <span class="lbl" style="margin-left:12px">Wick’s loyalty</span><button class="btn sm" data-act="dm-shop-n" data-k="loyalty" data-d="-1">−</button><b class="n">${+r.loyalty||0}</b><button class="btn sm" data-act="dm-shop-n" data-k="loyalty" data-d="1">+</button>
+      <label class="field" style="margin-left:12px"><span class="lbl">Wick is</span><select id="dm-rstatus" data-dmchg="rstatus">${optsH(Object.entries(RS).filter(([k])=>k!=='road'),r.status||'party')}</select></label></div>
+    <div class="panel stack" style="gap:8px"><span class="lbl">Roll a run</span>
+      <div class="row"><select id="dm-route" data-dmchg="route">${optsH([['main','Main road'],['back','Back roads (−2)']],route)}</select><span class="sub">Base ${+(S.base??2)} + heat ${heat}${route==='back'?' − 2':''} = intercepted on 1–${thr}, run DC ${thr+1}</span><button class="btn primary" data-act="dm-roll">Roll</button></div>
+      ${R?`<div class="${R.hit?'alarm':'okbox'}"><b>${R.hit?'Trouble on the road':'He made it'}</b> · d20 ${R.d20} vs DC ${R.thr+1}${R.hit?` · trouble d6 ${R.d6}: ${esc(R.t)}`:''}${R.loy!=null?`<br>Loyalty d6 ${R.loy} vs ${R.need}: ${R.held?'he keeps quiet.':'he talks. Slip d4 '+R.d4+': '+esc(R.spill)}`:''}${!R.hit?`<br>Rumor d6 ${R.r6}: ${esc(R.rumor)}`:''}</div>`:''}</div>
+    <div class="panel stack" style="gap:8px"><span class="lbl">Log a run</span>
+      <div class="fgrid"><label class="field"><span class="lbl">When</span><input type="text" id="lr-when" placeholder="Session 5, day 3"></label>
+      <label class="field"><span class="lbl">Route</span><select id="lr-route">${optsH([['main','Main road'],['back','Back roads']],route)}</select></label>
+      <label class="field"><span class="lbl">Sent to the shop</span><input type="text" id="lr-out" value="${esc(pack.map(x=>x.name).join(', '))}"></label>
+      <label class="field"><span class="lbl">Other sales he brought back (gp)</span><input type="number" min="0" id="lr-sold"></label>
+      ${pack.length?`<label class="field"><span class="lbl">Wick’s pack (${pack.length})</span><select id="lr-pack">${optsH([['atshop','Delivered to the shop'],['lost','Lost on the road'],['pack','Still with Wick']],R&&R.hit&&[2,6].includes(R.d6)?'lost':'atshop')}</select></label>`:''}</div>
+      <label class="field"><span class="lbl">What happened</span><input type="text" id="lr-outcome" value="${esc(R?(R.hit?'Intercepted: '+R.t:'Arrived safe.'):'')}"></label>
+      <div class="row"><label class="chk"><input type="checkbox" id="lr-upkeep" checked> Upkeep paid (${fmt(S.upkeep||0)} gp)</label><label class="chk"><input type="checkbox" id="lr-pay" checked> Pay Wick (${fmt(r.pay||0)} gp)</label><span class="sub">Sales go into the party stash; upkeep and pay come out of it.</span><span style="flex:1"></span><button class="btn primary" data-act="dm-logrun">Save run</button></div></div>
+    ${(X.upgrades||[]).length?`<div class="panel stack" style="gap:6px"><span class="lbl">Upgrades (players see active and being built)</span>${X.upgrades.map((u,i)=>`<div class="row"><b style="flex:1">${esc(u.name)}</b><select data-dmchg="upg" data-i="${i}" aria-label="${esc(u.name)} status">${optsH([['active','Active'],['building','Being built'],['planned','Planned'],['notfound','Not found yet'],['locked','Locked'],['lost','Lost']],u.status)}</select></div>`).join('')}</div>`:''}
+  </section>`}
+function cargoDmBtns(x){if(ME!=='dm')return'';const live=x.status==='pack'||x.status==='atshop';
+  if(SELLING===x.id)return `<div class="sendbox"><input type="number" min="0" id="sell-${esc(x.id)}" value="${esc(x.ask??'')}" placeholder="gp"><button class="btn sm primary" data-act="dm-sold" data-id="${esc(x.id)}">Sold</button><button class="btn sm" data-act="dm-sell-cancel">Cancel</button></div>`;
+  return live?`<div class="acts">${x.status==='pack'?`<button class="btn sm dmb" data-act="dm-cg" data-id="${esc(x.id)}" data-v="atshop">Delivered</button><button class="btn sm dmb" data-act="dm-cg" data-id="${esc(x.id)}" data-v="lost">Lost</button>`:''}<button class="btn sm dmb" data-act="dm-sell" data-id="${esc(x.id)}">Sold…</button><button class="btn sm dmb" data-act="dm-return" data-id="${esc(x.id)}">Return</button></div>`:''}
+function rollRun(){const S=D.shop||{},X=dmx('shop'),r=S.runner||{};const route=val('dm-route')||'main';const thr=Math.max(1,Math.min(19,(+(S.base??2))+(+S.heat||0)-(route==='back'?2:0)));
+  const d=n=>1+Math.floor(Math.random()*n);const R={route,thr,d20:d(20)};R.hit=R.d20<=thr;
+  if(R.hit){R.d6=d(6);const t=(X.trouble||[])[R.d6-1]||{};R.t=t.t||'';if(t.question){R.need=+r.loyalty||0;R.loy=d(6);R.held=R.loy<=R.need;if(!R.held){R.d4=d(4);R.spill=(X.spill||[])[R.d4-1]||''}}}
+  else{R.r6=d(6);R.rumor=(X.rumors||[])[R.r6-1]||''}
+  RROLL=R;render()}
+function logRun(){const S=D.shop||{},r=S.runner||{};const run={id:newId(),at:new Date().toISOString(),when:val('lr-when')||'',route:val('lr-route')||'main',out:val('lr-out')||'',sold:num('lr-sold')||0,upkeep:!!val('lr-upkeep'),outcome:val('lr-outcome')||''};
+  const pk=val('lr-pack');const pay=val('lr-pay')?(+r.pay||0):0,up=run.upkeep?(+S.upkeep||0):0;
+  if(RROLL&&RROLL.rumor)run.rumor=RROLL.rumor;
+  dmDo(async()=>{await rawPut('shop',d=>{if(pk&&pk!=='pack'){const moved=(d.cargo||[]).filter(x=>x.status==='pack');moved.forEach(x=>x.status=pk);run.pack=moved.map(x=>x.name).join(', ')+(pk==='lost'?' (lost)':' (delivered)')}d.runs=[run,...(d.runs||[])];if(run.route==='back'&&!RROLL?.hit)d.heat=Math.max(0,(+d.heat||0));return d});
+    const net=run.sold-up-pay;if(net)await stashGold(net);RROLL=null},'Run logged'+(run.sold||up||pay?`: stash ${run.sold-up-pay>=0?'+':'−'}${fmt(Math.abs(run.sold-up-pay))} gp`:''))}
+
+/* house */
+function dmPersonCtl(p){if(ME!=='dm'||p.link==='runner')return'';const b=(k,l)=>`<span class="tick"><span class="lbl">${l}</span><button class="btn sm dmb" data-act="dm-p" data-id="${esc(p.id)}" data-k="${k}" data-d="-1" aria-label="Lower ${l}">−</button><b class="n">${+p[k]||0}</b><button class="btn sm dmb" data-act="dm-p" data-id="${esc(p.id)}" data-k="${k}" data-d="1" aria-label="Raise ${l}">+</button></span>`;
+  return `<div class="pctl">${b('loyalty','L')}${b('respect','R')}${p.tier!=='outside'?b('influence','I'):''}</div>`}
+function dmContractCtl(c,i){if(ME!=='dm')return'';const X=dmx('house');
+  if(DMED!=='ctr:'+i)return `<button class="btn sm dmb" data-act="dm-open" data-v="ctr:${i}">Edit contract</button>`;
+  return `<div class="stack" style="gap:6px"><div class="fgrid"><label class="field"><span class="lbl">Status</span><select id="ct-status">${optsH([['active','Active'],['watching','Being watched'],['notcontract','Not a contract'],['unconfirmed','Unconfirmed'],['closed','Closed']],c.status)}</select></label><label class="field"><span class="lbl">Held by</span><input type="text" id="ct-desk" value="${esc(c.desk||'')}"></label></div>
+    <label class="field"><span class="lbl">Latest from Bellamy (players see this)</span><textarea id="ct-update" rows="3">${esc(c.update||'')}</textarea></label>
+    <label class="field"><span class="lbl">DM note</span><textarea id="ct-dm" rows="2">${esc((X.contracts||{})[c.name]||'')}</textarea></label>
+    <div class="row"><button class="btn sm primary" data-act="dm-ctr-save" data-i="${i}">Save contract</button><button class="btn sm" data-act="dm-close">Cancel</button></div></div>`}
+function dmHousePanel(){const H=D.house||{},X=dmx('house'),fin=H.fin||{};const story=(X.policy||{}).story||[];const del=(H.delivered||[]).map(x=>x.t);
+  const caps=(H.people||[]).filter(p=>p.tier==='captain');const sk=+((fin.skim||{})[fin.involve||'hands'])||0;const ear=caps.reduce((s,p)=>s+(+p.take||0),0),cost=caps.reduce((s,p)=>s+(+p.cost||0),0)+(fin.overhead||[]).filter(o=>!o.when||o.when===(fin.involve||'hands')).reduce((s,o)=>s+(+o.gp||0),0),net=ear-Math.round(ear*sk/100)-cost;
+  return `<section class="dmbox stack"><span class="lbl">DM tools · the House</span>
+    <label class="field"><span class="lbl">What’s behind the standing (players see this)</span><textarea id="hs-note" rows="3">${esc(H.standingNote||'')}</textarea></label><div><button class="btn sm primary" data-act="dm-standing">Save note</button></div>
+    <div class="row"><label class="field"><span class="lbl">How involved the party is</span><select id="hs-inv" data-dmchg="involve">${optsH([['hands','Hands-off'],['liaison','Through Bellamy'],['check','Checks in each session'],['run','Runs it directly']],fin.involve||'hands')}</select></label>
+      <span class="sub">The books: ${net<0?'−':'+'}${fmt(Math.abs(net))} gp a session</span><button class="btn sm primary" data-act="dm-settle" data-v="${net}">Settle this session into the stash</button></div>
+    ${story.length?`<div class="stack" style="gap:6px"><span class="lbl">Story items</span>${story.map((s,i)=>`<div class="row"><b style="flex:1">${esc(s.t)}</b>${del.includes(s.t)?`<span class="badge">delivered</span><button class="btn sm" data-act="dm-undeliver" data-i="${i}">Take back</button>`:`<button class="btn sm primary" data-act="dm-deliver" data-i="${i}">Deliver to the party</button>`}</div>`).join('')}<p class="sub" style="margin:0">Delivering shows its title${story.some(s=>s.letter)?' and letter':''} on the players’ House tab. Your notes stay DM-only.</p></div>`:''}
+    <details><summary class="lbl">Add a contract</summary><div class="stack" style="gap:6px;margin-top:6px"><input type="text" id="nc-name" placeholder="Name"><input type="text" id="nc-desk" placeholder="Held by"><textarea id="nc-told" rows="2" placeholder="What the party was told"></textarea><div><button class="btn sm primary" data-act="dm-ctr-add">Add contract</button></div></div></details>
+  </section>`}
+
+/* journal */
+const JLIST=[['highlights','Highlights','One per line'],['people','People they met','Name — who they are'],['loot','Loot','Item — who has it'],['decisions','Decisions','What they chose — what came of it'],['events','Timeline','When | what happened'],['threads','Still open','One per line']];
+const SEP=' — ';
+const toLines=(k,arr)=>(arr||[]).map(x=>k==='people'?x.name+(x.note?SEP+x.note:''):k==='loot'?x.item+(x.who?SEP+x.who:''):k==='decisions'?x.choice+(x.result?SEP+x.result:''):k==='events'?(x.when||'')+' | '+x.text:x).join('\n');
+function fromLines(k,t){const L=String(t||'').split('\n').map(x=>x.trim()).filter(Boolean);const pr=(a,b)=>l=>{const i=l.indexOf(SEP);return i<0?{[a]:l,[b]:''}:{[a]:l.slice(0,i).trim(),[b]:l.slice(i+SEP.length).trim()}};
+  if(k==='people')return L.map(pr('name','note'));if(k==='loot')return L.map(pr('item','who'));if(k==='decisions')return L.map(pr('choice','result'));
+  if(k==='events')return L.map(l=>{const i=l.indexOf('|');return i<0?{when:'',text:l}:{when:l.slice(0,i).trim(),text:l.slice(i+1).trim()}});return L}
+function dmJournalPanel(s,i){if(DMED!=='jr:'+i)return `<div class="dmbar"><span class="lbl">DM tools</span><button class="btn sm" data-act="dm-open" data-v="jr:${i}">Edit this session</button><button class="btn sm" data-act="dm-jadd">Add a new session</button></div>`;
+  const X=dmx('journal');
+  return `<section class="dmbox stack"><div class="row"><span class="lbl" style="flex:1">Editing session ${esc(s.num||i+1)}</span><button class="btn sm" data-act="dm-close">Cancel</button></div>
+    <div class="fgrid"><label class="field"><span class="lbl">Title</span><input type="text" id="js-title" value="${esc(s.title||'')}"></label><label class="field"><span class="lbl">Played on</span><input type="text" id="js-played" value="${esc(s.played||'')}" placeholder="Nov 15, 2026"></label><label class="field"><span class="lbl">In the world</span><input type="text" id="js-world" value="${esc(s.world||'')}" placeholder="Late autumn, days 14–16"></label></div>
+    <label class="field"><span class="lbl">Opening line</span><input type="text" id="js-quote" value="${esc(s.quote||'')}"></label>
+    <label class="field"><span class="lbl">Summary</span><textarea id="js-summary" rows="4">${esc(s.summary||'')}</textarea></label>
+    ${JLIST.map(([k,l,ph])=>`<label class="field"><span class="lbl">${l}</span><textarea id="js-${k}" rows="4" placeholder="${esc(ph)}">${esc(toLines(k,s[k]))}</textarea></label>`).join('')}
+    <label class="field"><span class="lbl">DM-only note</span><textarea id="js-dm" rows="3">${esc((X.dm||{})[String(i)]||'')}</textarea></label>
+    <div class="row" style="justify-content:flex-end"><button class="btn primary" data-act="dm-jsave" data-i="${i}">Save session</button></div></section>`}
+
+function dmClick(a,b){
+  const h=b.dataset.h,e=b.dataset.e,i=+b.dataset.i;
+  switch(a){
+    case 'dm-open':DMED=b.dataset.v;IEDIT=null;render();break;
+    case 'dm-close':DMED=null;render();break;
+    case 'dm-sheet-save':dmSheetSave(b.dataset.id);break;
+    case 'dm-attune':dmDo(()=>patchEntry(h,e,x=>({...x,attuned:b.dataset.v==='1'})),b.dataset.v==='1'?'Attuned':'Unattuned');break;
+    case 'dm-item-edit':IEDIT={h,e};IDEL=null;render();break;
+    case 'dm-item-cancel':IEDIT=null;IDEL=null;render();break;
+    case 'dm-item-askdel':IDEL=e;render();break;
+    case 'dm-item-save':{const o=readItem('ie');const ask=val('ie-ask');dmDo(async()=>{await patchEntry(h,e,x=>({...x,...o}));if(ask!==((dmx(h).asks||{})[e]||''))await rawPut(h,d=>{d.asks=d.asks||{};if(ask)d.asks[e]=ask;else delete d.asks[e];return d},true);IEDIT=null},'Item saved');break}
+    case 'dm-item-del':dmDo(async()=>{await rawPut(h,d=>{d.entries=(d.entries||[]).filter(x=>x.id!==e&&x.in!==e);return d});IEDIT=null;IDEL=null},'Deleted');break;
+    case 'dm-add-save':{const o=readItem('na');dmDo(async()=>{await rawPut(h,d=>{d.entries=[...(d.entries||[]),{id:newId(),fx:[],...o}];return d});DMED=null},o.name+' added');break}
+    case 'dm-shop-n':{const k=b.dataset.k,dl=+b.dataset.d;dmDo(()=>rawPut('shop',d=>{if(k==='heat')d.heat=Math.max(0,Math.min(10,(+d.heat||0)+dl));else{d.runner=d.runner||{};d.runner.loyalty=Math.max(0,Math.min(6,(+d.runner.loyalty||0)+dl))}return d}),k==='heat'?'Heat updated':'Loyalty updated');break}
+    case 'dm-roll':rollRun();break;
+    case 'dm-logrun':logRun();break;
+    case 'dm-cg':dmDo(()=>rawPut('shop',d=>{(d.cargo||[]).forEach(x=>{if(x.id===b.dataset.id)x.status=b.dataset.v});return d}),b.dataset.v==='lost'?'Marked lost':'Marked delivered');break;
+    case 'dm-sell':SELLING=b.dataset.id;render();break;
+    case 'dm-sell-cancel':SELLING=null;render();break;
+    case 'dm-sold':{const id=b.dataset.id,v=num('sell-'+id)||0;let credit=0;dmDo(async()=>{await rawPut('shop',d=>{(d.cargo||[]).forEach(x=>{if(x.id===id&&x.status!=='sold'){x.status='sold';x.sold=v;x.soldAt=today();credit=v}});return d});if(credit)await stashGold(credit);SELLING=null},`Sold for ${fmt(v)} gp, added to the stash`);break}
+    case 'dm-return':{const id=b.dataset.id;let item=null;dmDo(async()=>{await rawPut('shop',d=>{(d.cargo||[]).forEach(x=>{if(x.id===id&&x.status!=='returned'){item=x;x.status='returned'}});return d});
+      if(item&&item.entry){const to=D.party.some(c=>c.id===item.fromId)||item.fromId==='stash'?item.fromId:'stash';await rawPut(to,d=>{d.entries=[...(d.entries||[]),item.entry,...(item.kids||[])];return d})}},'Returned');break}
+    case 'dm-p':{const id=b.dataset.id,k=b.dataset.k,dl=+b.dataset.d;dmDo(()=>rawPut('house',d=>{d.people=(d.people||[]).map(p=>p.id===id?{...p,[k]:Math.max(0,Math.min(5,(+p[k]||0)+dl))}:p);d.log=[...(d.log||[]),{when:today(),text:`${(d.people.find(p=>p.id===id)||{}).name}: ${k} ${dl>0?'up':'down'}`}].slice(-60);return d}),'Updated');break}
+    case 'dm-ctr-save':{const st=val('ct-status'),desk=val('ct-desk'),up=val('ct-update'),dn=val('ct-dm');const name=((D.house||{}).contracts||[])[i].name;
+      dmDo(async()=>{await rawPut('house',d=>{d.contracts=(d.contracts||[]).map((c,j)=>j===i?{...c,status:st,desk,update:up}:c);return d});if(dn!==((dmx('house').contracts||{})[name]||''))await rawPut('house',d=>{d.contracts=d.contracts||{};d.contracts[name]=dn;return d},true);DMED=null},'Contract saved');break}
+    case 'dm-ctr-add':{const name=(val('nc-name')||'').trim();if(!name)return toast('Give the contract a name.',true);dmDo(()=>rawPut('house',d=>{d.contracts=[...(d.contracts||[]),{name,status:'active',desk:val('nc-desk')||'',told:val('nc-told')||'',update:''}];return d}),'Contract added');break}
+    case 'dm-standing':{const t=val('hs-note');dmDo(()=>rawPut('house',d=>{d.standingNote=t;return d}),'Saved');break}
+    case 'dm-settle':{const n=+b.dataset.v;dmDo(async()=>{await stashGold(n);await rawPut('house',d=>{d.log=[...(d.log||[]),{when:today(),text:`Settled the books: ${n<0?'−':'+'}${fmt(Math.abs(n))} gp`}].slice(-60);return d})},`Stash ${n<0?'−':'+'}${fmt(Math.abs(n))} gp`);break}
+    case 'dm-deliver':{const s=((dmx('house').policy||{}).story||[])[i];if(!s)return;dmDo(()=>rawPut('house',d=>{d.delivered=[...(d.delivered||[]).filter(x=>x.t!==s.t),{t:s.t,tie:s.tie||'',letter:s.letter||'',at:today()}];return d}),'Delivered to the party');break}
+    case 'dm-undeliver':{const s=((dmx('house').policy||{}).story||[])[i];if(!s)return;dmDo(()=>rawPut('house',d=>{d.delivered=(d.delivered||[]).filter(x=>x.t!==s.t);return d}),'Taken back');break}
+    case 'dm-jsave':{const o={title:val('js-title'),played:val('js-played'),world:val('js-world'),quote:val('js-quote'),summary:val('js-summary')};for(const [k] of JLIST)o[k]=fromLines(k,val('js-'+k));const dn=val('js-dm');
+      dmDo(async()=>{await rawPut('journal',d=>{d.sessions=(d.sessions||[]).map((s,j)=>j===i?{...s,...o}:s);return d});if(dn!==((dmx('journal').dm||{})[String(i)]||''))await rawPut('journal',d=>{d.dm=d.dm||{};if(dn)d.dm[String(i)]=dn;else delete d.dm[String(i)];return d},true);DMED=null},'Session saved');break}
+    case 'dm-jadd':{let n=0;dmDo(async()=>{await rawPut('journal',d=>{d.sessions=d.sessions||[];n=d.sessions.length;d.sessions.push({num:n+1,title:'Session '+(n+1),summary:'',highlights:[],people:[],loot:[],decisions:[],events:[],threads:[]});return d});JSEL=n;DMED='jr:'+n},'Session added');break}
+  }
+}
+function dmChange(el){const k=el.dataset.dmchg;
+  if(k==='route'){RROLL={route:el.value};render();return}
+  if(k==='rstatus')return dmDo(()=>rawPut('shop',d=>{d.runner=d.runner||{};d.runner.status=el.value;return d}),'Wick’s status updated');
+  if(k==='involve')return dmDo(()=>rawPut('house',d=>{d.fin=d.fin||{};d.fin.involve=el.value;return d}),'Updated');
+  if(k==='upg'){const i=+el.dataset.i,v=el.value;return dmDo(async()=>{const nx=await rawPut('shop',d=>{d.upgrades=(d.upgrades||[]).map((u,j)=>j===i?{...u,status:v}:u);return d},true);await rawPut('shop',d=>{d.upgrades=(nx.upgrades||[]).filter(u=>u.status==='active'||u.status==='building');return d})},'Upgrade updated')}
+}
 
 /* ---------- DM PIN ---------- */
 function pinForm(err){return `<div class="stack" style="max-width:420px"><h2 style="font-size:1.6rem">Dungeon Master</h2><p class="sub" style="margin:0">Enter your PIN to see the DM-only details.</p>
@@ -520,9 +714,10 @@ function render(){renderTabs();const app=$('#app');if(!D)return;
   const chips2=ME==='dm'&&(t==='sheet'||t==='encounter')?chips:'';
   app.innerHTML=t==='sheet'?chips2+sheet(viewed()):t==='encounter'?chips2+encounter(viewed()):t==='party'?partyTiles():t==='loot'?loot():t==='shop'?shop():t==='house'?house():journal();}
 document.addEventListener('click',ev=>{const b=ev.target.closest('[data-act]');if(!b)return;const a=b.dataset.act;
+  if(a.startsWith('dm-')){if(ME==='dm')dmClick(a,b);return}
   if(a==='pick'){ME=b.dataset.id;LOPEN=null;SEND=null;location.hash='sheet';render();window.scrollTo(0,0)}
   else if(a==='dmpin'){ME='pin';PINERR='';render()}
-  else if(a==='switch'){ME=null;VIEW=null;DMX=null;PIN=null;LOPEN=null;SEND=null;EDIT=false;render()}
+  else if(a==='switch'){ME=null;VIEW=null;DMX=null;PIN=null;DMED=null;IEDIT=null;RROLL=null;SELLING=null;LOPEN=null;SEND=null;EDIT=false;render()}
   else if(a==='lopen'){LOPEN=LOPEN===b.dataset.id?null:b.dataset.id;SEND=null;render();const o=$('#lopen');o&&o.scrollIntoView({behavior:'smooth',block:'start'})}
   else if(a==='lclose'){LOPEN=null;SEND=null;render()}
   else if(a==='move')act('p_move_item',{from_id:b.dataset.h,to_id:b.dataset.to,entry_id:b.dataset.e,actor:actor()},'Moved to '+holderName(b.dataset.to));
@@ -535,11 +730,11 @@ document.addEventListener('click',ev=>{const b=ev.target.closest('[data-act]');i
   else if(a==='delnote')act('dm_delete_note',{pin:PIN,note_id:b.dataset.id},'Note deleted');
   else if(a==='sheet-edit'){EDIT=!EDIT;render()}
   else if(a==='sheet-save'){const c=viewed();const g=id=>{const x=document.getElementById(id);return x&&x.value!==''?Math.floor(+x.value):undefined};const patch={};for(const k of ['hp','gold','jars']){const v=g('se-'+k);if(v!==undefined)patch[k]=v}EDIT=false;act('p_update_sheet',{holder_id:c.id,patch,actor:actor()},'Sheet saved')}
-  else if(a==='view'){VIEW=b.dataset.id;render()}
+  else if(a==='view'){VIEW=b.dataset.id;DMED=null;IEDIT=null;render()}
   else if(a==='eq'){EQ[b.dataset.k]=b.dataset.v;if(b.dataset.k==='kind')EQ.close=b.dataset.v==='melee';render()}
   else if(a==='eqset'){const S=EQ[b.dataset.k];S.has(b.dataset.v)?S.delete(b.dataset.v):S.add(b.dataset.v);render()}
-  else if(a==='jsel'){JSEL=+b.dataset.i;render();window.scrollTo(0,0)}});
-document.addEventListener('change',ev=>{const el=ev.target;if(el.dataset.eqc){EQ[el.dataset.eqc]=el.checked;render()}else if(el.dataset.eqs){EQ[el.dataset.eqs]=el.value;render()}});
+  else if(a==='jsel'){JSEL=+b.dataset.i;DMED=null;render();window.scrollTo(0,0)}});
+document.addEventListener('change',ev=>{const el=ev.target;if(el.dataset.dmchg){if(ME==='dm')dmChange(el);return}if(el.dataset.eqc){EQ[el.dataset.eqc]=el.checked;render()}else if(el.dataset.eqs){EQ[el.dataset.eqs]=el.value;render()}});
 document.addEventListener('submit',async ev=>{if(ev.target.id!=='pinform')return;ev.preventDefault();const p=$('#pin').value;
   try{const r=await rpc('dm_get',{pin:p});if(!r||r.error){PINERR=(r&&r.error)||'That PIN didn’t work.';render();return}DMX=r.docs||{};PIN=p;ME='dm';PINERR='';location.hash='sheet';render()}catch(e){PINERR=e.message;render()}});
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&D&&!BUSY)load().then(()=>{if(!document.activeElement||!/INPUT|TEXTAREA/.test(document.activeElement.tagName))render()}).catch(()=>{})});
