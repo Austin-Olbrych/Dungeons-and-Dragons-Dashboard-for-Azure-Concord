@@ -340,6 +340,8 @@ body[data-page=shop] .panel{border-color:#e2c98f;box-shadow:0 2px 0 #ecd9ae}
 body[data-page=house] .panel,body[data-page=house] .tile,body[data-page=house] .st,body[data-page=shop] .panel,body[data-page=shop] .tile,body[data-page=shop] .st{background:color-mix(in srgb,var(--surface) 93%,transparent)}
 body[data-page=shop] main :is(h2,h3,.sub,.empty,p),body[data-page=house] main :is(h2,h3,.sub,.empty,p){text-shadow:0 0 6px var(--bg),0 0 2px var(--bg)}
 body[data-page=shop] :is(.panel,.tile,.st) :is(h2,h3,.sub,.empty,p),body[data-page=house] :is(.panel,.tile,.st) :is(h2,h3,.sub,.empty,p){text-shadow:none}
+.plby{font-size:.9rem}.tile.th .plby b{color:var(--cd)}
+@media (prefers-color-scheme:dark){.tile.th .plby b{color:color-mix(in srgb,var(--ca) 55%,white)}}
 body.busy{cursor:progress}body.busy .btn{pointer-events:none;opacity:.7}
 </style>
 </head>
@@ -618,11 +620,12 @@ function sheet(c){
     </div>
   </article>`;
 }
+const PLAYERS={coach:'Evan',slav:'Marko',rina:'Tuba',gorc:'Devin',gror:'Bob',cramaris:'Drew',gogeezle:'Zac'};
 const COMPANIONS=[
   {name:'Bellamy Voss',cls:'High Elf · Wizard 7 · School of Conjuration',role:'The party’s liaison to the House',ac:12,hp:37,speed:30,ddb:'https://www.dndbeyond.com/characters/170602463/ok1sJM'},
   {name:'Captain Elira',cls:'Wood Elf · Ranger 8 · Hunter',role:'',ac:16,hp:68,speed:35,ddb:'https://www.dndbeyond.com/characters/169297282/fjVXEg'}];
 function partyTiles(){return `<div class="stack"><h2>The party</h2><div class="pick">${D.party.map(c=>{const nb=items(c).filter(e=>notable(e)&&e.active!==false);
-  return `<div class="tile${thc(c)}" style="cursor:default;${thv(c)}">${tIco(c)}<span class="top"><span class="nm">${esc(first(c.name))}${c.id===ME?' <span class="badge">you</span>':''}</span><span class="ac">AC ${esc(c.ac??'?')}</span></span><span class="sub">${esc(c.cls||'')}</span>
+  return `<div class="tile${thc(c)}" style="cursor:default;${thv(c)}">${tIco(c)}<span class="top"><span class="nm">${esc(first(c.name))}${c.id===ME?' <span class="badge">you</span>':''}</span><span class="ac">AC ${esc(c.ac??'?')}</span></span>${PLAYERS[c.id]?`<span class="plby">Played by <b>${esc(PLAYERS[c.id])}</b></span>`:''}<span class="sub">${esc((c.cls||'').replace(/\s*·\s*played by .*$/i,''))}</span>
   <span class="pips">Speed ${esc(c.speed??'?')} · DEX ${sgn((c.saves||{}).dex||0)} · CON ${sgn((c.saves||{}).con||0)} · WIS ${sgn((c.saves||{}).wis||0)}</span>
   ${nb.length?`<ul>${nb.slice(0,6).map(e=>`<li>${esc(e.name)}</li>`).join('')}</ul>`:''}${c.ddb?`<a class="sub" href="${esc(c.ddb)}" target="_blank" rel="noopener">D&amp;D Beyond sheet</a>`:''}</div>`}).join('')}</div>
   <h2>Companions</h2><div class="pick">${COMPANIONS.map(x=>`<div class="tile comp" style="cursor:default"><span class="top"><span class="nm">${esc(x.name)}</span><span class="ac">AC ${x.ac}</span></span><span class="sub">${esc(x.cls)}</span>${x.role?`<span>${esc(x.role)}</span>`:''}<span class="pips">HP ${x.hp} · Speed ${x.speed} ft</span><a class="sub" href="${esc(x.ddb)}" target="_blank" rel="noopener">D&amp;D Beyond sheet</a></div>`).join('')}</div></div>`}
