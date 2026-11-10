@@ -261,10 +261,87 @@ details.cont[open]>summary .nm2 b::before{content:"▾ "}
 .act .jl{padding-left:16px}
 .tile.comp{border-style:dashed}
 details.inv.flash{background:var(--surface2);transition:background .3s}
+/* ---------- class themes and page art ---------- */
+#bgart{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;opacity:0;transition:opacity .3s}
+#bgart .art{width:100%;height:100%;display:block}
+main,.foot{position:relative;z-index:1}
+.art .s,.ico .s,.nico .s{stroke:var(--ca)}.art .f,.ico .f,.nico .f{fill:var(--ca)}.art .f2{fill:var(--cd)}.art .sp,.ico .sp,.nico .sp{fill:var(--sp)}.art .hole{fill:var(--cl)}
+.beta{font:700 .58rem var(--f-body);letter-spacing:.08em;text-transform:uppercase;background:var(--accent);color:var(--accent-ink);border-radius:4px;padding:1px 4px;margin-left:6px;vertical-align:2px}
+/* banner pages */
+body[data-page=char] header.top,body[data-page=shop] header.top,body[data-page=house] header.top{border-bottom:0;color:#fff;box-shadow:0 2px 12px rgba(0,0,0,.18)}
+body[data-page=char] header.top{background:linear-gradient(100deg,var(--cd),var(--ca))}
+body[data-page=char]::before{background:var(--cd)}
+body[data-page=char] header.top .sub,body[data-page=shop] header.top .sub{color:rgba(255,255,255,.78)}
+body[data-page=char] .tabs,body[data-page=shop] .tabs{background:rgba(0,0,0,.2)}
+body[data-page=char] .tabs a,body[data-page=shop] .tabs a{color:rgba(255,255,255,.85)}
+body[data-page=char] .tabs a[aria-current="page"]{background:#fff;color:var(--cd)}
+body[data-page=char] header.top .btn,body[data-page=shop] header.top .btn{background:rgba(255,255,255,.14);border-color:rgba(255,255,255,.35);color:#fff}
+/* character pages */
+body[data-page=char]{--accent:var(--ca);background:radial-gradient(ellipse 90% 60% at 85% 0,color-mix(in srgb,var(--cl) 85%,transparent),transparent 70%) fixed,linear-gradient(180deg,color-mix(in srgb,var(--cl) 50%,var(--bg)),var(--bg) 900px) fixed}
+body[data-page=char] #bgart{opacity:.2}
+body[data-page=char] .sh-head{border-bottom-color:var(--ca)}
+body[data-page=char] .sh-head h2{color:var(--cd)}
+body[data-page=char] .panel,body[data-page=char] .slot,body[data-page=char] .ivs,body[data-page=char] .act,body[data-page=char] .st,body[data-page=house] .panel,body[data-page=house] .tile,body[data-page=house] .st,body[data-page=shop] .panel,body[data-page=shop] .tile,body[data-page=shop] .st{background:color-mix(in srgb,var(--surface) 74%,transparent);-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px)}
+body[data-page=char] .slot.filled{border-color:color-mix(in srgb,var(--ca) 45%,var(--line))}
+body[data-page=char] .badge.on{color:var(--ca);border-color:var(--ca)}
+body[data-page=char] .fig{background:radial-gradient(circle at 50% 42%,color-mix(in srgb,var(--cl) 90%,transparent),transparent 70%)}
+/* the Guild: underground, candlelit */
+body[data-page=house]{--bg:#0c0f0d;--surface:#151916;--surface2:#1d221e;--ink:#ddd6c0;--muted:#8f937f;--line:#2a312b;--accent:#d4aa4f;--accent-ink:#1a1407;--good:#7cc49a;--good-bg:#173022;--bad:#e58a76;--bad-bg:#3a201b;--info:#9ab8d6;--info-bg:#1a2633;color-scheme:dark;background:radial-gradient(ellipse 80% 50% at 50% 0,#1c2a21,transparent 70%) fixed,#0c0f0d}
+body[data-page=house]::before{background:#060807}
+body[data-page=house] header.top{background:linear-gradient(180deg,#060807,#0f1511);border-bottom:1px solid #26302a}
+body[data-page=house] header.top .sub{color:#8f937f}
+body[data-page=house] .tabs{background:#121713}
+body[data-page=house] .tabs a{color:#a9ac98}
+body[data-page=house] .tabs a[aria-current="page"]{background:#d4aa4f;color:#17110a}
+body[data-page=house] #bgart{opacity:.6}
+body[data-page=house] h2,body[data-page=house] h3{color:#e7d6a6;text-shadow:0 0 18px rgba(212,170,79,.25)}
+body[data-page=house] .panel{border-color:#2e372f;box-shadow:inset 0 1px 0 rgba(255,255,255,.03),0 6px 24px rgba(0,0,0,.4)}
+@media (prefers-reduced-motion:no-preference){.art-house .flame{animation:flick 2.6s ease-in-out infinite;transform-box:fill-box;transform-origin:50% 100%}.art-house .glow{animation:glow 2.6s ease-in-out infinite}
+@keyframes flick{0%,100%{transform:scale(1,1)}30%{transform:scale(.92,1.08)}60%{transform:scale(1.06,.94)}}@keyframes glow{0%,100%{opacity:.9}50%{opacity:.65}}}
+/* the shop: a bright merchant's counter */
+body[data-page=shop]{--bg:#f7f0df;--surface:#fffaf0;--surface2:#f4e9cf;--ink:#2b2114;--muted:#7a6a4e;--line:#e5d2a8;--accent:#a8741a;background:linear-gradient(180deg,#fcf6e7,#f2e3c0) fixed}
+body[data-page=shop] header.top{background:linear-gradient(100deg,#5f3b0e,#b5842a 70%,#d8ae55)}
+body[data-page=shop]::before{background:#5f3b0e}
+body[data-page=shop] .tabs a[aria-current="page"]{background:#fff7e3;color:#5f3b0e}
+body[data-page=shop] #bgart{opacity:.55}
+body[data-page=shop] h2{color:#6b4310}
+body[data-page=shop] .panel{border-color:#e2c98f;box-shadow:0 2px 0 #ecd9ae}
+@media (prefers-color-scheme:dark){
+  body[data-page=char]{--accent:color-mix(in srgb,var(--ca) 62%,white);background:radial-gradient(ellipse 90% 60% at 85% 0,color-mix(in srgb,var(--ca) 30%,transparent),transparent 70%) fixed,linear-gradient(180deg,color-mix(in srgb,var(--cd) 45%,var(--bg)),var(--bg) 900px) fixed}
+  body[data-page=char] #bgart{opacity:.2}
+  body[data-page=char] .sh-head h2{color:color-mix(in srgb,var(--ca) 55%,white)}
+  body[data-page=char] .art .hole{fill:var(--bg)}
+  body[data-page=char] .fig{background:radial-gradient(circle at 50% 42%,color-mix(in srgb,var(--ca) 25%,transparent),transparent 70%)}
+  body[data-page=shop]{--bg:#1a150e;--surface:#241d13;--surface2:#2e2518;--ink:#f0e4c8;--muted:#a99778;--line:#3d3221;--accent:#e2b24c;--accent-ink:#1a1407;background:linear-gradient(180deg,#1f190f,#16120b) fixed}
+  body[data-page=shop] #bgart{opacity:.32}
+  body[data-page=shop] h2{color:#e9c77a}
+  body[data-page=shop] .panel{border-color:#4a3c25;box-shadow:none}}
+/* themed cards: party, loot, picker */
+.tile.th,.panel.th{position:relative;overflow:hidden;border-color:color-mix(in srgb,var(--ca) 40%,var(--line));border-top:5px solid var(--ca);background:linear-gradient(170deg,color-mix(in srgb,var(--cl) 80%,var(--surface)),var(--surface) 75%)}
+.tile.th:hover,.tile.th.sel{border-color:var(--ca)}
+.tile.th.sel{box-shadow:0 0 0 2px var(--ca)}
+.tile.th .nm,.panel.th h2{color:var(--cd)}
+.tile .ico{position:absolute;right:-8px;bottom:-10px;width:92px;height:92px;opacity:.17;pointer-events:none}
+.tile.th>*:not(.ico){position:relative}
+@media (prefers-color-scheme:dark){.tile.th,.panel.th{background:linear-gradient(170deg,color-mix(in srgb,var(--ca) 24%,var(--surface)),var(--surface) 75%)}.tile.th .nm,.panel.th h2{color:color-mix(in srgb,var(--ca) 55%,white)}.tile .ico{opacity:.22}}
+/* journal colors */
+.jstep{border-left:4px solid var(--sc)}
+.jstep .jn{background:var(--sc)!important;color:#fff!important;border-color:var(--sc)!important}
+.jstep.on{background:color-mix(in srgb,var(--sc) 14%,var(--surface))!important;border-color:var(--sc)!important}
+.jart>.lbl{color:var(--sc)}
+.jart .dec{border-left-color:var(--sc)}.jart .tl li::before{background:var(--sc)}.jart .jl li::marker{color:var(--sc)}
+.jart>h2.big{color:var(--sc);border-bottom:3px solid var(--sc);padding-bottom:6px}
+@media (prefers-color-scheme:dark){.jart>h2.big,.jart>.lbl{color:color-mix(in srgb,var(--sc) 60%,white)}}
+.nlog li.th{border-left:4px solid var(--ca);background:color-mix(in srgb,var(--cl) 45%,var(--surface));border-radius:0 10px 10px 0;padding:8px 12px}
+.nlog li.th b{color:var(--cd)}
+.nlog li.dmn{border-left:4px solid var(--ink);padding:8px 12px}
+@media (prefers-color-scheme:dark){.nlog li.th{background:color-mix(in srgb,var(--ca) 16%,var(--surface))}.nlog li.th b{color:color-mix(in srgb,var(--ca) 55%,white)}}
+.nico{width:20px;height:20px;flex:none}
 body.busy{cursor:progress}body.busy .btn{pointer-events:none;opacity:.7}
 </style>
 </head>
 <body>
+<div id="bgart" aria-hidden="true"></div>
 <header class="top"><div class="wrap">
   <div><h1>Azure Concord</h1><div class="sub" id="who">Three Roads campaign</div></div>
   <nav class="tabs" id="tabs" aria-label="Sections"></nav>
@@ -279,7 +356,7 @@ const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&
 const sgn=n=>(n>=0?'+':'')+n;
 const fmt=n=>(+n||0).toLocaleString('en-US');
 const ABIL=['str','dex','con','int','wis','cha'];
-const TABS=[['sheet','Gear'],['encounter','Encounter'],['party','Party'],['loot','Loot'],['shop','Shop'],['house','The House'],['journal','Journal']];
+const TABS=[['sheet','Gear'],['party','Party'],['loot','Loot'],['shop','Shop'],['house','The House'],['journal','Journal'],['encounter','Encounter']];
 let D=null,ME=null,JSEL=null,VIEW=null,PINERR='';
 const first=s=>String(s||'').split(' ')[0];
 const isOn=e=>e.active!==false&&(!e.attune||e.attuned);
@@ -308,11 +385,81 @@ const viewed=()=>D&&D.party.find(c=>c.id===(ME==='dm'?(VIEW||D.party[0].id):ME))
 
 function tab(){const h=(location.hash||'').slice(1);return TABS.some(t=>t[0]===h)?h:'sheet'}
 function gearLabel(){const c=viewed();if(!c)return'Gear';const n=first(c.name);return n+(/s$/i.test(n)?'’':'’s')+' Gear'}
-function renderTabs(){$('#tabs').innerHTML=ME&&ME!=='pin'?TABS.map(([k,l])=>`<a href="#${k}"${tab()===k?' aria-current="page"':''}>${esc(k==='sheet'?gearLabel():l)}</a>`).join(''):'';
+function renderTabs(){$('#tabs').innerHTML=ME&&ME!=='pin'?TABS.map(([k,l])=>`<a href="#${k}"${tab()===k?' aria-current="page"':''}>${k==='sheet'?esc(gearLabel()):k==='encounter'?'Encounter<span class="beta">beta</span>':esc(l)}</a>`).join(''):'';
   const m=ME==='pin'?null:me();$('#who').innerHTML=m?`${ME==='dm'?'Viewing as':'Playing as'} <b>${esc(m.name)}</b> · <button class="btn" style="padding:1px 8px;font-size:.82rem" data-act="switch">Switch</button>`:'Three Roads campaign'}
 
+/* ---------- class colors and page art ---------- */
+const THEME={
+  coach:{c:'monk',a:'#3a8bb5',l:'#d3ebf6',d:'#164e69'},
+  cramaris:{c:'bard',a:'#6d42a8',l:'#e6dbf5',d:'#2f1754'},
+  gogeezle:{c:'bard',a:'#a149b5',l:'#f2ddf6',d:'#4f1c60'},
+  gorc:{c:'fighter',a:'#b3283b',l:'#f6d8db',d:'#560d19'},
+  gror:{c:'fighter',a:'#b5492a',l:'#f6ddd1',d:'#58200e'},
+  rina:{c:'artificer',a:'#5b6570',l:'#e2e6eb',d:'#1b2c66',sp:'#1f44b0'},
+  slav:{c:'sorcerer',a:'#c18708',l:'#f8ecc4',d:'#634000'}};
+const CLS_DEF={monk:{a:'#3a8bb5',l:'#d3ebf6',d:'#164e69'},bard:{a:'#7a45ad',l:'#e9dcf5',d:'#3a1a5e'},fighter:{a:'#b3283b',l:'#f6d8db',d:'#560d19'},sorcerer:{a:'#c18708',l:'#f8ecc4',d:'#634000'},artificer:{a:'#5b6570',l:'#e2e6eb',d:'#1b2c66',sp:'#1f44b0'}};
+function themeOf(c){if(!c)return null;if(THEME[c.id])return THEME[c.id];const m=(c.cls||'').toLowerCase().match(/monk|bard|fighter|sorcerer|artificer/);return m?{c:m[0],...CLS_DEF[m[0]]}:null}
+const thv=c=>{const t=themeOf(c);return t?`--ca:${t.a};--cl:${t.l};--cd:${t.d};--sp:${t.sp||t.d}`:''};
+const thc=c=>themeOf(c)?' th':'';
+const tIco=c=>{const t=themeOf(c);return t?`<svg class="ico" viewBox="0 0 100 100" aria-hidden="true">${classIcon(t.c)}</svg>`:''};
+/* deterministic scatter so the art doesn't jump between renders */
+function rnd(seed){let s=seed>>>0||1;return()=>(s=(s*1664525+1013904223)>>>0)/4294967296}
+function gearPath(cx,cy,r,n){const ri=r*.82,tw=Math.PI/n;let d='';for(let i=0;i<n;i++){const a=i*2*Math.PI/n;const pts=[[a-tw*.55,ri],[a-tw*.35,r],[a+tw*.35,r],[a+tw*.55,ri],[a+tw*1.45,ri]];pts.forEach(([t,rr],j)=>{d+=(i===0&&j===0?'M':'L')+(cx+rr*Math.cos(t)).toFixed(1)+' '+(cy+rr*Math.sin(t)).toFixed(1)+' '})}return d+'Z'}
+const star4=(x,y,s)=>`M${x} ${y-s} Q${x+s*.18} ${y-s*.18} ${x+s} ${y} Q${x+s*.18} ${y+s*.18} ${x} ${y+s} Q${x-s*.18} ${y+s*.18} ${x-s} ${y} Q${x-s*.18} ${y-s*.18} ${x} ${y-s}Z`;
+function classIcon(cls){/* small mark for cards, 0 0 100 100 */
+  return {monk:`<path class="s" d="M80 50 A30 30 0 1 1 62 22" stroke-width="9" stroke-linecap="round" fill="none"/>`,
+    bard:`<path class="s" d="M18 30 Q50 20 82 30 M18 44 Q50 34 82 44" stroke-width="3" fill="none"/><ellipse class="f" cx="38" cy="72" rx="11" ry="8" transform="rotate(-20 38 72)"/><path class="s" d="M48 70 V30" stroke-width="5"/><ellipse class="f" cx="68" cy="64" rx="11" ry="8" transform="rotate(-20 68 64)"/><path class="s" d="M78 62 V24" stroke-width="5"/>`,
+    fighter:`<path class="s" d="M20 20 L80 80 M80 20 L20 80" stroke-width="7" stroke-linecap="round"/><path class="f" d="M50 30 L72 36 L72 58 Q72 76 50 86 Q28 76 28 58 L28 36Z"/>`,
+    sorcerer:`<path class="f" d="M50 8 Q70 40 60 58 Q76 52 74 34 Q92 60 76 82 Q64 96 50 96 Q30 96 22 80 Q12 60 30 40 Q30 56 42 60 Q32 34 50 8Z"/>`,
+    artificer:`<path class="f" d="${gearPath(50,50,40,10)}"/><circle cx="50" cy="50" r="14" fill="var(--surface)"/><circle class="sp" cx="50" cy="50" r="6"/>`}[cls]||''}
+function classArt(cls){const R=rnd(cls.length*977+13);let o='';
+  if(cls==='monk'){o+=`<path class="s" d="M890 430 A270 270 0 1 1 760 190" stroke-width="44" stroke-linecap="round" fill="none" opacity=".9"/><path class="s" d="M880 470 A262 262 0 0 1 820 610" stroke-width="18" stroke-linecap="round" fill="none" opacity=".6"/>`;
+    for(let i=0;i<5;i++){const a=-90+i*72;o+=`<path class="f" d="M620 430 Q${620+70*Math.cos((a-22)*Math.PI/180)} ${430+70*Math.sin((a-22)*Math.PI/180)} ${620+110*Math.cos(a*Math.PI/180)} ${430+110*Math.sin(a*Math.PI/180)} Q${620+70*Math.cos((a+22)*Math.PI/180)} ${430+70*Math.sin((a+22)*Math.PI/180)} 620 430Z" opacity=".55"/>`}
+    for(let i=1;i<7;i++)o+=`<ellipse class="s" cx="280" cy="880" rx="${i*70}" ry="${i*17}" stroke-width="${4-i*.4}" fill="none" opacity="${.9-i*.1}"/>`;
+    [[160,200,1],[800,820,.8],[420,120,.6]].forEach(([x,y,k])=>{o+=`<path class="s" d="M${x-120*k} ${y} q${40*k} -${50*k} ${90*k} -${10*k} q${30*k} -${50*k} ${80*k} -${10*k} q${50*k} -${30*k} ${70*k} ${20*k} M${x-40*k} ${y-10*k} a${18*k} ${18*k} 0 1 1 ${24*k} ${-6*k}" stroke-width="6" fill="none" stroke-linecap="round"/>`});}
+  else if(cls==='bard'){for(let k=0;k<5;k++)o+=`<path class="s" d="M-20 ${560+k*26} C 220 ${420+k*26}, 420 ${760+k*26}, 1020 ${520+k*26}" stroke-width="3" fill="none" opacity=".75"/>`;
+    for(let i=0;i<9;i++){const x=60+i*110,y=560+60*Math.sin(i*.9)-((i%3)*26);o+=`<ellipse class="f" cx="${x}" cy="${y}" rx="17" ry="12" transform="rotate(-20 ${x} ${y})"/><path class="s" d="M${x+15} ${y-3} V${y-80}" stroke-width="5"/>${i%2?`<path class="s" d="M${x+15} ${y-80} q26 14 22 42" stroke-width="5" fill="none"/>`:''}`}
+    o+=`<g transform="rotate(-32 700 300)" opacity=".85"><ellipse class="s" cx="700" cy="330" rx="150" ry="185" stroke-width="10" fill="none"/><circle class="s" cx="700" cy="290" r="42" stroke-width="8" fill="none"/><rect class="f" x="684" y="-80" width="32" height="250" rx="6"/><path class="f" d="M676 -80 L724 -80 L736 -150 L664 -150Z"/>${[0,1,2,3].map(j=>`<line class="s" x1="${690+j*7}" y1="-80" x2="${690+j*7}" y2="470" stroke-width="1.6"/>`).join('')}<rect class="f" x="650" y="440" width="100" height="14" rx="4"/></g>`;}
+  else if(cls==='fighter'){o+=`<g opacity=".9"><g transform="rotate(38 620 480)"><rect class="f" x="606" y="40" width="28" height="560" rx="6"/><path class="f" d="M606 40 L620 0 L634 40Z"/><rect class="f2" x="560" y="600" width="120" height="22" rx="6"/><rect class="f2" x="608" y="622" width="24" height="90" rx="6"/><circle class="f2" cx="620" cy="726" r="18"/></g><g transform="rotate(-38 620 480)"><rect class="f" x="606" y="40" width="28" height="560" rx="6"/><path class="f" d="M606 40 L620 0 L634 40Z"/><rect class="f2" x="560" y="600" width="120" height="22" rx="6"/><rect class="f2" x="608" y="622" width="24" height="90" rx="6"/><circle class="f2" cx="620" cy="726" r="18"/></g></g>
+      <path class="f2" d="M620 250 L790 300 L790 470 Q790 640 620 740 Q450 640 450 470 L450 300Z" opacity=".9"/><path class="s" d="M620 290 L752 330 L752 470 Q752 610 620 694 Q488 610 488 470 L488 330Z" stroke-width="8" fill="none"/><path class="s" d="M520 470 L620 540 L720 470" stroke-width="22" fill="none" stroke-linejoin="round"/>`;
+    for(let s of [-1,1])for(let i=0;i<9;i++){const a=(s<0?200:-20)+s*i*-14,x=620+330*Math.cos(a*Math.PI/180),y=560+330*Math.sin(a*Math.PI/180);o+=`<ellipse class="f" cx="${x.toFixed(0)}" cy="${y.toFixed(0)}" rx="26" ry="11" transform="rotate(${a+90*s} ${x.toFixed(0)} ${y.toFixed(0)})" opacity=".7"/>`}}
+  else if(cls==='sorcerer'){o+=`<g opacity=".85"><circle class="s" cx="640" cy="400" r="270" stroke-width="5" fill="none"/><circle class="s" cx="640" cy="400" r="232" stroke-width="2.5" fill="none"/><path class="s" d="M640 168 L841 516 L439 516Z M640 632 L439 284 L841 284Z" stroke-width="4" fill="none"/>`;
+    for(let i=0;i<36;i++){const a=i*10*Math.PI/180;o+=`<line class="s" x1="${640+240*Math.cos(a)}" y1="${400+240*Math.sin(a)}" x2="${640+(i%3?258:264)*Math.cos(a)}" y2="${400+(i%3?258:264)*Math.sin(a)}" stroke-width="${i%3?2:4}"/>`}
+    o+=`<path class="f2" d="M540 400 Q640 320 740 400 Q640 480 540 400Z"/><ellipse class="f" cx="640" cy="400" rx="14" ry="46"/></g>`;
+    for(let i=0;i<7;i++){const x=40+i*150+R()*40,h=260+R()*220;o+=`<path class="f" d="M${x} 1010 Q${x-60} ${1010-h*.5} ${x+10} ${1010-h} Q${x+20} ${1010-h*.6} ${x+50} ${1010-h*.55} Q${x+70} ${1010-h*.3} ${x+60} 1010Z" opacity="${(.35+R()*.35).toFixed(2)}"/>`}
+    for(let i=0;i<14;i++)o+=`<path class="f" d="${star4((R()*1000).toFixed(0),(R()*700).toFixed(0),8+R()*18)}" opacity=".8"/>`;}
+  else if(cls==='artificer'){for(let i=0;i<=1000;i+=50)o+=`<line class="s" x1="${i}" y1="0" x2="${i}" y2="1000" stroke-width="${i%250?0.8:1.8}" opacity=".45"/><line class="s" x1="0" y1="${i}" x2="1000" y2="${i}" stroke-width="${i%250?0.8:1.8}" opacity=".45"/>`;
+    [[650,400,230,16],[318,660,150,11],[830,790,108,9],[150,250,80,8]].forEach(([x,y,r,n],i)=>{o+=`<path class="f" d="${gearPath(x,y,r,n)}" opacity="${[.8,.7,.6,.5][i]}"/><circle cx="${x}" cy="${y}" r="${r*.38}" class="hole"/><circle class="f2" cx="${x}" cy="${y}" r="${r*.14}"/>`});
+    for(let i=0;i<90;i++)o+=`<circle class="sp" cx="${(R()*1000).toFixed(0)}" cy="${(R()*1000).toFixed(0)}" r="${(1.5+R()*4.5).toFixed(1)}" opacity="${(.4+R()*.6).toFixed(2)}"/>`;}
+  return `<svg class="art art-${cls}" viewBox="0 0 1000 1000" preserveAspectRatio="xMidYMid slice">${o}</svg>`}
+function houseArt(){const R=rnd(7);let o=`<defs><radialGradient id="cg"><stop offset="0" stop-color="#f3c45a" stop-opacity=".55"/><stop offset="1" stop-color="#f3c45a" stop-opacity="0"/></radialGradient><filter id="fogb"><feGaussianBlur stdDeviation="40"/></filter></defs>`;
+  for(let i=0;i<5;i++){const x=i*240-60;o+=`<path d="M${x} 1000 L${x} 560 Q${x+110} 400 ${x+220} 560 L${x+220} 1000" fill="none" stroke="#3b4a3f" stroke-width="16"/>`;for(let y=600;y<1000;y+=46)o+=`<line x1="${x-8}" y1="${y}" x2="${x+8}" y2="${y}" stroke="#2a342c" stroke-width="3"/>`}
+  for(let y=0;y<520;y+=40)for(let x=(y/40%2)*40;x<1000;x+=80)o+=`<rect x="${x}" y="${y}" width="78" height="38" fill="none" stroke="#202822" stroke-width="2" opacity=".7"/>`;
+  [[140,520],[500,480],[860,540]].forEach(([x,y])=>{o+=`<circle cx="${x}" cy="${y-30}" r="120" fill="url(#cg)" class="glow"/><rect x="${x-12}" y="${y}" width="24" height="70" rx="3" fill="#cdbf9e"/><path d="M${x-12} ${y+4} q6 18 0 30" stroke="#a89a78" stroke-width="3" fill="none"/><path d="M${x} ${y-36} Q${x+12} ${y-16} ${x} ${y-2} Q${x-12} ${y-16} ${x} ${y-36}Z" fill="#f2c14e" class="flame"/>`});
+  /* cobweb, top left */let w='';for(let i=0;i<8;i++){const a=i*Math.PI/14;w+=`M0 0 L${(Math.cos(a)*300).toFixed(0)} ${(Math.sin(a)*300).toFixed(0)} `}for(let r=50;r<=300;r+=50){let p='';for(let i=0;i<8;i++){const a=i*Math.PI/14;p+=(i?'Q':'M')+(i?`${(Math.cos(a-Math.PI/28)*r*.86).toFixed(0)} ${(Math.sin(a-Math.PI/28)*r*.86).toFixed(0)} `:'')+`${(Math.cos(a)*r).toFixed(0)} ${(Math.sin(a)*r).toFixed(0)} `}w+=p}
+  o+=`<path d="${w}" fill="none" stroke="#9aa597" stroke-width="1.6" opacity=".55"/>`;
+  o+=`<path d="M780 0 V180" stroke="#4a554c" stroke-width="5" stroke-dasharray="14 6"/><path d="M820 0 V120" stroke="#4a554c" stroke-width="5" stroke-dasharray="14 6"/>`;
+  o+=`<g filter="url(#fogb)" opacity=".35"><ellipse cx="200" cy="960" rx="380" ry="80" fill="#a9c1ad"/><ellipse cx="760" cy="980" rx="420" ry="90" fill="#a9c1ad"/></g>`;
+  for(let i=0;i<5;i++){const x=R()*1000,y=640+R()*300;o+=`<g opacity=".5"><circle cx="${x}" cy="${y}" r="3" fill="#d6e8a8"/><circle cx="${x+12}" cy="${y}" r="3" fill="#d6e8a8"/></g>`}
+  return `<svg class="art art-house" viewBox="0 0 1000 1000" preserveAspectRatio="xMidYMid slice">${o}</svg>`}
+function shopArt(){const R=rnd(3);let o='';const gems=['#1f9d6b','#2563c9','#c23b4a','#8a4fc4','#d29a1a'];
+  const gem=(x,y,s,c)=>`<g opacity=".55"><path d="M${x-s} ${y-s*.35} L${x-s*.55} ${y-s*.8} L${x+s*.55} ${y-s*.8} L${x+s} ${y-s*.35} L${x} ${y+s}Z" fill="${c}"/><path d="M${x-s} ${y-s*.35} L${x+s} ${y-s*.35} M${x-s*.55} ${y-s*.8} L${x-s*.3} ${y-s*.35} L${x} ${y+s} L${x+s*.3} ${y-s*.35} L${x+s*.55} ${y-s*.8} M${x-s*.3} ${y-s*.35} L${x} ${y-s*.8} L${x+s*.3} ${y-s*.35}" stroke="#fff" stroke-opacity=".6" stroke-width="2" fill="none"/></g>`;
+  for(let i=0;i<16;i++)o+=gem(Math.round(R()*1000),Math.round(R()*1000),Math.round(18+R()*34),gems[i%5]);
+  for(let i=0;i<6;i++)o+=`<ellipse cx="${150+i*4}" cy="${880-i*16}" rx="60" ry="16" fill="#d9a632" stroke="#9a6b12" stroke-width="3" opacity=".6"/>`;
+  for(let i=0;i<4;i++)o+=`<ellipse cx="${270+i*3}" cy="${900-i*16}" rx="60" ry="16" fill="#d9a632" stroke="#9a6b12" stroke-width="3" opacity=".6"/>`;
+  o+=`<g stroke="#9a6b12" stroke-width="6" fill="none" opacity=".5"><path d="M740 140 V520 M640 560 H840"/><path d="M560 200 H920"/><path d="M590 200 L540 330 M590 200 L640 330 M890 200 L840 330 M890 200 L940 330"/><path d="M530 330 Q590 380 650 330Z M830 330 Q890 380 950 330Z" fill="#d9a632" fill-opacity=".35"/><circle cx="740" cy="130" r="14"/></g>`;
+  o+=`<g opacity=".5"><path d="M110 260 h44 v50 Q210 340 210 410 Q210 480 132 480 Q54 480 54 410 Q54 340 110 310Z" fill="#8a4fc4" fill-opacity=".45" stroke="#6a3f9a" stroke-width="5"/><rect x="104" y="232" width="56" height="30" rx="6" fill="#9a6b12"/></g>`;
+  return `<svg class="art art-shop" viewBox="0 0 1000 1000" preserveAspectRatio="xMidYMid slice">${o}</svg>`}
+const SESS_COL=['#2f7d8c','#b0662a','#8b3f7a','#4b7a2f','#3a55a0','#a63e4b','#7a6a2a','#5b4a9a','#2a7a5f','#9a4e2a'];
+function applyPage(t){const b=document.body;const art=$('#bgart');let page=t,html='',st='';
+  if(!me()||ME==='pin'){page='pick'}
+  else if(t==='sheet'||t==='encounter'){const c=viewed();const th=themeOf(c);if(th){st=thv(c);html=classArt(th.c);page='char'}}
+  else if(t==='house')html=houseArt();
+  else if(t==='shop')html=shopArt();
+  b.dataset.page=page;b.setAttribute('style',st);if(art.dataset.k!==page+st){art.innerHTML=html;art.dataset.k=page+st}}
+
 function picker(){return `<div class="stack"><div><h2 style="font-size:1.8rem">Who are you playing?</h2><p class="sub" style="margin:4px 0 0">Pick your character to see your sheet.</p></div>
-  <div class="pick"><button class="tile dm" data-act="dmpin"><span class="top"><span class="nm">Dungeon Master</span></span><span class="sub">PIN required</span></button>${D.party.map(c=>`<button class="tile" data-act="pick" data-id="${esc(c.id)}"><span class="top"><span class="nm">${esc(first(c.name))}</span><span class="ac">AC ${esc(c.ac??'?')}</span></span><span class="sub">${esc(c.cls||'')}</span><span class="pips">HP ${esc(c.hpMax??'?')}</span></button>`).join('')}</div></div>`}
+  <div class="pick"><button class="tile dm" data-act="dmpin"><span class="top"><span class="nm">Dungeon Master</span></span><span class="sub">PIN required</span></button>${D.party.map(c=>`<button class="tile${thc(c)}" style="${thv(c)}" data-act="pick" data-id="${esc(c.id)}">${tIco(c)}<span class="top"><span class="nm">${esc(first(c.name))}</span><span class="ac">AC ${esc(c.ac??'?')}</span></span><span class="sub">${esc(c.cls||'')}</span><span class="pips">HP ${esc(c.hpMax??'?')}</span></button>`).join('')}</div></div>`}
 
 /* ---------- character sheet (D&D Beyond style) ---------- */
 let PICK=null,DRAG=null;
@@ -472,7 +619,7 @@ const COMPANIONS=[
   {name:'Bellamy Voss',cls:'High Elf · Wizard 7 · School of Conjuration',role:'The party’s liaison to the House',ac:12,hp:37,speed:30,ddb:'https://www.dndbeyond.com/characters/170602463/ok1sJM'},
   {name:'Captain Elira',cls:'Wood Elf · Ranger 8 · Hunter',role:'',ac:16,hp:68,speed:35,ddb:'https://www.dndbeyond.com/characters/169297282/fjVXEg'}];
 function partyTiles(){return `<div class="stack"><h2>The party</h2><div class="pick">${D.party.map(c=>{const nb=items(c).filter(e=>notable(e)&&e.active!==false);
-  return `<div class="tile" style="cursor:default"><span class="top"><span class="nm">${esc(first(c.name))}${c.id===ME?' <span class="badge">you</span>':''}</span><span class="ac">AC ${esc(c.ac??'?')}</span></span><span class="sub">${esc(c.cls||'')}</span>
+  return `<div class="tile${thc(c)}" style="cursor:default;${thv(c)}">${tIco(c)}<span class="top"><span class="nm">${esc(first(c.name))}${c.id===ME?' <span class="badge">you</span>':''}</span><span class="ac">AC ${esc(c.ac??'?')}</span></span><span class="sub">${esc(c.cls||'')}</span>
   <span class="pips">Speed ${esc(c.speed??'?')} · DEX ${sgn((c.saves||{}).dex||0)} · CON ${sgn((c.saves||{}).con||0)} · WIS ${sgn((c.saves||{}).wis||0)}</span>
   ${nb.length?`<ul>${nb.slice(0,6).map(e=>`<li>${esc(e.name)}</li>`).join('')}</ul>`:''}${c.ddb?`<a class="sub" href="${esc(c.ddb)}" target="_blank" rel="noopener">D&amp;D Beyond sheet</a>`:''}</div>`}).join('')}</div>
   <h2>Companions</h2><div class="pick">${COMPANIONS.map(x=>`<div class="tile comp" style="cursor:default"><span class="top"><span class="nm">${esc(x.name)}</span><span class="ac">AC ${x.ac}</span></span><span class="sub">${esc(x.cls)}</span>${x.role?`<span>${esc(x.role)}</span>`:''}<span class="pips">HP ${x.hp} · Speed ${x.speed} ft</span><a class="sub" href="${esc(x.ddb)}" target="_blank" rel="noopener">D&amp;D Beyond sheet</a></div>`).join('')}</div></div>`}
@@ -529,7 +676,7 @@ function itemActions(holderId,e,onSheet){
 /* ---------- loot ---------- */
 function loot(){const hs=[...D.party,...(D.stash?[D.stash]:[])];const on=hs.reduce((s,c)=>s+(+c.gold||0),0),jars=hs.reduce((s,c)=>s+(+c.jars||0),0);
   const open=LOPEN&&hs.find(c=>c.id===LOPEN);
-  const list=c=>{const it=items(c);const top=it.filter(e=>!e.in);return `<section class="panel stack" id="lopen"><div class="row"><h2 style="flex:1">${esc(holderName(c.id))}</h2><button class="btn" data-act="lclose">Close</button></div>
+  const list=c=>{const it=items(c);const top=it.filter(e=>!e.in);return `<section class="panel stack${thc(c)}" style="${thv(c)}" id="lopen"><div class="row"><h2 style="flex:1">${esc(holderName(c.id))}</h2><button class="btn" data-act="lclose">Close</button></div>
     ${canHandle(c.id)?`<p class="sub" style="margin:0">${c.id==='stash'?'Take something, or send it to the shop with Wick.':'Hand things to the party loot, or send them to the shop with Wick.'}</p>`:''}
     <div class="gear">${top.length?top.map(e=>`<div class="gr"><span class="n2"><b>${esc(e.name)}</b>${(+e.qty||1)>1?' ×'+esc(e.qty):''}${e.rarity?` <span class="rar">${esc(e.rarity)}</span>`:''}</span><span class="row" style="gap:5px">${e.attune?(e.attuned?'<span class="badge">attuned</span>':'<span class="badge warn">not attuned</span>'):''}${pips(e)}</span>${e.desc||itemLine(e)?`<span class="d">${esc(itemLine(e)||e.desc)}</span>`:''}${e.container?`<span class="d"><b>Holds:</b> ${esc(it.filter(x=>x.in===e.id).map(x=>x.name).join(', ')||'nothing')}</span>`:''}${dmx(c.id).asks&&dmx(c.id).asks[e.id]?`<span class="d dmnote">DM: ${esc(dmx(c.id).asks[e.id])}</span>`:''}${ME==='dm'?`<span class="d">${dmItemBtns(c.id,e)}</span>`:''}<span class="d">${itemActions(c.id,e)}</span></div>`).join(''):'<p class="empty" style="padding:10px">Nothing here.</p>'}</div>
     ${ME==='dm'?(DMED==='add:'+c.id?dmAddForm(c.id):`<div><button class="btn sm dmb" data-act="dm-open" data-v="add:${esc(c.id)}">Add an item here</button></div>`):''}</section>`};
@@ -538,7 +685,7 @@ function loot(){const hs=[...D.party,...(D.stash?[D.stash]:[])];const on=hs.redu
   ${D.stash&&D.stash.purseNote?`<p class="sub" style="margin:0">${esc(D.stash.purseNote)}</p>`:''}
   ${open?list(open):''}
   <div class="pick" style="grid-template-columns:repeat(auto-fill,minmax(260px,1fr))">${hs.map(c=>{const it=items(c).filter(e=>!e.in);const nb=it.filter(notable);
-    return `<button class="tile${LOPEN===c.id?' sel':''}" data-act="lopen" data-id="${esc(c.id)}"><span class="top"><span class="nm">${esc(holderName(c.id))}${c.id===ME?' <span class="badge">you</span>':''}</span><span class="pips">${items(c).length} items</span></span>
+    return `<button class="tile${LOPEN===c.id?' sel':''}${thc(c)}" style="${thv(c)}" data-act="lopen" data-id="${esc(c.id)}">${tIco(c)}<span class="top"><span class="nm">${esc(holderName(c.id))}${c.id===ME?' <span class="badge">you</span>':''}</span><span class="pips">${items(c).length} items</span></span>
     <span class="coins"><span class="gp">${fmt(c.gold)} gp</span><span>${+c.jars||0} ash jars</span></span>
     ${nb.length?`<ul>${nb.map(e=>`<li><b>${esc(e.name)}</b>${e.container?` <span class="rar">holds ${items(c).filter(x=>x.in===e.id).length}</span>`:itemLine(e)?`<div class="rar">${esc(itemLine(e))}</div>`:''}</li>`).join('')}</ul>`:'<span class="empty">No magic or story items.</span>'}
     ${it.length-nb.length>0?`<span class="rar">+ ${it.length-nb.length} common item${it.length-nb.length>1?'s':''}</span>`:''}</button>`}).join('')}</div>
@@ -566,7 +713,7 @@ function shop(){const S=D.shop||{},r=S.runner||{};const cg=S.cargo||[];const X=d
     ${ME==='dm'&&X.runner?`<div class="dmbox"><span class="lbl">DM only</span><p style="margin:2px 0"><b>Why he might talk:</b> ${esc(X.runner.weak||'')}</p><p style="margin:2px 0"><b>What he knows:</b> ${esc(X.runner.knows||'')}</p></div>`:''}</section>
   ${ups.length?`<section class="stack"><h3>${ME==='dm'?'Upgrades':'What the shop has'}</h3>${ups.map(u=>`<div class="panel"><b>${esc(u.name)}</b> <span class="badge">${esc({active:'active',building:'being built',planned:'planned',notfound:'not found yet',locked:'locked',lost:'lost'}[u.status]||u.status)}</span><p style="margin:4px 0 0">${esc(u.effect||'')}</p>${ME==='dm'&&u.risk?`<p class="sub" style="margin:4px 0 0"><b>Risk:</b> ${esc(u.risk)}</p>`:''}</div>`).join('')}</section>`:''}
   <h3>Wick’s pack and the shop ledger</h3>
-  <p class="sub" style="margin:0">Send something with Wick from your Sheet or from Party loot. The DM marks it delivered, sold or lost.</p>
+  <p class="sub" style="margin:0">Send something with Wick from your Gear page or from Party loot. The DM marks it delivered, sold or lost.</p>
   ${cg.length?`<div class="tablewrap"><table class="ledger"><thead><tr><th>Item</th><th>From</th><th>Where it is</th><th>Asking</th><th>Sold for</th>${ME==='dm'?'<th></th>':''}</tr></thead><tbody>${cg.map(x=>`<tr><td><b>${esc(x.name)}</b>${(+x.qty||1)>1?' ×'+x.qty:''}<div class="rar">sent ${esc(x.sentAt||'')}${x.by?' by '+esc(x.by==='dm'?'the DM':holderName(x.by)):''}</div></td><td>${esc(x.from||'')}</td><td>${esc(CG[x.status]||x.status)}</td><td class="n">${x.ask!=null?fmt(x.ask)+' gp':'—'}</td><td class="n">${x.status==='sold'?fmt(x.sold)+' gp':'—'}</td>${ME==='dm'?`<td>${cargoDmBtns(x)}</td>`:''}</tr>`).join('')}</tbody></table></div>`:'<p class="empty">Nothing has been sent to the shop yet.</p>'}
   <h3>Runs</h3>
   ${(S.runs||[]).length?`<div class="tablewrap"><table class="ledger"><thead><tr><th>When</th><th>Route</th><th>Sent</th><th>Sales</th><th>Upkeep</th></tr></thead><tbody>${S.runs.map(x=>`<tr><td>${esc(x.when||'')}</td><td>${x.route==='back'?'Back roads':'Main road'}</td><td>${esc(x.out||'')}${x.pack?`<div class="rar">${esc(x.pack)}</div>`:''}</td><td class="n">${x.sold?fmt(x.sold)+' gp':'—'}</td><td>${x.upkeep?'Paid':'Unpaid'}</td></tr>`).join('')}</tbody></table></div>`:'<p class="empty">No runs yet.</p>'}
@@ -616,8 +763,8 @@ function journal(){const ss=(D.journal||{}).sessions||[];if(!ss.length)return'<p
   const notes=((D.journal||{}).notes||[]).filter(n=>+n.session===JSEL);const X=dmx('journal');
   const sec=(t,b)=>`<section class="stack" style="gap:6px"><h3>${t}</h3>${b}</section>`;
   const who=n=>n.by==='dm'?'DM':holderName(n.by);
-  return `<div class="journal"><nav class="jrail">${ss.map((x,i)=>`<button class="jstep${i===JSEL?' on':''}" data-act="jsel" data-i="${i}"><span class="jn">${esc(x.num||i+1)}</span><span><b>${esc(x.title)}</b><small>${esc([x.played,x.world].filter(Boolean).join(' · '))}</small></span></button>`).join('')}</nav>
-  <article class="stack" style="max-width:820px;min-width:0">${ME==='dm'?dmJournalPanel(s,JSEL):''}<span class="lbl">Session ${esc(s.num||JSEL+1)}</span><h2 class="big" style="font-size:2rem">${esc(s.title)}</h2>${s.quote?`<p class="sub" style="font-style:italic;margin:0">${esc(s.quote)}</p>`:''}
+  return `<div class="journal"><nav class="jrail">${ss.map((x,i)=>`<button class="jstep${i===JSEL?' on':''}" style="--sc:${SESS_COL[i%SESS_COL.length]}" data-act="jsel" data-i="${i}"><span class="jn">${esc(x.num||i+1)}</span><span><b>${esc(x.title)}</b><small>${esc([x.played,x.world].filter(Boolean).join(' · '))}</small></span></button>`).join('')}</nav>
+  <article class="stack jart" style="max-width:820px;min-width:0;--sc:${SESS_COL[JSEL%SESS_COL.length]}">${ME==='dm'?dmJournalPanel(s,JSEL):''}<span class="lbl">Session ${esc(s.num||JSEL+1)}</span><h2 class="big" style="font-size:2rem">${esc(s.title)}</h2>${s.quote?`<p class="sub" style="font-style:italic;margin:0">${esc(s.quote)}</p>`:''}
   <p style="font-size:1.08rem;line-height:1.6;margin:0">${esc(s.summary||'')}</p>
   ${sec('Highlights',`<ul class="jl">${(s.highlights||[]).map(x=>`<li>${esc(x)}</li>`).join('')}</ul>`)}
   <div class="jgrid">${sec('People you met',`<ul class="jl">${(s.people||[]).map(x=>`<li><b>${esc(x.name)}</b> <span class="sub">${esc(x.note||'')}</span></li>`).join('')}</ul>`)}${sec('Loot',`<ul class="jl">${(s.loot||[]).map(x=>`<li><b>${esc(x.item)}</b>${x.who?` <span class="sub">→ ${esc(x.who)}</span>`:''}</li>`).join('')}</ul>`)}</div>
@@ -625,7 +772,7 @@ function journal(){const ss=(D.journal||{}).sessions||[];if(!ss.length)return'<p
   ${(s.events||[]).length?sec('Timeline',`<ol class="tl">${s.events.map(x=>`<li><span class="tw">${esc(x.when||'—')}</span><span>${esc(x.text)}</span></li>`).join('')}</ol>`):''}
   ${(s.threads||[]).length?sec('Still open',`<ul class="jl">${s.threads.map(x=>`<li>${esc(x)}</li>`).join('')}</ul>`):''}
   ${ME==='dm'&&(X.dm||{})[String(JSEL)]?`<div class="dmbox"><span class="lbl">DM only</span><p style="margin:4px 0 0;white-space:pre-wrap">${esc(X.dm[String(JSEL)])}</p></div>`:''}
-  ${sec('Notes from the table',`<div class="stack" style="gap:8px">${notes.length?`<ol class="nlog">${notes.map(n=>`<li><div class="row"><b style="flex:1">${esc(who(n))}</b><span class="rar">${esc(new Date(n.at).toLocaleString('en-US',{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'}))}</span>${ME==='dm'?`<button class="btn sm" data-act="delnote" data-id="${esc(n.id)}">Delete</button>`:''}</div><p style="margin:2px 0 0;white-space:pre-wrap">${esc(n.text)}</p></li>`).join('')}</ol>`:'<p class="empty">No notes yet.</p>'}
+  ${sec('Notes from the table',`<div class="stack" style="gap:8px">${notes.length?`<ol class="nlog">${notes.map(n=>{const pc=D.party.find(c=>c.id===n.by);return `<li class="${pc&&themeOf(pc)?'th':'dmn'}" style="${pc?thv(pc):''}"><div class="row">${pc&&themeOf(pc)?`<svg class="nico" viewBox="0 0 100 100" aria-hidden="true">${classIcon(themeOf(pc).c)}</svg>`:''}<b style="flex:1">${esc(who(n))}</b><span class="rar">${esc(new Date(n.at).toLocaleString('en-US',{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'}))}</span>${ME==='dm'?`<button class="btn sm" data-act="delnote" data-id="${esc(n.id)}">Delete</button>`:''}</div><p style="margin:2px 0 0;white-space:pre-wrap">${esc(n.text)}</p></li>`}).join('')}</ol>`:'<p class="empty">No notes yet.</p>'}
     <div class="panel stack" style="gap:8px"><label class="field"><span class="lbl">Add a note as ${esc(ME==='dm'?'the DM':holderName(ME))}</span><textarea id="note-text" rows="3" placeholder="What do you remember, suspect, or want to follow up on?"></textarea></label><div class="row" style="justify-content:flex-end"><button class="btn primary" data-act="addnote">Add note</button></div></div></div>`)}
   </article></div>`}
 
@@ -907,7 +1054,7 @@ function encounter(c){
     </section></div>`;
 }
 
-function render(){renderTabs();const app=$('#app');if(!D)return;
+function render(){renderTabs();const app=$('#app');if(!D)return;applyPage(tab());
   if(ME==='pin'){app.innerHTML=pinForm(PINERR);const f=$('#pin');f&&f.focus();return}
   if(!me()){app.innerHTML=picker();return}
   const t=tab();const chips=ME==='dm'?`<div class="row" style="margin-bottom:12px">${D.party.map(c=>`<button class="btn${c.id===viewed().id?' on':''}" data-act="view" data-id="${esc(c.id)}">${esc(first(c.name))}</button>`).join('')}</div>`:'';
