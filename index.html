@@ -279,7 +279,7 @@ const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&
 const sgn=n=>(n>=0?'+':'')+n;
 const fmt=n=>(+n||0).toLocaleString('en-US');
 const ABIL=['str','dex','con','int','wis','cha'];
-const TABS=[['sheet','Sheet'],['encounter','Encounter'],['party','Party'],['loot','Loot'],['shop','Shop'],['house','The House'],['journal','Journal']];
+const TABS=[['sheet','Gear'],['encounter','Encounter'],['party','Party'],['loot','Loot'],['shop','Shop'],['house','The House'],['journal','Journal']];
 let D=null,ME=null,JSEL=null,VIEW=null,PINERR='';
 const first=s=>String(s||'').split(' ')[0];
 const isOn=e=>e.active!==false&&(!e.attune||e.attuned);
@@ -307,7 +307,8 @@ const me=()=>D&&(ME==='dm'?{id:'dm',name:'the DM'}:D.party.find(c=>c.id===ME));
 const viewed=()=>D&&D.party.find(c=>c.id===(ME==='dm'?(VIEW||D.party[0].id):ME));
 
 function tab(){const h=(location.hash||'').slice(1);return TABS.some(t=>t[0]===h)?h:'sheet'}
-function renderTabs(){$('#tabs').innerHTML=ME&&ME!=='pin'?TABS.map(([k,l])=>`<a href="#${k}"${tab()===k?' aria-current="page"':''}>${l}</a>`).join(''):'';
+function gearLabel(){const c=viewed();if(!c)return'Gear';const n=first(c.name);return n+(/s$/i.test(n)?'’':'’s')+' Gear'}
+function renderTabs(){$('#tabs').innerHTML=ME&&ME!=='pin'?TABS.map(([k,l])=>`<a href="#${k}"${tab()===k?' aria-current="page"':''}>${esc(k==='sheet'?gearLabel():l)}</a>`).join(''):'';
   const m=ME==='pin'?null:me();$('#who').innerHTML=m?`${ME==='dm'?'Viewing as':'Playing as'} <b>${esc(m.name)}</b> · <button class="btn" style="padding:1px 8px;font-size:.82rem" data-act="switch">Switch</button>`:'Three Roads campaign'}
 
 function picker(){return `<div class="stack"><div><h2 style="font-size:1.8rem">Who are you playing?</h2><p class="sub" style="margin:4px 0 0">Pick your character to see your sheet.</p></div>
