@@ -9,6 +9,6 @@ The Three Roads campaign's shared ledger. Each player picks their character and 
 
 The publishable key in `index.html` is meant to be public; the database's security rules decide what it can do. Never commit a secret or service_role key.
 
-## Character sheet details from D&D Beyond
+## What lives where
 
-`tools/ddb_sheets.json` holds skills, actions, spells, weapons and speeds pulled from each character's D&D Beyond page. `python3 tools/build_fix2.py` turns it into `supabase/fix-2.sql`, which sets a `dnd` field on each character and leaves everything else alone. Run it in the Supabase SQL editor whenever the file is refreshed.
+D&D Beyond is the character sheet: stats, skills, HP, attacks, spells, and anything that changes a roll. This site tracks inventory, item lore, gold and ash jars, the shop, the House and the journal. `supabase/fix-2.sql` (already run) added a `dnd` field with skills and actions from D&D Beyond; the site no longer shows it.

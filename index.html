@@ -256,6 +256,11 @@ details.cont[open]>summary .nm2 b::before{content:"▾ "}
 .incont{border-left:2px solid var(--line);margin-left:calc(17px + var(--d,0)*18px)}
 .incont>.none{padding:4px 10px 8px}
 .badge.on{color:var(--good);border-color:var(--good)}
+.ssplit{display:grid;gap:16px;grid-template-columns:1fr;align-items:start}
+@media (min-width:980px){.ssplit{grid-template-columns:minmax(0,1fr) 320px}}
+.act .jl{padding-left:16px}
+.tile.comp{border-style:dashed}
+details.inv.flash{background:var(--surface2);transition:background .3s}
 body.busy{cursor:progress}body.busy .btn{pointer-events:none;opacity:.7}
 </style>
 </head>
@@ -309,10 +314,7 @@ function picker(){return `<div class="stack"><div><h2 style="font-size:1.8rem">W
   <div class="pick"><button class="tile dm" data-act="dmpin"><span class="top"><span class="nm">Dungeon Master</span></span><span class="sub">PIN required</span></button>${D.party.map(c=>`<button class="tile" data-act="pick" data-id="${esc(c.id)}"><span class="top"><span class="nm">${esc(first(c.name))}</span><span class="ac">AC ${esc(c.ac??'?')}</span></span><span class="sub">${esc(c.cls||'')}</span><span class="pips">HP ${esc(c.hpMax??'?')}</span></button>`).join('')}</div></div>`}
 
 /* ---------- character sheet (D&D Beyond style) ---------- */
-const SKILLS=[['acrobatics','Acrobatics','dex'],['animal-handling','Animal Handling','wis'],['arcana','Arcana','int'],['athletics','Athletics','str'],['deception','Deception','cha'],['history','History','int'],['insight','Insight','wis'],['intimidation','Intimidation','cha'],['investigation','Investigation','int'],['medicine','Medicine','wis'],['nature','Nature','int'],['perception','Perception','wis'],['performance','Performance','cha'],['persuasion','Persuasion','cha'],['religion','Religion','int'],['sleight-of-hand','Sleight of Hand','dex'],['stealth','Stealth','dex'],['survival','Survival','wis']];
-const STABS=[['actions','Actions'],['bonus','Bonus actions'],['reactions','Reactions'],['move','Movement'],['gear','Inventory'],['spells','Spells'],['features','Features'],['remind','Reminders']];
-let STAB='actions',PICK=null,DRAG=null;
-try{const s=localStorage.getItem('ac-stab');if(STABS.some(t=>t[0]===s))STAB=s}catch(e){}
+let PICK=null,DRAG=null;
 const SLOTS=[['head','Head'],['neck','Neck'],['cloak','Shoulders'],['body','Body'],['legs','Legs'],['feet','Feet'],['weap','Main hand'],['off','Off hand'],['hands','Wrists and hands'],['rings','Rings'],['waist','Belt']];
 const SLOT_L=Object.fromEntries(SLOTS);
 const CAP={head:1,neck:1,cloak:1,body:1,legs:1,feet:1,weap:1,off:1,waist:1,hands:3,rings:4};
@@ -337,9 +339,7 @@ function dollMap(c){const its=items(c).filter(e=>!e.in&&e.active!==false&&!e.con
   rest.filter(e=>guessSlot(e)&&guessSlot(e)!=='weap').forEach(e=>put(e,guessSlot(e)));
   rest.filter(e=>guessSlot(e)==='weap').forEach(e=>put(e,'weap')||(!/shortbow|longbow|greataxe|greatsword|maul|halberd|glaive|pike|staff/i.test(e.name)&&put(e,'off')));
   const where={};for(const k in m)for(const e of m[k])where[e.id]=k;return {m,where}}
-const abMod=(c,a)=>{const s=(c.scores||{})[a];return s==null?0:Math.floor((s-10)/2)};
 const RESET_T={SR:'short rest',LR:'long rest',dawn:'dawn'};
-const ACT_T={action:'Action',bonus:'Bonus action',reaction:'Reaction',move:'Movement',other:'Other'};
 
 /* the figure: base body plus whatever is equipped, drawn in place */
 const COL={metal:'#9aa4ae',dark:'#4c535b',leather:'#8b5a2b',wood:'#9a6a3a',gold:'#d4a72c',cloth:'#4d6b94',robe:'#6a4f8a',pink:'#d1569a',band:'#5f84b3'};
@@ -392,16 +392,16 @@ function figure(c,dm){const {m}=dm;const t=list=>`<title>${esc(list.map(e=>e.nam
   return `<svg class="figsvg" viewBox="-10 -40 220 350" role="img" aria-label="${esc(first(c.name))} wearing their equipped gear"><defs><pattern id="mailpat" width="6" height="6" patternUnits="userSpaceOnUse"><rect width="6" height="6" fill="#7d8790"/><circle cx="3" cy="3" r="2" fill="none" stroke="#c3cad1" stroke-width=".9"/></pattern></defs>${o}</svg>`}
 
 function gearTab(c){const dm=dollMap(c),{m,where}=dm;const can=canHandle(c.id);const all=items(c);
-  const chip=e=>`<button class="ichip${PICK&&PICK.e===e.id?' picked':''}"${can?` draggable="true" data-drag="${esc(e.id)}" data-h="${esc(c.id)}" data-act="pick-item" data-e="${esc(e.id)}"`:''} title="${esc(e.name)}">${esc(e.name)}${e.attune&&!e.attuned?' <span class="badge warn">not attuned</span>':''}</button>`;
+  const chip=e=>`<button class="ichip${PICK&&PICK.e===e.id?' picked':''}"${can?` draggable="true" data-drag="${esc(e.id)}" data-h="${esc(c.id)}" `:''} data-act="show-item" data-e="${esc(e.id)}" title="${esc(e.name)}: tap to see it">${esc(e.name)}${e.attune&&!e.attuned?' <span class="badge warn">not attuned</span>':''}</button>`;
   const slotBox=([k,l])=>`<div class="slot${m[k].length?' filled':''}" style="grid-area:${k}" data-drop="slot:${k}" data-h="${esc(c.id)}"><span class="lbl">${l}</span>${m[k].length?m[k].map(chip).join(''):'<span class="none">empty</span>'}</div>`;
   const kids=id=>all.filter(e=>e.in===id);
   const row=(e,depth)=>{const k=where[e.id];const inn=e.container?kids(e.id):[];const b=[];
     if(k)b.push(`<span class="badge on">${esc(SLOT_L[k])}</span>`);else if(e.active===false&&!e.in&&wearable(e))b.push('<span class="badge">stowed</span>');
     if(e.attune)b.push(e.attuned?'<span class="badge">attuned</span>':'<span class="badge warn">not attuned</span>');if((+e.qty||1)>1)b.push('<span class="badge">×'+esc(e.qty)+'</span>');
     const ask=(dmx(c.id).asks||{})[e.id];
-    return `<details class="inv${e.container?' cont':''}"${e.container?` open data-drop="in:${esc(e.id)}" data-h="${esc(c.id)}"`:''} style="--d:${depth}">
+    return `<details class="inv${e.container?' cont':''}" data-id="${esc(e.id)}"${e.container?` open data-drop="in:${esc(e.id)}" data-h="${esc(c.id)}"`:''} style="--d:${depth}">
       <summary${can?` draggable="true" data-drag="${esc(e.id)}" data-h="${esc(c.id)}"`:''}><span class="grip" aria-hidden="true">${can?'⠿':''}</span><span class="nm2"><b>${esc(e.name)}</b>${e.rarity?` <span class="rar">${esc(e.rarity)}</span>`:''}</span><span class="row" style="gap:5px">${b.join('')}${pips(e)}</span></summary>
-      <div class="invb">${e.desc?`<p>${esc(e.desc)}</p>`:''}${(e.fx||[]).length?`<ul class="jl">${e.fx.map(f=>`<li>${esc(fxLine(f))}</li>`).join('')}</ul>`:''}${ask?`<p class="dmnote">DM: ${esc(ask)}</p>`:''}${ME==='dm'?dmItemBtns(c.id,e):''}${itemActions(c.id,e,true)}</div>
+      <div class="invb">${[e.rarity,e.attune?(e.attuned?'attuned':'requires attunement'):'',(+e.uses||0)>0?`${+e.left||0} of ${+e.uses} uses left${RESET_T[e.reset]?', back at '+RESET_T[e.reset]:''}`:''].filter(Boolean).length?`<p class="sub">${esc([e.rarity,e.attune?(e.attuned?'Attuned':'Requires attunement'):'',(+e.uses||0)>0?`${+e.left||0} of ${+e.uses} uses left${RESET_T[e.reset]?', back after a '+RESET_T[e.reset]:''}`:''].filter(Boolean).join(' · '))}</p>`:''}${e.desc?`<p>${esc(e.desc)}</p>`:''}${(e.fx||[]).length?`<ul class="jl">${e.fx.map(f=>`<li>${esc(fxLine(f))}</li>`).join('')}</ul>`:''}${ask?`<p class="dmnote">DM: ${esc(ask)}</p>`:''}${ME==='dm'?dmItemBtns(c.id,e):''}${itemActions(c.id,e,true)}</div>
       ${e.container?`<div class="incont">${inn.length?inn.map(x=>row(x,depth+1)).join(''):`<p class="none">Empty. Drag things here to put them in the ${esc(e.name)}.</p>`}</div>`:''}</details>`};
   const top=all.filter(e=>!e.in);
   const eq=top.filter(e=>where[e.id]),bags=top.filter(e=>e.container),loose=top.filter(e=>!where[e.id]&&!e.container);
@@ -413,7 +413,7 @@ function gearTab(c){const dm=dollMap(c),{m,where}=dm;const can=canHandle(c.id);c
       <div class="fig" data-drop="auto" data-h="${esc(c.id)}">${figure(c,dm)}</div>
       ${SLOTS.map(slotBox).join('')}
     </div>
-    <div class="row"><h3 style="flex:1">Inventory</h3><span class="sub">Attuned ${att} of ${+c.attune||3}</span></div>
+    <h3>Inventory</h3>
     <div class="invtree${pk?' armed':''}">
       <section class="ivs" data-drop="auto" data-h="${esc(c.id)}"><div class="ivh"><span class="lbl">Equipped</span><span class="sub">${eq.length}</span></div>${eq.length?eq.map(e=>row(e,0)).join(''):'<p class="none">Nothing equipped.</p>'}</section>
       ${bags.map(e=>`<section class="ivs">${row(e,0)}</section>`).join('')}
@@ -441,76 +441,40 @@ async function doDrop(h,eid,zone){const c=h==='stash'?D.stash:D.party.find(x=>x.
   catch(e){toast(e.message||'That didn’t save. Try again.',true)}finally{BUSY=false;document.body.classList.remove('busy')}}
 
 function sheet(c){
-  const mod=s=>s==null?'?':sgn(Math.floor((s-10)/2));
-  const X=c.dnd||{};const pb=+X.pb||4;
-  const hp=c.hp??c.hpMax,pct=c.hpMax?Math.max(0,Math.min(100,Math.round(100*hp/c.hpMax))):0;
-  const stat=(l,v,sub)=>`<div class="st"><span class="lbl">${l}</span><b>${esc(v??'?')}</b>${sub?`<small>${esc(sub)}</small>`:''}</div>`;
-  const G={def:['When you’re attacked','t-def'],react:['Your reactions','t-react'],save:['Saves and auras','t-save'],off:['When you attack','t-off'],note:['Don’t forget','t-note'],att:['Not attuned yet','t-att']};
-  const groups={};const add=(k,e,line,f)=>(groups[k]=groups[k]||[]).push({e,line,f});
-  for(const e of c.entries||[]){
-    if(e.attune&&!e.attuned&&e.active!==false){add('att',e,'Its bonuses are off until you attune to it.');continue}
-    if(!isOn(e))continue;
-    for(const f of e.fx||[])add({defense:'def',damage:'def',reaction:'react',save:'save',aura:'save',offense:'off'}[f.w]||'note',e,fxLine(f),f);
-  }
+  const can=canHandle(c.id);
+  /* what the gear does: only items that are on, plus items with uses */
+  const on=items(c).filter(e=>!e.in&&e.active!==false);
+  const feat=on.filter(e=>(e.fx||[]).length||(+e.uses||0)>0);
+  const pending=on.filter(e=>e.attune&&!e.attuned);
+  const card=e=>{const off=e.attune&&!e.attuned;return `<div class="act${off?' t-att':''}"><div class="row" style="gap:6px"><b style="flex:1">${esc(e.name)}</b>${pips(e)}</div>
+    ${off?'<span class="s warn">Off until you attune to it.</span>':''}${(e.fx||[]).length?`<ul class="jl s">${e.fx.map(f=>`<li>${esc(fxLine(f))}</li>`).join('')}</ul>`:e.desc?`<span class="s">${esc(e.desc)}</span>`:''}
+    ${(+e.uses||0)>0&&can?`<div class="acts"><button class="btn sm" data-act="use" data-h="${esc(c.id)}" data-e="${esc(e.id)}" data-v="${Math.max(0,(+e.left||0)-1)}"${(+e.left||0)<=0?' disabled':''}>Use one</button>${ME==='dm'?`<button class="btn sm" data-act="use" data-h="${esc(c.id)}" data-e="${esc(e.id)}" data-v="${+e.uses}">Refill</button>`:''}${RESET_T[e.reset]?`<span class="sub">Back after a ${esc(RESET_T[e.reset])}</span>`:''}</div>`:''}</div>`};
   const feats=(c.entries||[]).filter(e=>(e.kind||'item')!=='item');
-  const gearRow=e=>{const b=[];if((+e.qty||1)>1)b.push('<span class="badge">×'+esc(e.qty)+'</span>');const ask=(dmx(c.id).asks||{})[e.id];
-    return `<div class="gr${isOn(e)?'':' off'}"><span class="n2"><b>${esc(e.name)}</b>${e.rarity?` <span class="rar">${esc(e.rarity)}</span>`:''}</span><span class="row" style="gap:5px">${b.join('')}${pips(e)}</span>${e.desc?`<span class="d">${esc(e.desc)}</span>`:''}${(e.fx||[]).length&&!e.desc?`<span class="d">${esc(e.fx.map(fxLine).join(' '))}</span>`:''}${ask?`<span class="d dmnote">DM: ${esc(ask)}</span>`:''}${ME==='dm'?`<span class="d">${dmItemBtns(c.id,e)}</span>`:''}${(+e.uses||0)>0&&canHandle(c.id)?`<span class="d"><div class="acts"><button class="btn sm" data-act="use" data-h="${esc(c.id)}" data-e="${esc(e.id)}" data-v="${Math.max(0,(+e.left||0)-1)}"${(+e.left||0)<=0?' disabled':''}>Use one</button>${ME==='dm'?`<button class="btn sm" data-act="use" data-h="${esc(c.id)}" data-e="${esc(e.id)}" data-v="${+e.uses}">Refill</button>`:''}</div></span>`:''}</div>`};
-  /* skills */
-  const sk=X.skills||{};const skB=k=>{const s=SKILLS.find(x=>x[0]===k);const p=+sk[k]||0;return abMod(c,s[2])+(p===2?2*pb:p===1?pb:X.half?Math.floor(pb/2):0)};
-  const pas=k=>10+skB(k)+((X.adv||[]).includes(k)?5:0);
-  const skills=`<section class="panel skills"><div class="row"><span class="lbl" style="flex:1">Skills</span><span class="sub">Prof ${sgn(pb)}</span></div><ul class="sk">${SKILLS.map(([k,l,a])=>{const p=+sk[k]||0;return `<li><span class="dotp p${p}" title="${p===2?'Expertise':p===1?'Proficient':X.half?'Jack of All Trades (half)':'Not proficient'}"></span><span class="ska">${a.toUpperCase()}</span><span class="skn">${l}${(X.adv||[]).includes(k)?' <span class="badge">adv</span>':''}</span><b class="n">${sgn(skB(k))}</b></li>`}).join('')}</ul>
-    ${X.skills?'<p class="sub" style="margin:6px 0 0">Worked out from your scores. If an item changes a skill, D&amp;D Beyond has the final number.</p>':'<p class="sub">Skill proficiencies haven’t been loaded for this character yet.</p>'}</section>`;
-  const left=`<section class="stack" style="gap:10px">${c.scores?`<div class="abil2">${ABIL.map(a=>`<div class="ab"><span class="lbl">${a.toUpperCase()}</span><b>${mod(c.scores[a])}</b><small>${esc(c.scores[a]??'')}</small><span class="sv">save ${(c.saves||{})[a]!=null?sgn(c.saves[a]):'?'}</span></div>`).join('')}</div>`:''}
-    ${X.skills?`<div class="panel pass"><span class="lbl">Passive senses</span><div class="psv"><b class="n">${pas('perception')}</b><span>Perception</span></div><div class="psv"><b class="n">${pas('investigation')}</b><span>Investigation</span></div><div class="psv"><b class="n">${pas('insight')}</b><span>Insight</span></div>${(X.senses||[]).length?`<div class="sub">${esc(X.senses.join(', '))}</div>`:''}</div>`:''}
-    ${(X.profs||X.langs)?`<details class="panel"><summary class="lbl">Proficiencies and languages</summary><p style="margin:6px 0 0"><b>Weapons, armor, tools:</b> ${esc((X.profs||[]).join(', '))}</p><p style="margin:4px 0 0"><b>Languages:</b> ${esc((X.langs||[]).join(', '))}</p></details>`:''}</section>`;
-  /* action-type tabs */
-  const acts=t=>(X.acts||[]).filter(a=>a.t===t);
-  const actCard=a=>`<div class="act"><div class="row" style="gap:6px"><b style="flex:1">${esc(a.n)}</b>${a.u?`<span class="badge">${a.u} / ${esc(RESET_T[a.r]||'rest')}</span>`:a.r?`<span class="badge">per ${esc(RESET_T[a.r]||'rest')}</span>`:''}</div>${a.d?`<span class="s">${esc(a.d)}</span>`:''}</div>`;
-  const fxCard=x=>`<div class="act t-${x.k}"><div class="row" style="gap:6px"><b style="flex:1">${esc(x.e.name)}</b>${pips(x.e)}</div><span class="s">${esc(x.line)}</span></div>`;
-  const spellsT=t=>(X.spells||[]).filter(s=>s.t===t);
-  const lvlName=l=>l===0?'Cantrips':'Level '+l;
-  const spellChips=list=>{if(!list.length)return'';const by={};list.forEach(s=>(by[s.l]=by[s.l]||[]).push(s));return Object.keys(by).sort((a,b)=>a-b).map(l=>`<div class="spl"><span class="lbl">${lvlName(+l)}</span><div class="row" style="gap:5px">${by[l].map(s=>`<span class="sp" title="${esc(s.r)}${s.c?' · concentration':''}">${esc(s.n)}${s.c?' <i>C</i>':''}<small>${esc(s.r)}</small></span>`).join('')}</div></div>`).join('')};
-  const sec=(title,body,extra)=>body?`<section class="tsec"><div class="row"><span class="lbl" style="flex:1">${title}</span>${extra||''}</div>${body}</section>`:'';
-  const weapRows=(X.weapons||[]).map(w=>{const pr=(w.props||'').toLowerCase();const rngd=/ammunition|range/.test(pr)||(/\//.test(w.range)&&!/thrown/.test(pr));const a=rngd?'dex':/finesse/.test(pr)?(abMod(c,'dex')>abMod(c,'str')?'dex':'str'):'str';const md=abMod(c,a);
-    return `<tr class="${w.eq?'':'off'}"><td><b>${esc(w.n)}</b>${w.eq?'':' <span class="badge">not equipped</span>'}<div class="sub">${esc(w.props)}</div></td><td class="n">${esc(w.range)} ft</td><td class="n">${sgn(md+pb)}</td><td class="n">${esc(w.dmg)}${md?sgn(md):''} <span class="sub">${esc(w.dt)}</span></td></tr>`}).join('');
-  const atkBlock=(weapRows||c.toHit!=null)?`${c.toHit!=null?`<div class="act"><div class="row"><b style="flex:1">${esc(c.atkLabel||'Main attack')}</b><b class="n">${sgn(c.toHit)}</b></div>${c.atkNote?`<span class="s">${esc(c.atkNote)}</span>`:''}</div>`:''}${weapRows?`<div class="tablewrap"><table class="ledger atk"><thead><tr><th>Weapon</th><th>Range</th><th>Hit</th><th>Damage</th></tr></thead><tbody>${weapRows}</tbody></table></div><p class="sub" style="margin:4px 0 0">From your D&amp;D Beyond weapon list, assuming proficiency. Magic weapon bonuses are in Reminders.</p>`:''}`:'';
-  const spellHead=(c.dc!=null||c.toHit!=null)&&(X.spells||[]).length?`<span class="sub">Save DC ${esc(c.dc??'?')}</span>`:'';
-  const offFx=(groups.off||[]),reactFx=(groups.react||[]);
-  const BASIC={actions:'Attack, Dash, Disengage, Dodge, Help, Hide, Influence, Magic, Ready, Search, Study, Utilize.',bonus:'Two-Weapon Fighting: after attacking with a Light weapon, attack with a different Light weapon.',reactions:'Opportunity Attack: when a creature you can see leaves your reach, make one melee attack against it.'};
-  const moveRx=/dash|disengage|\bmove\b|movement|speed|jump|fly|flight|teleport|step of the wind|fleet step|tactical shift/i;
-  const MOVE_SP=/^(misty step|dimension door|fly|longstrider|haste|water walk|blink|expeditious retreat|jump|spider climb|thunder step|teleport|far step|levitate)$/i;
-  let body='';
-  if(STAB==='actions')body=sec('Attacks',atkBlock)+sec('Features',acts('action').map(actCard).join(''))+sec('Spells you cast as an action',spellChips(spellsT('action')),spellHead)+sec('When you attack (from your gear)',offFx.map(x=>fxCard({...x,k:'off'})).join(''))+sec('Everyone can',`<p class="s" style="margin:0">${BASIC.actions}</p>`);
-  else if(STAB==='bonus')body=sec('Features',acts('bonus').map(actCard).join(''))+sec('Spells you cast as a bonus action',spellChips(spellsT('bonus')),spellHead)+sec('Everyone can',`<p class="s" style="margin:0">${BASIC.bonus}</p>`);
-  else if(STAB==='reactions')body=sec('Features',acts('reaction').map(actCard).join(''))+sec('From your gear and feats',reactFx.map(x=>fxCard({...x,k:'react'})).join(''))+sec('Spells you cast as a reaction',spellChips(spellsT('reaction')))+sec('Everyone can',`<p class="s" style="margin:0">${BASIC.reactions}</p>`);
-  else if(STAB==='move'){const sp=X.speed||{};const st=(c.scores||{}).str;
-    const mv=[...acts('move'),...(X.acts||[]).filter(a=>a.t!=='move'&&(moveRx.test(a.n)||/\b(dash|disengage)\b/i.test(a.d||'')))];
-    body=`<div class="strip">${stat('Walk',c.speed!=null?c.speed+' ft':(sp.walk||'?')+' ft',sp.bonus?`includes +${sp.bonus} ft`:'')}${stat('Climb',Math.floor((c.speed||sp.walk||30)/2)+' ft','costs double')}${stat('Swim',Math.floor((c.speed||sp.walk||30)/2)+' ft','costs double')}${sp.fly?stat('Fly',(c.speed||sp.walk)+' ft','while '+sp.fly+' is up'):''}${st!=null?stat('Long jump',st+' ft','running start; half standing'):''}${st!=null?stat('High jump',Math.max(0,3+abMod(c,'str'))+' ft','running start; half standing'):''}</div>`
-      +sec('Ways you can move',mv.map(a=>actCard({...a,n:a.n+(a.t!=='move'?' · '+ACT_T[a.t]:'')})).join(''))
-      +sec('Movement spells',spellChips((X.spells||[]).filter(s=>MOVE_SP.test(s.n))))
-      +sec('Rules of thumb',`<ul class="jl"><li>Difficult terrain, climbing, swimming and crawling cost 1 extra foot per foot.</li><li>Standing up from Prone costs half your speed. Dropping Prone is free.</li><li>You can split movement before, between and after attacks.</li><li>Dragging or carrying a grappled creature costs 1 extra foot per foot.</li>${(X.senses||[]).length?`<li>${esc(X.senses.join(', '))}.</li>`:''}</ul>`);}
-  else if(STAB==='gear')body=gearTab(c);
-  else if(STAB==='spells'){const all=X.spells||[];const by={};all.forEach(s=>(by[s.l]=by[s.l]||[]).push(s));
-    body=all.length?`<div class="strip">${c.dc!=null?stat('Spell save DC',c.dc):''}${c.toHit!=null&&/spell/i.test(c.atkLabel||'')?stat('Spell attack',sgn(c.toHit)):''}</div>`+Object.keys(by).sort((a,b)=>a-b).map(l=>sec(lvlName(+l),`<div class="tablewrap"><table class="ledger"><tbody>${by[l].map(s=>`<tr><td><b>${esc(s.n)}</b>${s.c?' <span class="badge">concentration</span>':''}</td><td>${esc(ACT_T[s.t]||'')}</td><td class="n">${esc(s.r)}</td></tr>`).join('')}</tbody></table></div>`)).join(''):'<p class="empty">No spells.</p>';}
-  else if(STAB==='features')body=sec('Limited uses and other features',acts('other').map(actCard).join(''))+sec('Features, feats and ongoing effects on this site',feats.length?`<div class="gear">${feats.map(gearRow).join('')}</div>`:'');
-  else body=`<div class="alerts">${Object.keys(G).filter(k=>groups[k]).map(k=>`<section class="ag ${G[k][1]}"><span class="lbl">${G[k][0]}</span>${groups[k].map(x=>`<div class="al"><span class="t">${esc(x.e.name)} ${pips(x.e)}</span><span class="s">${esc(x.line)}</span></div>`).join('')}</section>`).join('')||'<p class="empty">Nothing recorded yet.</p>'}</div>`;
-  if(!body.trim())body='<p class="empty">Nothing here for this character.</p>';
+  const att=items(c).filter(e=>e.attune&&e.attuned&&e.active!==false).length;
   return `<article class="stack">
-    <header class="sh-head"><div><h2 class="big">${esc(c.name)}</h2><div class="sub">${esc(c.cls||'')}</div></div><div class="row">${canHandle(c.id)&&c.id!=='stash'?`<button class="btn" data-act="sheet-edit">${EDIT?'Cancel':'Update HP and gold'}</button>`:''}${c.ddb?`<a href="${esc(c.ddb)}" target="_blank" rel="noopener">Open on D&D Beyond</a>`:''}</div></header>
-    ${EDIT&&canHandle(c.id)?`<div class="panel row" style="align-items:end"><label class="field"><span class="lbl">Current HP (max ${esc(c.hpMax??'?')})</span><input type="number" min="0" id="se-hp" value="${esc(c.hp??c.hpMax??'')}"></label><label class="field"><span class="lbl">Gold (gp)</span><input type="number" min="0" id="se-gold" value="${esc(c.gold??0)}"></label><label class="field"><span class="lbl">Ash jars</span><input type="number" min="0" id="se-jars" value="${esc(c.jars??0)}"></label><button class="btn primary" data-act="sheet-save">Save</button></div>`:''}
+    <header class="sh-head"><div><h2 class="big">${esc(c.name)}</h2><div class="sub">${esc(c.cls||'')}</div></div><div class="row">${can?`<button class="btn" data-act="sheet-edit">${EDIT?'Cancel':'Update gold'}</button>`:''}${c.ddb?`<a href="${esc(c.ddb)}" target="_blank" rel="noopener">Character sheet on D&D Beyond</a>`:''}</div></header>
+    ${EDIT&&can?`<div class="panel row" style="align-items:end"><label class="field"><span class="lbl">Gold (gp)</span><input type="number" min="0" id="se-gold" value="${esc(c.gold??0)}"></label><label class="field"><span class="lbl">Ash jars</span><input type="number" min="0" id="se-jars" value="${esc(c.jars??0)}"></label><button class="btn primary" data-act="sheet-save">Save</button></div>`:''}
     ${ME==='dm'&&dmx(c.id).notes&&DMED!=='sheet:'+c.id?`<div class="dmbox"><span class="lbl">DM only</span><p style="margin:2px 0 0">${esc(dmx(c.id).notes)}</p></div>`:''}
     ${ME==='dm'?dmSheetPanel(c):''}
-    <div class="strip">${stat('AC',c.ac,c.acNote)}${stat('HP',(hp??'?')+'/'+(c.hpMax??'?'))}${stat('Speed',c.speed!=null?c.speed+' ft':null)}${stat('Initiative',c.init!=null?sgn(c.init):null)}${stat('Proficiency',sgn(pb))}${c.dc!=null?stat('Save DC',c.dc):''}${stat('Gold',fmt(c.gold)+' gp',c.jars?c.jars+' ash jar'+(c.jars===1?'':'s'):'')}</div>
-    ${c.hpMax?`<div class="hpbar${pct<35?' low':''}" aria-hidden="true"><span style="width:${pct}%"></span></div>`:''}
-    <div class="sgrid">${left}${skills}
-      <section class="panel tabsbox"><nav class="stabs" aria-label="Sheet sections">${STABS.map(([k,l])=>`<button data-act="stab" data-v="${k}" aria-pressed="${STAB===k}">${l}</button>`).join('')}</nav><div class="tbody">${body}</div></section>
+    <div class="strip">${`<div class="st"><span class="lbl">Gold</span><b>${fmt(c.gold)} gp</b></div>`}<div class="st"><span class="lbl">Ash jars</span><b>${+c.jars||0}</b></div><div class="st"><span class="lbl">Attuned</span><b>${att} of ${+c.attune||3}</b></div></div>
+    <div class="ssplit">
+      <section class="panel stack" style="gap:10px"><h3>Your gear</h3>${gearTab(c)}</section>
+      <section class="stack" style="gap:8px"><h3>What your gear does</h3><p class="sub" style="margin:0">Only gear you’re wearing or using. Attacks, spells and class features are on D&amp;D Beyond.</p>
+        ${feat.length?feat.map(card).join(''):'<p class="empty">None of your equipped gear has special effects.</p>'}
+        ${pending.length&&!feat.some(e=>pending.includes(e))?pending.map(card).join(''):''}
+        ${ME==='dm'&&feats.length?`<details class="dmbox"><summary class="lbl">DM: class features and feats (${feats.length}), used by the Encounter tab</summary><div class="gear" style="margin-top:8px">${feats.map(e=>`<div class="gr"><span class="n2"><b>${esc(e.name)}</b></span><span>${pips(e)}</span>${(e.fx||[]).length?`<span class="d">${esc(e.fx.map(fxLine).join(' '))}</span>`:''}<span class="d">${dmItemBtns(c.id,e)}</span></div>`).join('')}</div></details>`:''}
+      </section>
     </div>
   </article>`;
 }
+const COMPANIONS=[
+  {name:'Bellamy Voss',cls:'High Elf · Wizard 7 · School of Conjuration',role:'The party’s liaison to the House',ac:12,hp:37,speed:30,ddb:'https://www.dndbeyond.com/characters/170602463/ok1sJM'},
+  {name:'Captain Elira',cls:'Wood Elf · Ranger 8 · Hunter',role:'',ac:16,hp:68,speed:35,ddb:'https://www.dndbeyond.com/characters/169297282/fjVXEg'}];
 function partyTiles(){return `<div class="stack"><h2>The party</h2><div class="pick">${D.party.map(c=>{const nb=items(c).filter(e=>notable(e)&&e.active!==false);
   return `<div class="tile" style="cursor:default"><span class="top"><span class="nm">${esc(first(c.name))}${c.id===ME?' <span class="badge">you</span>':''}</span><span class="ac">AC ${esc(c.ac??'?')}</span></span><span class="sub">${esc(c.cls||'')}</span>
-  <span class="pips">HP ${esc(c.hp??c.hpMax)}/${esc(c.hpMax)} · Speed ${esc(c.speed??'?')} · DEX ${sgn((c.saves||{}).dex||0)} · CON ${sgn((c.saves||{}).con||0)} · WIS ${sgn((c.saves||{}).wis||0)}</span>
-  ${nb.length?`<ul>${nb.slice(0,6).map(e=>`<li>${esc(e.name)}</li>`).join('')}</ul>`:''}</div>`}).join('')}</div></div>`}
+  <span class="pips">Speed ${esc(c.speed??'?')} · DEX ${sgn((c.saves||{}).dex||0)} · CON ${sgn((c.saves||{}).con||0)} · WIS ${sgn((c.saves||{}).wis||0)}</span>
+  ${nb.length?`<ul>${nb.slice(0,6).map(e=>`<li>${esc(e.name)}</li>`).join('')}</ul>`:''}${c.ddb?`<a class="sub" href="${esc(c.ddb)}" target="_blank" rel="noopener">D&amp;D Beyond sheet</a>`:''}</div>`}).join('')}</div>
+  <h2>Companions</h2><div class="pick">${COMPANIONS.map(x=>`<div class="tile comp" style="cursor:default"><span class="top"><span class="nm">${esc(x.name)}</span><span class="ac">AC ${x.ac}</span></span><span class="sub">${esc(x.cls)}</span>${x.role?`<span>${esc(x.role)}</span>`:''}<span class="pips">HP ${x.hp} · Speed ${x.speed} ft</span><a class="sub" href="${esc(x.ddb)}" target="_blank" rel="noopener">D&amp;D Beyond sheet</a></div>`).join('')}</div></div>`}
 /* ---------- database ---------- */
 const SB_URL='https://yvdmorqaieqlduqplckm.supabase.co';
 const SB_KEY='sb_publishable_qW8mC2-abmbxWLUMsIwXyQ_Ar9uchsy';
@@ -966,8 +930,8 @@ document.addEventListener('click',ev=>{
   else if(a==='addnote'){const t=$('#note-text');if(!t||!t.value.trim())return;const body=t.value.trim();(async()=>{try{await api('/rest/v1/notes',{method:'POST',headers:{Prefer:'return=minimal'},body:JSON.stringify({session:JSEL,author:ME,body})});await load();toast('Note added');render()}catch(e){toast(e.message,true)}})()}
   else if(a==='delnote')act('dm_delete_note',{pin:PIN,note_id:b.dataset.id},'Note deleted');
   else if(a==='sheet-edit'){EDIT=!EDIT;render()}
-  else if(a==='sheet-save'){const c=viewed();const g=id=>{const x=document.getElementById(id);return x&&x.value!==''?Math.floor(+x.value):undefined};const patch={};for(const k of ['hp','gold','jars']){const v=g('se-'+k);if(v!==undefined)patch[k]=v}EDIT=false;act('p_update_sheet',{holder_id:c.id,patch,actor:actor()},'Sheet saved')}
-  else if(a==='stab'){STAB=b.dataset.v;PICK=null;try{localStorage.setItem('ac-stab',STAB)}catch(e){}render()}
+  else if(a==='sheet-save'){const c=viewed();const g=id=>{const x=document.getElementById(id);return x&&x.value!==''?Math.floor(+x.value):undefined};const patch={};for(const k of ['gold','jars']){const v=g('se-'+k);if(v!==undefined)patch[k]=v}EDIT=false;act('p_update_sheet',{holder_id:c.id,patch,actor:actor()},'Sheet saved')}
+  else if(a==='show-item'){const d=document.querySelector(`details.inv[data-id="${CSS.escape(b.dataset.e)}"]`);if(d){d.open=true;d.scrollIntoView({behavior:'smooth',block:'center'});d.classList.add('flash');setTimeout(()=>d.classList.remove('flash'),1400)}}
   else if(a==='pick-item'){ev.preventDefault();PICK=PICK&&PICK.e===b.dataset.e?null:{h:b.dataset.h,e:b.dataset.e};render()}
   else if(a==='pick-cancel'){PICK=null;render()}
   else if(a==='drop')doDrop(b.dataset.h,b.dataset.e,b.dataset.z);
