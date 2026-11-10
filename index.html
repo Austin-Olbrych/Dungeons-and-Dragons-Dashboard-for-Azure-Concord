@@ -269,7 +269,7 @@ main,.foot{position:relative;z-index:1}
 .beta{font:700 .58rem var(--f-body);letter-spacing:.08em;text-transform:uppercase;background:var(--accent);color:var(--accent-ink);border-radius:4px;padding:1px 4px;margin-left:6px;vertical-align:2px}
 /* banner pages */
 body[data-page=char] header.top,body[data-page=shop] header.top,body[data-page=house] header.top{border-bottom:0;color:#fff;box-shadow:0 2px 12px rgba(0,0,0,.18)}
-body[data-page=char] header.top{background:linear-gradient(100deg,var(--cd),var(--ca))}
+body[data-page=char] header.top{background:linear-gradient(100deg,var(--cd),color-mix(in srgb,var(--ca) 72%,var(--cd)))}
 body[data-page=char]::before{background:var(--cd)}
 body[data-page=char] header.top .sub,body[data-page=shop] header.top .sub{color:rgba(255,255,255,.78)}
 body[data-page=char] .tabs,body[data-page=shop] .tabs{background:rgba(0,0,0,.2)}
@@ -286,25 +286,25 @@ body[data-page=char] .slot.filled{border-color:color-mix(in srgb,var(--ca) 45%,v
 body[data-page=char] .badge.on{color:var(--ca);border-color:var(--ca)}
 body[data-page=char] .fig{background:radial-gradient(circle at 50% 42%,color-mix(in srgb,var(--cl) 90%,transparent),transparent 70%)}
 /* the Guild: underground, candlelit */
-body[data-page=house]{--bg:#0c0f0d;--surface:#151916;--surface2:#1d221e;--ink:#ddd6c0;--muted:#8f937f;--line:#2a312b;--accent:#d4aa4f;--accent-ink:#1a1407;--good:#7cc49a;--good-bg:#173022;--bad:#e58a76;--bad-bg:#3a201b;--info:#9ab8d6;--info-bg:#1a2633;color-scheme:dark;background:radial-gradient(ellipse 80% 50% at 50% 0,#1c2a21,transparent 70%) fixed,#0c0f0d}
+body[data-page=house]{--bg:#0c0f0d;--surface:#151916;--surface2:#1d221e;--ink:#ece6d3;--muted:#b4b8a4;--line:#2a312b;--accent:#d4aa4f;--accent-ink:#1a1407;--good:#7cc49a;--good-bg:#173022;--bad:#e58a76;--bad-bg:#3a201b;--info:#9ab8d6;--info-bg:#1a2633;color-scheme:dark;background:radial-gradient(ellipse 80% 50% at 50% 0,#1c2a21,transparent 70%) fixed,#0c0f0d}
 body[data-page=house]::before{background:#060807}
 body[data-page=house] header.top{background:linear-gradient(180deg,#060807,#0f1511);border-bottom:1px solid #26302a}
-body[data-page=house] header.top .sub{color:#8f937f}
+body[data-page=house] header.top .sub{color:#b4b8a4}
 body[data-page=house] .tabs{background:#121713}
-body[data-page=house] .tabs a{color:#a9ac98}
+body[data-page=house] .tabs a{color:#cfd1c0}
 body[data-page=house] .tabs a[aria-current="page"]{background:#d4aa4f;color:#17110a}
-body[data-page=house] #bgart{opacity:.6}
+body[data-page=house] #bgart{opacity:.6;-webkit-mask-image:linear-gradient(90deg,#000,rgba(0,0,0,.35) 18%,rgba(0,0,0,.35) 82%,#000);mask-image:linear-gradient(90deg,#000,rgba(0,0,0,.35) 18%,rgba(0,0,0,.35) 82%,#000)}
 body[data-page=house] h2,body[data-page=house] h3{color:#e7d6a6;text-shadow:0 0 18px rgba(212,170,79,.25)}
 body[data-page=house] .panel{border-color:#2e372f;box-shadow:inset 0 1px 0 rgba(255,255,255,.03),0 6px 24px rgba(0,0,0,.4)}
 @media (prefers-reduced-motion:no-preference){.art-house .flame{animation:flick 2.6s ease-in-out infinite;transform-box:fill-box;transform-origin:50% 100%}.art-house .glow{animation:glow 2.6s ease-in-out infinite}
 @keyframes flick{0%,100%{transform:scale(1,1)}30%{transform:scale(.92,1.08)}60%{transform:scale(1.06,.94)}}@keyframes glow{0%,100%{opacity:.9}50%{opacity:.65}}}
 /* the shop: a bright merchant's counter */
-body[data-page=shop]{--bg:#f7f0df;--surface:#fffaf0;--surface2:#f4e9cf;--ink:#2b2114;--muted:#7a6a4e;--line:#e5d2a8;--accent:#a8741a;background:linear-gradient(180deg,#fcf6e7,#f2e3c0) fixed}
-body[data-page=shop] header.top{background:linear-gradient(100deg,#5f3b0e,#b5842a 70%,#d8ae55)}
+body[data-page=shop]{--bg:#f7f0df;--surface:#fffaf0;--surface2:#f4e9cf;--ink:#24190c;--muted:#5c4d33;--line:#e5d2a8;--accent:#a8741a;background:linear-gradient(180deg,#fcf6e7,#f2e3c0) fixed}
+body[data-page=shop] header.top{background:linear-gradient(100deg,#4e300b,#86591a 65%,#9c6b22)}
 body[data-page=shop]::before{background:#5f3b0e}
 body[data-page=shop] .tabs a[aria-current="page"]{background:#fff7e3;color:#5f3b0e}
-body[data-page=shop] #bgart{opacity:.55}
-body[data-page=shop] h2{color:#6b4310}
+body[data-page=shop] #bgart{opacity:.5;-webkit-mask-image:linear-gradient(90deg,#000,rgba(0,0,0,.3) 18%,rgba(0,0,0,.3) 82%,#000);mask-image:linear-gradient(90deg,#000,rgba(0,0,0,.3) 18%,rgba(0,0,0,.3) 82%,#000)}
+body[data-page=shop] h2{color:#5a370b}
 body[data-page=shop] .panel{border-color:#e2c98f;box-shadow:0 2px 0 #ecd9ae}
 @media (prefers-color-scheme:dark){
   body[data-page=char]{--accent:color-mix(in srgb,var(--ca) 62%,white);background:radial-gradient(ellipse 90% 60% at 85% 0,color-mix(in srgb,var(--ca) 30%,transparent),transparent 70%) fixed,linear-gradient(180deg,color-mix(in srgb,var(--cd) 45%,var(--bg)),var(--bg) 900px) fixed}
@@ -312,8 +312,8 @@ body[data-page=shop] .panel{border-color:#e2c98f;box-shadow:0 2px 0 #ecd9ae}
   body[data-page=char] .sh-head h2{color:color-mix(in srgb,var(--ca) 55%,white)}
   body[data-page=char] .art .hole{fill:var(--bg)}
   body[data-page=char] .fig{background:radial-gradient(circle at 50% 42%,color-mix(in srgb,var(--ca) 25%,transparent),transparent 70%)}
-  body[data-page=shop]{--bg:#1a150e;--surface:#241d13;--surface2:#2e2518;--ink:#f0e4c8;--muted:#a99778;--line:#3d3221;--accent:#e2b24c;--accent-ink:#1a1407;background:linear-gradient(180deg,#1f190f,#16120b) fixed}
-  body[data-page=shop] #bgart{opacity:.32}
+  body[data-page=shop]{--bg:#1a150e;--surface:#241d13;--surface2:#2e2518;--ink:#f5ead2;--muted:#c4b393;--line:#3d3221;--accent:#e2b24c;--accent-ink:#1a1407;background:linear-gradient(180deg,#1f190f,#16120b) fixed}
+  body[data-page=shop] #bgart{opacity:.28}
   body[data-page=shop] h2{color:#e9c77a}
   body[data-page=shop] .panel{border-color:#4a3c25;box-shadow:none}}
 /* themed cards: party, loot, picker */
@@ -337,6 +337,9 @@ body[data-page=shop] .panel{border-color:#e2c98f;box-shadow:0 2px 0 #ecd9ae}
 .nlog li.dmn{border-left:4px solid var(--ink);padding:8px 12px}
 @media (prefers-color-scheme:dark){.nlog li.th{background:color-mix(in srgb,var(--ca) 16%,var(--surface))}.nlog li.th b{color:color-mix(in srgb,var(--ca) 55%,white)}}
 .nico{width:20px;height:20px;flex:none}
+body[data-page=house] .panel,body[data-page=house] .tile,body[data-page=house] .st,body[data-page=shop] .panel,body[data-page=shop] .tile,body[data-page=shop] .st{background:color-mix(in srgb,var(--surface) 93%,transparent)}
+body[data-page=shop] main :is(h2,h3,.sub,.empty,p),body[data-page=house] main :is(h2,h3,.sub,.empty,p){text-shadow:0 0 6px var(--bg),0 0 2px var(--bg)}
+body[data-page=shop] :is(.panel,.tile,.st) :is(h2,h3,.sub,.empty,p),body[data-page=house] :is(.panel,.tile,.st) :is(h2,h3,.sub,.empty,p){text-shadow:none}
 body.busy{cursor:progress}body.busy .btn{pointer-events:none;opacity:.7}
 </style>
 </head>
