@@ -464,8 +464,8 @@ function applyPage(t){const b=document.body;const art=$('#bgart');let page=t,htm
   else if(t==='shop')html=shopArt();
   b.dataset.page=page;b.setAttribute('style',st);if(art.dataset.k!==page+st){art.innerHTML=html;art.dataset.k=page+st}}
 
-function picker(){return `<div class="stack"><div><h2 style="font-size:1.8rem">Who are you playing?</h2><p class="sub" style="margin:4px 0 0">Pick your character to see your sheet.</p></div>
-  <div class="pick"><button class="tile dm" data-act="dmpin"><span class="top"><span class="nm">Dungeon Master</span></span><span class="sub">PIN required</span></button>${D.party.map(c=>`<button class="tile${thc(c)}" style="${thv(c)}" data-act="pick" data-id="${esc(c.id)}">${tIco(c)}<span class="top"><span class="nm"><span class="cn">${esc(first(c.name))}</span>${PLAYERS[c.id]?`<span class="pdiv"> | </span><span class="pn">${esc(PLAYERS[c.id])}</span>`:''}</span><span class="ac">AC ${esc(c.ac??'?')}</span></span><span class="sub">${esc(c.cls||'')}</span><span class="pips">HP ${esc(c.hpMax??'?')}</span></button>`).join('')}</div></div>`}
+function picker(){return `<div class="stack"><div><h2 style="font-size:1.8rem">Who are you playing?</h2><p class="sub" style="margin:4px 0 0">Pick your character to see your gear.</p></div>
+  <div class="pick"><button class="tile dm" data-act="dmpin"><span class="top"><span class="nm"><span class="cn">Dungeon Master</span><span class="pdiv"> | </span><span class="pn">Austin</span></span></span><span class="sub">PIN required</span></button>${D.party.map(c=>`<button class="tile${thc(c)}" style="${thv(c)}" data-act="pick" data-id="${esc(c.id)}">${tIco(c)}<span class="top"><span class="nm"><span class="cn">${esc(first(c.name))}</span>${PLAYERS[c.id]?`<span class="pdiv"> | </span><span class="pn">${esc(PLAYERS[c.id])}</span>`:''}</span><span class="ac">AC ${esc(c.ac??'?')}</span></span><span class="sub">${esc((c.cls||'').replace(/\s*·\s*played by .*$/i,''))}</span></button>`).join('')}</div></div>`}
 
 /* ---------- character sheet (D&D Beyond style) ---------- */
 let PICK=null,DRAG=null;
@@ -606,7 +606,7 @@ function sheet(c){
   const feats=(c.entries||[]).filter(e=>(e.kind||'item')!=='item');
   const att=items(c).filter(e=>e.attune&&e.attuned&&e.active!==false).length;
   return `<article class="stack">
-    <header class="sh-head"><div><h2 class="big">${esc(c.name)}</h2><div class="sub">${esc(c.cls||'')}</div></div><div class="row">${can?`<button class="btn" data-act="sheet-edit">${EDIT?'Cancel':'Update gold'}</button>`:''}${c.ddb?`<a href="${esc(c.ddb)}" target="_blank" rel="noopener">Character sheet on D&D Beyond</a>`:''}</div></header>
+    <header class="sh-head"><div><h2 class="big">${esc(c.name)}</h2><div class="sub">${esc((c.cls||'').replace(/\s*·\s*played by .*$/i,''))}</div></div><div class="row">${can?`<button class="btn" data-act="sheet-edit">${EDIT?'Cancel':'Update gold'}</button>`:''}${c.ddb?`<a href="${esc(c.ddb)}" target="_blank" rel="noopener">Character sheet on D&D Beyond</a>`:''}</div></header>
     ${EDIT&&can?`<div class="panel row" style="align-items:end"><label class="field"><span class="lbl">Gold (gp)</span><input type="number" min="0" id="se-gold" value="${esc(c.gold??0)}"></label><label class="field"><span class="lbl">Ash jars</span><input type="number" min="0" id="se-jars" value="${esc(c.jars??0)}"></label><button class="btn primary" data-act="sheet-save">Save</button></div>`:''}
     ${ME==='dm'&&dmx(c.id).notes&&DMED!=='sheet:'+c.id?`<div class="dmbox"><span class="lbl">DM only</span><p style="margin:2px 0 0">${esc(dmx(c.id).notes)}</p></div>`:''}
     ${ME==='dm'?dmSheetPanel(c):''}
