@@ -57,7 +57,7 @@ main{padding-block:16px 48px}
 .btn.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
 .tile .nm{font:400 1.35rem var(--f-display)}
 .tile .top{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
-.tile .ac{font:600 1.05rem var(--f-num)}
+.tile .ac{font:600 1.05rem var(--f-num);white-space:nowrap}
 .tile ul{margin:0;padding-left:16px;font-size:.88rem}
 /* sheet */
 .sh-head{display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px;align-items:end;border-bottom:2px solid var(--ink);padding-bottom:8px}
@@ -340,8 +340,8 @@ body[data-page=shop] .panel{border-color:#e2c98f;box-shadow:0 2px 0 #ecd9ae}
 body[data-page=house] .panel,body[data-page=house] .tile,body[data-page=house] .st,body[data-page=shop] .panel,body[data-page=shop] .tile,body[data-page=shop] .st{background:color-mix(in srgb,var(--surface) 93%,transparent)}
 body[data-page=shop] main :is(h2,h3,.sub,.empty,p),body[data-page=house] main :is(h2,h3,.sub,.empty,p){text-shadow:0 0 6px var(--bg),0 0 2px var(--bg)}
 body[data-page=shop] :is(.panel,.tile,.st) :is(h2,h3,.sub,.empty,p),body[data-page=house] :is(.panel,.tile,.st) :is(h2,h3,.sub,.empty,p){text-shadow:none}
-.plby{font-size:.9rem}.tile.th .plby b{color:var(--cd)}
-@media (prefers-color-scheme:dark){.tile.th .plby b{color:color-mix(in srgb,var(--ca) 55%,white)}}
+.tile.th .nm .cn{color:var(--ca)}.tile .nm .pdiv{color:var(--muted)}.tile .nm .pn{color:var(--ink)}
+@media (prefers-color-scheme:dark){.tile.th .nm .cn{color:color-mix(in srgb,var(--ca) 62%,white)}.tile .nm .pn{color:#fff}}
 body.busy{cursor:progress}body.busy .btn{pointer-events:none;opacity:.7}
 </style>
 </head>
@@ -405,6 +405,7 @@ const THEME={
 const CLS_DEF={monk:{a:'#3a8bb5',l:'#d3ebf6',d:'#164e69'},bard:{a:'#7a45ad',l:'#e9dcf5',d:'#3a1a5e'},fighter:{a:'#b3283b',l:'#f6d8db',d:'#560d19'},sorcerer:{a:'#c18708',l:'#f8ecc4',d:'#634000'},artificer:{a:'#5b6570',l:'#e2e6eb',d:'#1b2c66',sp:'#1f44b0'}};
 function themeOf(c){if(!c)return null;if(THEME[c.id])return THEME[c.id];const m=(c.cls||'').toLowerCase().match(/monk|bard|fighter|sorcerer|artificer/);return m?{c:m[0],...CLS_DEF[m[0]]}:null}
 const thv=c=>{const t=themeOf(c);return t?`--ca:${t.a};--cl:${t.l};--cd:${t.d};--sp:${t.sp||t.d}`:''};
+const PLAYERS={coach:'Evan',slav:'Marko',rina:'Tuba',gorc:'Devin',gror:'Bob',cramaris:'Drew',gogeezle:'Zac'};
 const thc=c=>themeOf(c)?' th':'';
 const tIco=c=>{const t=themeOf(c);return t?`<svg class="ico" viewBox="0 0 100 100" aria-hidden="true">${classIcon(t.c)}</svg>`:''};
 /* deterministic scatter so the art doesn't jump between renders */
@@ -464,7 +465,7 @@ function applyPage(t){const b=document.body;const art=$('#bgart');let page=t,htm
   b.dataset.page=page;b.setAttribute('style',st);if(art.dataset.k!==page+st){art.innerHTML=html;art.dataset.k=page+st}}
 
 function picker(){return `<div class="stack"><div><h2 style="font-size:1.8rem">Who are you playing?</h2><p class="sub" style="margin:4px 0 0">Pick your character to see your sheet.</p></div>
-  <div class="pick"><button class="tile dm" data-act="dmpin"><span class="top"><span class="nm">Dungeon Master</span></span><span class="sub">PIN required</span></button>${D.party.map(c=>`<button class="tile${thc(c)}" style="${thv(c)}" data-act="pick" data-id="${esc(c.id)}">${tIco(c)}<span class="top"><span class="nm">${esc(first(c.name))}</span><span class="ac">AC ${esc(c.ac??'?')}</span></span><span class="sub">${esc(c.cls||'')}</span><span class="pips">HP ${esc(c.hpMax??'?')}</span></button>`).join('')}</div></div>`}
+  <div class="pick"><button class="tile dm" data-act="dmpin"><span class="top"><span class="nm">Dungeon Master</span></span><span class="sub">PIN required</span></button>${D.party.map(c=>`<button class="tile${thc(c)}" style="${thv(c)}" data-act="pick" data-id="${esc(c.id)}">${tIco(c)}<span class="top"><span class="nm"><span class="cn">${esc(first(c.name))}</span>${PLAYERS[c.id]?`<span class="pdiv"> | </span><span class="pn">${esc(PLAYERS[c.id])}</span>`:''}</span><span class="ac">AC ${esc(c.ac??'?')}</span></span><span class="sub">${esc(c.cls||'')}</span><span class="pips">HP ${esc(c.hpMax??'?')}</span></button>`).join('')}</div></div>`}
 
 /* ---------- character sheet (D&D Beyond style) ---------- */
 let PICK=null,DRAG=null;
@@ -620,12 +621,11 @@ function sheet(c){
     </div>
   </article>`;
 }
-const PLAYERS={coach:'Evan',slav:'Marko',rina:'Tuba',gorc:'Devin',gror:'Bob',cramaris:'Drew',gogeezle:'Zac'};
 const COMPANIONS=[
   {name:'Bellamy Voss',cls:'High Elf · Wizard 7 · School of Conjuration',role:'The party’s liaison to the House',ac:12,hp:37,speed:30,ddb:'https://www.dndbeyond.com/characters/170602463/ok1sJM'},
   {name:'Captain Elira',cls:'Wood Elf · Ranger 8 · Hunter',role:'',ac:16,hp:68,speed:35,ddb:'https://www.dndbeyond.com/characters/169297282/fjVXEg'}];
 function partyTiles(){return `<div class="stack"><h2>The party</h2><div class="pick">${D.party.map(c=>{const nb=items(c).filter(e=>notable(e)&&e.active!==false);
-  return `<div class="tile${thc(c)}" style="cursor:default;${thv(c)}">${tIco(c)}<span class="top"><span class="nm">${esc(first(c.name))}${c.id===ME?' <span class="badge">you</span>':''}</span><span class="ac">AC ${esc(c.ac??'?')}</span></span>${PLAYERS[c.id]?`<span class="plby">Played by <b>${esc(PLAYERS[c.id])}</b></span>`:''}<span class="sub">${esc((c.cls||'').replace(/\s*·\s*played by .*$/i,''))}</span>
+  return `<div class="tile${thc(c)}" style="cursor:default;${thv(c)}">${tIco(c)}<span class="top"><span class="nm"><span class="cn">${esc(first(c.name))}</span>${PLAYERS[c.id]?`<span class="pdiv"> | </span><span class="pn">${esc(PLAYERS[c.id])}</span>`:''}${c.id===ME?' <span class="badge">you</span>':''}</span><span class="ac">AC ${esc(c.ac??'?')}</span></span><span class="sub">${esc((c.cls||'').replace(/\s*·\s*played by .*$/i,''))}</span>
   <span class="pips">Speed ${esc(c.speed??'?')} · DEX ${sgn((c.saves||{}).dex||0)} · CON ${sgn((c.saves||{}).con||0)} · WIS ${sgn((c.saves||{}).wis||0)}</span>
   ${nb.length?`<ul>${nb.slice(0,6).map(e=>`<li>${esc(e.name)}</li>`).join('')}</ul>`:''}${c.ddb?`<a class="sub" href="${esc(c.ddb)}" target="_blank" rel="noopener">D&amp;D Beyond sheet</a>`:''}</div>`}).join('')}</div>
   <h2>Companions</h2><div class="pick">${COMPANIONS.map(x=>`<div class="tile comp" style="cursor:default"><span class="top"><span class="nm">${esc(x.name)}</span><span class="ac">AC ${x.ac}</span></span><span class="sub">${esc(x.cls)}</span>${x.role?`<span>${esc(x.role)}</span>`:''}<span class="pips">HP ${x.hp} · Speed ${x.speed} ft</span><a class="sub" href="${esc(x.ddb)}" target="_blank" rel="noopener">D&amp;D Beyond sheet</a></div>`).join('')}</div></div>`}
@@ -691,7 +691,7 @@ function loot(){const hs=[...D.party,...(D.stash?[D.stash]:[])];const on=hs.redu
   ${D.stash&&D.stash.purseNote?`<p class="sub" style="margin:0">${esc(D.stash.purseNote)}</p>`:''}
   ${open?list(open):''}
   <div class="pick" style="grid-template-columns:repeat(auto-fill,minmax(260px,1fr))">${hs.map(c=>{const it=items(c).filter(e=>!e.in);const nb=it.filter(notable);
-    return `<button class="tile${LOPEN===c.id?' sel':''}${thc(c)}" style="${thv(c)}" data-act="lopen" data-id="${esc(c.id)}">${tIco(c)}<span class="top"><span class="nm">${esc(holderName(c.id))}${c.id===ME?' <span class="badge">you</span>':''}</span><span class="pips">${items(c).length} items</span></span>
+    return `<button class="tile${LOPEN===c.id?' sel':''}${thc(c)}" style="${thv(c)}" data-act="lopen" data-id="${esc(c.id)}">${tIco(c)}<span class="top"><span class="nm"><span class="cn">${esc(holderName(c.id))}</span>${PLAYERS[c.id]?`<span class="pdiv"> | </span><span class="pn">${esc(PLAYERS[c.id])}</span>`:''}${c.id===ME?' <span class="badge">you</span>':''}</span><span class="pips">${items(c).length} items</span></span>
     <span class="coins"><span class="gp">${fmt(c.gold)} gp</span><span>${+c.jars||0} ash jars</span></span>
     ${nb.length?`<ul>${nb.map(e=>`<li><b>${esc(e.name)}</b>${e.container?` <span class="rar">holds ${items(c).filter(x=>x.in===e.id).length}</span>`:itemLine(e)?`<div class="rar">${esc(itemLine(e))}</div>`:''}</li>`).join('')}</ul>`:'<span class="empty">No magic or story items.</span>'}
     ${it.length-nb.length>0?`<span class="rar">+ ${it.length-nb.length} common item${it.length-nb.length>1?'s':''}</span>`:''}</button>`}).join('')}</div>
