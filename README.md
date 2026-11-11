@@ -16,3 +16,7 @@ D&D Beyond is the character sheet: stats, skills, HP, attacks, spells, and anyth
 ## Wick's runs
 
 `supabase/fix-3.sql` makes the shop runs happen in real time. Players load Wick's pack, pick a road and send him. The road roll, trouble, what he lets slip and the rumor are rolled when he leaves and kept DM-only until he's due back; then the shop sells what has an asking price and his gold (less pay) lands in Party loot. Travel days are set on the Shop tab (DM tools). "Start session" pays the shop's upkeep and makes runs resolve at once until "End session".
+
+## Selling (fix-5)
+
+`supabase/fix-5.sql` adds item values, hot and quest tags, Steven's shelf (daily buyer rolls, greed-based DCs, offers vs. the player's lowest price, markdowns and his levels), Orsolo's fence (sells at value or +15%, keeps 15%, may skim by loyalty; paid at Settle session), Wick's Nest stop, lying low, and paying a House captain to cool the heat. All rolls stay in the DM-only `market` document until Wick reports back.
