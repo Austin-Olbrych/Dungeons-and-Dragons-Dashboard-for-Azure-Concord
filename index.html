@@ -376,6 +376,8 @@ body[data-page=shop] :is(.panel,.tile,.st) :is(h2,h3,.sub,.empty,p),body[data-pa
 .testbar.on .btn.danger{background:#b3283b;color:#fff;border-color:#b3283b}
 .tb-skip{display:inline-flex;gap:6px;align-items:center;flex-wrap:wrap}
 .testbar.on .lbl{color:#4a3500}
+.books tr.sum td{border-top:2px solid var(--line)}.books tr.total td{border-top:3px double var(--ink)}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
 body.busy{cursor:progress}body.busy .btn{pointer-events:none;opacity:.7}
 </style>
 </head>
@@ -860,6 +862,28 @@ function shop(){const S=D.shop||{},r=S.runner||{};const cg=S.cargo||[];const X=d
 const LOY_L=['Plotting against you','Restless','Wary','Steady','Loyal','Devoted'],RES_L=['Contempt','Doubtful','Unconvinced','Respects you','Impressed','In awe'];
 const STAND_L=['Overthrow brewing','Openly defied','Tolerated','Accepted','Respected','Unquestioned'];
 function standing(H){const cs=(H.people||[]).filter(p=>p.tier==='captain'||p.tier==='ledger');let w=0,t=0;for(const p of cs){const i=Math.max(1,+p.influence||1);w+=i;t+=i*((+p.loyalty||0)+(+p.respect||0))/2}return w?t/w:0}
+/* whoever has the Silver Wolf Signet on them (not packed in a bag) wears the Wolf */
+function signetBearer(){for(const c of D.party){const e=(c.entries||[]).find(x=>/silver wolf signet/i.test(x.name||''));if(e&&!e.in&&e.active!==false)return c.id}
+  for(const c of D.party){if((c.entries||[]).some(x=>/silver wolf signet/i.test(x.name||'')))return c.id}return null}
+function booksPanel(H){const fin=H.fin;if(!fin)return'';const ps=H.people||[];const caps=ps.filter(p=>p.tier==='captain');const inv=fin.involve||'hands';const sk=+((fin.skim||{})[inv])||0;
+  const ear=caps.reduce((s,p)=>s+(+p.take||0),0),skim=Math.round(ear*sk/100),crew=caps.reduce((s,p)=>s+(+p.cost||0),0);
+  const over=(fin.overhead||[]).filter(o=>!o.when||o.when===inv);const overT=over.reduce((s,o)=>s+(+o.gp||0),0);const net=ear-skim-crew-overT;
+  const M=(DMX&&DMX.market)||{};const pend=ME==='dm'?(+((M.nest||{}).pending)||0):null;const atNest=((D.shop||{}).cargo||[]).filter(x=>x.status==='atnest');
+  const INV={hands:'hands off',check:'checking in',liaison:'through Bellamy',run:'running it yourselves'};
+  const g=v=>`${v<0?'−':'+'}${fmt(Math.abs(v))} gp`;
+  const row=(l,v,sub,cls)=>`<tr class="${cls||''}"><td>${l}${sub?`<div class="rar">${sub}</div>`:''}</td><td class="n">${v}</td></tr>`;
+  return `<section class="panel stack books" style="gap:8px"><div class="row"><h3 style="flex:1">How the books add up, each session</h3><span class="badge">${esc(INV[inv]||inv)}</span></div>
+    <div class="tablewrap"><table class="ledger"><tbody>
+      ${caps.map(p=>row(`${esc((p.div||'').split('·')[0].trim()||p.name)}`,g(+p.take||0),esc(p.name))).join('')}
+      ${row('<b>What the divisions bring in</b>',`<b>${g(ear)}</b>`,'','sum')}
+      ${row(`Captains keep ${sk}%`,g(-skim),`The less involved you are, the more they keep (${esc(INV[inv]||inv)}).`)}
+      ${caps.map(p=>row(`${esc(p.name.replace(/\s*“.*”\s*/,' '))}’s crews`,g(-(+p.cost||0)))).join('')}
+      ${over.map(o=>row(esc(o.name),g(-(+o.gp||0)))).join('')}
+      ${row('<b>The House’s take</b>',`<b class="${net<0?'warn':''}">${g(net)}</b>`,'','sum')}
+      ${row('Orsolo’s fence sales',ME==='dm'?g(pend):(atNest.length?'when settled':'—'),ME==='dm'?'What’s sold so far, after his cut. Players see it when you settle.':atNest.length?`${atNest.length} item${atNest.length===1?'':'s'} with Orsolo. The money comes in here when the DM settles the session.`:'Nothing with Orsolo right now.')}
+      ${ME==='dm'?row('<b>Settle session pays into Party loot</b>',`<b>${g(net+pend)}</b>`,'','sum total'):''}
+    </tbody></table></div>
+    <p class="sub" style="margin:0">The Vaelmar shop’s upkeep isn’t part of these books. It’s paid at the start of each session.</p></section>`}
 function house(){const H=D.house||{};const ps=H.people||[];const X=dmx('house');const XP=X.people||{};
   const st=standing(H),band=Math.max(0,Math.min(5,Math.round(st)));
   const bar=(v,k)=>`<span class="bar5 ${v>=4?'good':v>=2?'mid':'bad'}" title="${k} ${v}">${[1,2,3,4,5].map(i=>`<span class="${i<=v?'on':''}"></span>`).join('')}</span>`;
@@ -869,10 +893,10 @@ function house(){const H=D.house||{};const ps=H.people||[];const X=dmx('house');
     ${p.sees?`<span class="sees">${esc(p.sees)}</span>`:''}${dmPersonCtl(p)}
     ${ME==='dm'&&(x.secret||x.up||x.down)?`<details class="dmbox"><summary class="lbl">DM only</summary>${x.secret?`<p style="margin:4px 0"><b>Secret:</b> ${esc(x.secret)}</p>`:''}${x.up?`<p style="margin:4px 0"><b>Raises loyalty:</b> ${esc(x.up)}</p>`:''}${x.down?`<p style="margin:4px 0"><b>Lowers loyalty:</b> ${esc(x.down)}</p>`:''}${x.notes?`<p style="margin:4px 0"><b>Notes:</b> ${esc(x.notes)}</p>`:''}</details>`:''}</div>`};
   const caps=ps.filter(p=>p.tier==='captain'),mid=ps.filter(p=>p.tier==='ledger'||p.tier==='liaison'),outs=ps.filter(p=>p.tier==='outside');
-  const wolf=D.party.find(c=>c.id===H.wolf);const name=id=>(ps.find(p=>p.id===id)||{}).name||id;
+  const wolfId=signetBearer();const name=id=>(ps.find(p=>p.id===id)||{}).name||id;
   const fin=H.fin;let finRow='';
   if(fin){const sk=+((fin.skim||{})[fin.involve||'hands'])||0;const ear=caps.reduce((s,p)=>s+(+p.take||0),0),skim=Math.round(ear*sk/100),cost=caps.reduce((s,p)=>s+(+p.cost||0),0)+(fin.overhead||[]).filter(o=>!o.when||o.when===(fin.involve||'hands')).reduce((s,o)=>s+(+o.gp||0),0),net=ear-skim-cost;
-    finRow=`<div class="st"><span class="lbl">The House’s books</span><b class="${net<0?'warn':''}">${net<0?'−':'+'}${fmt(Math.abs(net))} gp</b><small>a session: earns ${fmt(ear)}, captains keep ${sk}%, costs ${fmt(cost)}</small></div>`}
+    finRow=`<div class="st"><span class="lbl">The House’s books</span><b class="${net<0?'warn':''}">${net<0?'−':'+'}${fmt(Math.abs(net))} gp</b><small>a session, before Orsolo’s sales</small></div>`}
   const story=(X.policy||{}).story||[];const delivered=H.delivered||[];
   return `<div class="stack"><div><h2 style="font-size:1.6rem">${esc(H.name||'The House')}</h2><div class="sub">${esc(H.sub||'')}</div></div>
   <section class="panel stack" style="gap:6px"><div class="row"><span class="lbl" style="flex:1">Standing with the Guild</span><span class="pips">${st.toFixed(1)} of 5</span></div>
@@ -882,11 +906,12 @@ function house(){const H=D.house||{};const ps=H.people||[];const X=dmx('house');
     <p class="sub" style="margin:0">Each captain and the Ledgerkeeper score the average of their loyalty and respect, weighted by their influence.</p></section>
   ${ME==='dm'?dmHousePanel():''}
   ${(H.delivered||[]).length?`<section class="stack" style="gap:8px"><h3>Delivered to the party</h3>${H.delivered.map(x=>`<div class="ctr"><b style="font:400 1.1rem var(--f-display)">${esc(x.t)}</b>${x.at?`<span class="rar">Received ${esc(x.at)}</span>`:''}${x.letter?`<details><summary class="lbl">Read the letter</summary><div class="paper">${esc(x.letter)}</div></details>`:''}</div>`).join('')}</section>`:''}
-  <div class="strip"><div class="st"><span class="lbl">Wears the Wolf</span><b style="font:700 1rem var(--f-body)">${esc(wolf?first(wolf.name):'')}</b></div>${H.policy&&H.policy.name?`<div class="st"><span class="lbl">House policy</span><b style="font:700 1rem var(--f-body)">${esc(H.policy.name)}</b><small>${esc(H.policy.said||'')}</small></div>`:''}${finRow}</div>
-  <div class="org-top"><span class="lbl">The Seven</span><div class="row" style="gap:6px">${D.party.map(c=>`<span class="pchip${c.id===H.wolf?' wolf':''}">${esc(first(c.name))}</span>`).join('')}</div><p class="sub" style="margin:0">${esc(H.leaderNote||'')}</p></div>
+  <div class="strip">${H.policy&&H.policy.name?`<div class="st"><span class="lbl">House policy</span><b style="font:700 1rem var(--f-body)">${esc(H.policy.name)}</b><small>${esc(H.policy.said||'')}</small></div>`:''}${finRow}</div>
+  <div class="org-top"><span class="lbl">The Seven</span><div class="row" style="gap:6px">${D.party.map(c=>`<span class="pchip${c.id===wolfId?' wolf':''}"${c.id===wolfId?' title="Wears the Silver Wolf Signet"':''}>${c.id===wolfId?'<span aria-hidden="true">◈ </span>':''}${esc(first(c.name))}${c.id===wolfId?'<span class="sr"> (wears the Silver Wolf Signet)</span>':''}</span>`).join('')}</div>${wolfId?'':'<p class="sub" style="margin:0">Nobody is wearing the Silver Wolf Signet right now.</p>'}<p class="sub" style="margin:0">${esc(wolfId&&wolfId===H.wolf?(H.leaderNote||''):wolfId?`${holderName(wolfId)} wears the Wolf now, so the Guild treats that word as the party’s.`:'')}</p></div>
   <div class="midrow">${mid.map(card).join('')}</div>
   <div class="caps">${caps.map(c=>`<div class="stack" style="gap:6px"><span class="divn">${esc(c.div||'')}</span>${card(c)}<div class="subs">${ps.filter(p=>p.parent===c.id).map(card).join('')}</div></div>`).join('')}</div>
   ${outs.length?`<div class="stack" style="gap:6px"><span class="lbl">Outside the House</span><div class="caps">${outs.map(card).join('')}</div></div>`:''}
+  ${booksPanel(H)}
   ${(H.contracts||[]).length?`<h3>Contracts you’ve been read</h3><div class="ctrs">${H.contracts.map((c,ci)=>`<div class="ctr"><b style="font:400 1.1rem var(--f-display)">${esc(c.name)}</b>${c.desk?`<span class="rar">${esc(c.desk)}</span>`:''}<p style="margin:0">${esc(c.told||'')}</p><div style="border-top:1px dashed var(--line);padding-top:6px"><span class="lbl">Latest from Bellamy</span><p style="margin:2px 0 0" class="${c.update?'':'sub'}">${esc(c.update||'No news yet. Ask the DM for an update.')}</p></div>${ME==='dm'&&(X.contracts||{})[c.name]&&DMED!=='ctr:'+ci?`<p class="dmnote" style="margin:0">DM: ${esc(X.contracts[c.name])}</p>`:''}${dmContractCtl(c,ci)}</div>`).join('')}</div>`:''}
   ${ME==='dm'?`<details class="dmbox"><summary class="lbl">DM only · tensions and story</summary>
     ${(X.ties||[]).length?`<span class="lbl">Tensions inside the House</span><ul class="jl">${X.ties.map(t=>`<li><b>${esc(name(t.a))}</b> ${esc(t.verb)} <b>${esc(t.bName||name(t.b))}</b>: <span class="sub">${esc(t.note||'')}</span></li>`).join('')}</ul>`:''}
