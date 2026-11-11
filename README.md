@@ -35,3 +35,10 @@ D&D Beyond is the character sheet: stats, skills, HP, attacks, spells, and anyth
 - The DM sees each outcome's impact on the captains and anything of note before picking it, and can tell the table right away instead of waiting for Wick.
 - Bellamy is either with the party (Wick brings word and she chimes in) or at the House (the news is her report). The DM can have Wick bring word that the House wants her.
 - Item weights show next to every item, and the sell form shows how full Wick's pack will be.
+
+## Travel times (fix-10)
+
+- The Shop tab has a map of the roads: Vaelmar, Odranard (the Nest and the House), the Ashen Covenant camp and Nebulas, with days by the main road and by the back roads.
+- Wick leaves from wherever the party is, goes to the Nest and/or Steven's shop by the shortest roads in the quicker order, and comes back to the party.
+- Any run that spends time on a road rolls for trouble, the Nest included. A quiet run on the back roads cools the heat by 1.
+- The DM sets where the party is on the Shop tab, or with "Party ended the session at" on the latest journal session. Road days and stop lengths are editable on the Shop tab.
