@@ -47,9 +47,9 @@ begin
     insert into docs(id, kind, data, updated_at)
       select x->>'id', x->>'kind', x->'data', now() from jsonb_array_elements(snap.docs) x
       on conflict (id) do update set kind = excluded.kind, data = excluded.data, updated_at = now();
-    delete from dm_docs;
+    delete from dm_docs where true;
     insert into dm_docs(id, data, updated_at) select x->>'id', x->'data', now() from jsonb_array_elements(snap.dm_docs) x;
-    delete from notes;
+    delete from notes where true;
     insert into notes(id, session, author, body, created_at)
       select (x->>'id')::uuid, (x->>'session')::int, x->>'author', x->>'body', (x->>'created_at')::timestamptz from jsonb_array_elements(snap.notes) x;
     delete from activity where id > snap.activity_max;
