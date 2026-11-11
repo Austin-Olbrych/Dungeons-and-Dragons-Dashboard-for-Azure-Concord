@@ -12,3 +12,7 @@ The publishable key in `index.html` is meant to be public; the database's securi
 ## What lives where
 
 D&D Beyond is the character sheet: stats, skills, HP, attacks, spells, and anything that changes a roll. This site tracks inventory, item lore, gold and ash jars, the shop, the House and the journal. `supabase/fix-2.sql` (already run) added a `dnd` field with skills and actions from D&D Beyond; the site no longer shows it.
+
+## Wick's runs
+
+`supabase/fix-3.sql` makes the shop runs happen in real time. Players load Wick's pack, pick a road and send him. The road roll, trouble, what he lets slip and the rumor are rolled when he leaves and kept DM-only until he's due back; then the shop sells what has an asking price and his gold (less pay) lands in Party loot. Travel days are set on the Shop tab (DM tools). "Start session" pays the shop's upkeep and makes runs resolve at once until "End session".

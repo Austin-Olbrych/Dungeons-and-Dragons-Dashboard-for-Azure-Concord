@@ -342,6 +342,23 @@ body[data-page=shop] main :is(h2,h3,.sub,.empty,p),body[data-page=house] main :i
 body[data-page=shop] :is(.panel,.tile,.st) :is(h2,h3,.sub,.empty,p),body[data-page=house] :is(.panel,.tile,.st) :is(h2,h3,.sub,.empty,p){text-shadow:none}
 .tile.th .nm .cn{color:var(--ca)}.tile .nm .pdiv{color:var(--muted)}.tile .nm .pn{color:var(--ink)}
 @media (prefers-color-scheme:dark){.tile.th .nm .cn{color:color-mix(in srgb,var(--ca) 62%,white)}.tile .nm .pn{color:#fff}}
+.runp{border-top:4px solid var(--accent)}
+.routes{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px}
+.route{display:flex;flex-direction:column;gap:3px;text-align:left;border:1.5px solid var(--line);border-radius:12px;padding:10px 12px;background:var(--surface);color:var(--ink);cursor:pointer;font:inherit}
+.route b{font-size:1.02rem}.route[aria-pressed="true"]{border-color:var(--accent);box-shadow:0 0 0 2px color-mix(in srgb,var(--accent) 35%,transparent)}
+.packl{list-style:none;margin:0;padding:0}.packl li{display:flex;gap:8px;align-items:center;padding:6px 0;border-top:1px solid var(--line)}.packl li:first-child{border-top:0}
+.trk{display:flex;flex-direction:column;gap:6px;padding:6px 0 0}
+.trk-line{position:relative;height:6px;border-radius:3px;background:var(--line);margin:28px 12px 34px}
+.trk-done{position:absolute;left:0;top:0;bottom:0;border-radius:3px;background:var(--accent)}
+.trk-node{position:absolute;top:50%;transform:translate(-50%,-50%);width:14px;height:14px;border-radius:50%;background:var(--surface);border:3px solid var(--accent)}
+.trk-node b{position:absolute;bottom:18px;left:50%;transform:translateX(-50%);white-space:nowrap;font-size:.8rem}
+.trk-node small{position:absolute;top:18px;left:50%;transform:translateX(-50%);white-space:nowrap;font-size:.72rem;color:var(--muted)}
+.trk-node.n0 b,.trk-node.n0 small{left:-6px;transform:none}
+.trk-node.n2 b,.trk-node.n2 small{left:auto;right:-6px;transform:none}
+.trk-wick{position:absolute;top:50%;transform:translate(-50%,-50%);width:26px;height:26px;border-radius:50%;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;font:700 .8rem var(--f-num);box-shadow:0 0 0 3px var(--surface);z-index:2}
+.trk.warn .trk-wick{background:var(--bad);color:#fff}
+.trk-txt{margin:0}
+.runc{display:flex;flex-direction:column;gap:4px}
 body.busy{cursor:progress}body.busy .btn{pointer-events:none;opacity:.7}
 </style>
 </head>
@@ -468,7 +485,8 @@ function picker(){return `<div class="stack"><div><h2 style="font-size:1.8rem">W
   <div class="pick"><button class="tile dm" data-act="dmpin"><span class="top"><span class="nm"><span class="cn">Dungeon Master</span><span class="pdiv"> | </span><span class="pn">Austin</span></span></span><span class="sub">PIN required</span></button>${D.party.map(c=>`<button class="tile${thc(c)}" style="${thv(c)}" data-act="pick" data-id="${esc(c.id)}">${tIco(c)}<span class="top"><span class="nm"><span class="cn">${esc(first(c.name))}</span>${PLAYERS[c.id]?`<span class="pdiv"> | </span><span class="pn">${esc(PLAYERS[c.id])}</span>`:''}</span><span class="ac">AC ${esc(c.ac??'?')}</span></span><span class="sub">${esc((c.cls||'').replace(/\s*·\s*played by .*$/i,''))}</span></button>`).join('')}</div></div>`}
 
 /* ---------- character sheet (D&D Beyond style) ---------- */
-let PICK=null,DRAG=null;
+let PICK=null,DRAG=null;const OPENI={};
+document.addEventListener('toggle',ev=>{const d=ev.target;if(d&&d.matches&&d.matches('details.inv[data-id]'))OPENI[d.dataset.id]=d.open},true);
 const SLOTS=[['head','Head'],['neck','Neck'],['cloak','Shoulders'],['body','Body'],['legs','Legs'],['feet','Feet'],['weap','Main hand'],['off','Off hand'],['hands','Wrists and hands'],['rings','Rings'],['waist','Belt']];
 const SLOT_L=Object.fromEntries(SLOTS);
 const CAP={head:1,neck:1,cloak:1,body:1,legs:1,feet:1,weap:1,off:1,waist:1,hands:3,rings:4};
@@ -553,7 +571,7 @@ function gearTab(c){const dm=dollMap(c),{m,where}=dm;const can=canHandle(c.id);c
     if(k)b.push(`<span class="badge on">${esc(SLOT_L[k])}</span>`);else if(e.active===false&&!e.in&&wearable(e))b.push('<span class="badge">stowed</span>');
     if(e.attune)b.push(e.attuned?'<span class="badge">attuned</span>':'<span class="badge warn">not attuned</span>');if((+e.qty||1)>1)b.push('<span class="badge">×'+esc(e.qty)+'</span>');
     const ask=(dmx(c.id).asks||{})[e.id];
-    return `<details class="inv${e.container?' cont':''}" data-id="${esc(e.id)}"${e.container?` open data-drop="in:${esc(e.id)}" data-h="${esc(c.id)}"`:''} style="--d:${depth}">
+    return `<details class="inv${e.container?' cont':''}" data-id="${esc(e.id)}"${(OPENI[e.id]??!!e.container)?' open':''}${e.container?` data-drop="in:${esc(e.id)}" data-h="${esc(c.id)}"`:''} style="--d:${depth}">
       <summary${can?` draggable="true" data-drag="${esc(e.id)}" data-h="${esc(c.id)}"`:''}><span class="grip" aria-hidden="true">${can?'⠿':''}</span><span class="nm2"><b>${esc(e.name)}</b>${e.rarity?` <span class="rar">${esc(e.rarity)}</span>`:''}</span><span class="row" style="gap:5px">${b.join('')}${pips(e)}</span></summary>
       <div class="invb">${[e.rarity,e.attune?(e.attuned?'attuned':'requires attunement'):'',(+e.uses||0)>0?`${+e.left||0} of ${+e.uses} uses left${RESET_T[e.reset]?', back at '+RESET_T[e.reset]:''}`:''].filter(Boolean).length?`<p class="sub">${esc([e.rarity,e.attune?(e.attuned?'Attuned':'Requires attunement'):'',(+e.uses||0)>0?`${+e.left||0} of ${+e.uses} uses left${RESET_T[e.reset]?', back after a '+RESET_T[e.reset]:''}`:''].filter(Boolean).join(' · '))}</p>`:''}${e.desc?`<p>${esc(e.desc)}</p>`:''}${(e.fx||[]).length?`<ul class="jl">${e.fx.map(f=>`<li>${esc(fxLine(f))}</li>`).join('')}</ul>`:''}${ask?`<p class="dmnote">DM: ${esc(ask)}</p>`:''}${ME==='dm'?dmItemBtns(c.id,e):''}${itemActions(c.id,e,true)}</div>
       ${e.container?`<div class="incont">${inn.length?inn.map(x=>row(x,depth+1)).join(''):`<p class="none">Empty. Drag things here to put them in the ${esc(e.name)}.</p>`}</div>`:''}</details>`};
@@ -703,26 +721,67 @@ function activityHTML(){const a=(D.activity||[]).filter(x=>x.action!=='dm_put').
     return `<li><b>${esc(who)}</b> ${esc(what)} <span class="rar">${esc(new Date(x.created_at).toLocaleString('en-US',{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'}))}</span></li>`}).join('')}</ul></details>`}
 
 /* ---------- shop ---------- */
-const CG={pack:'In Wick’s pack',atshop:'At the shop, for sale',sold:'Sold',lost:'Lost on the road',returned:'Returned'};
-const RS={party:'With the party',toShop:'Traveling to the shop',shop:'At the shop',toParty:'Traveling to the party',late:'Overdue',captured:'Captured',missing:'Missing',road:'On the road'};
+const CG={pack:'In Wick’s pack, waiting for his next run',road:'With Wick on the road',atshop:'On the shop shelf',sold:'Sold',lost:'Lost on the road',returned:'Returned'};
+const RS={party:'With the party',toShop:'Traveling to the shop',shop:'At the shop',toParty:'Traveling to the party',late:'Overdue',captured:'Captured',missing:'Missing',road:'On a run'};
+let SROUTE='main',SCONF=false,PRICING=null;
+const DAY=86400000;
+function whenTxt(iso){if(!iso)return'';const d=new Date(iso);const days=(d-Date.now())/DAY;
+  return d.toLocaleString(undefined,Math.abs(days)<6?{weekday:'short',hour:'numeric',minute:'2-digit'}:{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'})}
+function spanTxt(ms){const h=Math.round(Math.abs(ms)/3600000);return h<1?'less than an hour':h<36?h+' hour'+(h===1?'':'s'):Math.round(h/24)+' days'}
+const runDC=(S,route)=>Math.max(1,Math.min(19,(+(S.base??2))+(+S.heat||0)-(route==='back'?2:0)));
+const travel=S=>({main:1,back:2,shop:1,...(S.travel||{})});
+/* where Wick is right now, worked out from the clock. The outcome stays hidden until he's back. */
+function tripState(T){const now=Date.now(),l=+new Date(T.leftAt),a=+new Date(T.arriveAt),r=+new Date(T.returnAt);
+  const leg=a-l,shopEnd=r-leg,tot=Math.max(1,r-l);const f=Math.max(0,Math.min(1,(now-l)/tot));
+  let phase,txt;
+  if(T.phase==='missing'){phase='missing';txt='He hasn’t come back. Nobody has heard from him.'}
+  else if(now<a){phase='out';txt=`On the road to the shop. He should get there ${whenTxt(T.arriveAt)}.`}
+  else if(now<shopEnd){phase='shop';txt=`At the shop with Steven, selling what he brought. He heads back ${whenTxt(new Date(shopEnd).toISOString())}.`}
+  else if(now<r){phase='back';txt=`On his way back. Due ${whenTxt(T.returnAt)}.`}
+  else if(now-r<6*3600000){phase='due';txt='He’s due back about now. No sign of him yet.'}
+  else {phase='late';txt=`Overdue by ${spanTxt(now-r)}. No word yet.`}
+  return {f:T.phase==='missing'?1:f,phase,txt,shopAt:leg/tot,shopEndAt:(shopEnd-l)/tot}}
+function tracker(S){const T=S.trip;const st=tripState(T);const pct=v=>(v*100).toFixed(1)+'%';
+  return `<div class="trk${st.phase==='late'||st.phase==='missing'?' warn':''}"><div class="trk-line"><span class="trk-done" style="width:${pct(st.f)}"></span>
+      <span class="trk-node n0" style="left:0"><b>The party</b><small>${esc(whenTxt(T.leftAt))}</small></span>
+      <span class="trk-node shopn" style="left:${pct(st.shopAt)}"><b>The shop</b><small>~${esc(whenTxt(T.arriveAt))}</small></span>
+      <span class="trk-node n2" style="left:100%"><b>Back</b><small>~${esc(whenTxt(T.returnAt))}</small></span>
+      <span class="trk-wick" style="left:${pct(st.f)}" title="Wick">${st.phase==='missing'?'?':'W'}</span></div>
+    <p class="trk-txt"><b>${esc(st.txt)}</b></p>
+    <p class="sub" style="margin:0">${T.route==='back'?'Back roads':'Main road'} · run DC ${esc(T.dc)} · sent by ${esc(T.by==='dm'?'the DM':holderName(T.by))}${(T.items||[]).length?` · carrying ${esc(T.items.join(', '))}`:' · carrying nothing to sell'}</p></div>`}
+function runPanel(S){const r=S.runner||{},tv=travel(S),pack=(S.cargo||[]).filter(x=>x.status==='pack');const can=!!ME&&ME!=='pin';
+  if(S.trip)return `<section class="panel stack runp"><div class="row"><span class="lbl" style="flex:1">Wick’s run</span>${S.inSession?'<span class="badge on">in session</span>':''}</div>${tracker(S)}
+    <p class="sub" style="margin:0">You’ll find out how it went when he’s back with news or your gold.</p>
+    ${pack.length?`<p class="sub" style="margin:0">Waiting for his next run: ${esc(pack.map(x=>x.name).join(', '))}</p>`:''}</section>`;
+  if(r.status&&r.status!=='party')return `<section class="panel stack runp"><span class="lbl">Wick’s run</span><p style="margin:0"><b>${esc(RS[r.status]||r.status)}.</b> He can’t be sent anywhere right now.</p></section>`;
+  const opt=k=>{const thr=runDC(S,k),days=k==='back'?tv.back:tv.main,tot=days*2+tv.shop;return `<button class="route${SROUTE===k?' on':''}" data-act="s-route" data-v="${k}" aria-pressed="${SROUTE===k}"><b>${k==='back'?'Back roads':'Main road'}</b><span>Run DC <b class="n">${thr+1}</b> · ${thr*5}% chance of trouble</span><span>${days} day${days===1?'':'s'} each way · back in about ${tot} days</span>${k==='back'?'<span class="sub">A quiet run here cools the heat by 1.</span>':'<span class="sub">Faster, and more eyes on the road.</span>'}</button>`};
+  const tot=(SROUTE==='back'?tv.back:tv.main)*2+tv.shop;const eta=new Date(Date.now()+(S.inSession?0:tot*DAY)).toISOString();
+  return `<section class="panel stack runp"><div class="row"><span class="lbl" style="flex:1">Wick’s run</span>${S.inSession?'<span class="badge on">in session: runs happen at once</span>':''}</div>
+    <p style="margin:0"><b>Wick is with the party.</b> Load his pack, pick a road, and send him to the shop. Steven sells anything with an asking price and Wick brings the gold back, less his ${fmt(r.pay||0)} gp.</p>
+    <div class="stack" style="gap:6px"><span class="lbl">In his pack (${pack.length})</span>${pack.length?`<ul class="packl">${pack.map(x=>`<li><span style="flex:1"><b>${esc(x.name)}</b>${(+x.qty||1)>1?' ×'+x.qty:''} <span class="sub">from ${esc(x.from||'')} · ${x.ask!=null?'asking '+fmt(x.ask)+' gp':'no asking price, it will wait on the shelf'}</span></span>${can?`<button class="btn sm" data-act="s-unpack" data-id="${esc(x.id)}">Take it back</button>`:''}</li>`).join('')}</ul>`:'<p class="empty" style="margin:0">Nothing yet. Use “Send to the shop” on an item on your Gear page or in Party loot.</p>'}</div>
+    <div class="routes">${opt('main')}${opt('back')}</div>
+    ${can?(SCONF?`<div class="sendbox"><span>Send Wick by the <b>${SROUTE==='back'?'back roads':'main road'}</b> with ${pack.length?pack.length+' item'+(pack.length===1?'':'s'):'nothing to sell'}? ${S.inSession?'He’ll be back right away.':`He should be back about ${esc(whenTxt(eta))}.`} Once he leaves, nothing can be taken back.</span><button class="btn primary" data-act="s-go">Send him</button><button class="btn" data-act="s-cancel">Not yet</button></div>`:`<div class="row"><button class="btn primary" data-act="s-ask">Send Wick to the shop</button><span class="sub">Taking something back puts it in Party loot.</span></div>`):''}</section>`}
 function shop(){const S=D.shop||{},r=S.runner||{};const cg=S.cargo||[];const X=dmx('shop');
-  const heat=+S.heat||0,thr=Math.max(1,Math.min(19,(+(S.base??2))+heat)),loy=Math.max(0,Math.min(6,+r.loyalty||0));
-  const ups=ME==='dm'&&X.upgrades?X.upgrades:(S.upgrades||[]);
+  const heat=+S.heat||0,loy=Math.max(0,Math.min(6,+r.loyalty||0));const ups=ME==='dm'&&X.upgrades?X.upgrades:(S.upgrades||[]);
+  const lastUp=(S.upkeepLog||[])[0];const runs=S.runs||[];
+  const status=S.trip?(tripState(S.trip).phase==='late'?'Overdue':S.trip.phase==='missing'?'Missing':'On a run'):(RS[r.status]||'With the party');
   return `<div class="stack"><div><h2 style="font-size:1.6rem">${esc(S.name||'The shop')}</h2><div class="sub">${esc(S.sub||'')}</div></div>
-  <div class="strip"><div class="st"><span class="lbl">Run by</span><b style="font:700 1rem var(--f-body)">${esc(S.keeper||'')}</b></div><div class="st"><span class="lbl">Upkeep</span><b>${fmt(S.upkeep)} gp</b><small>${esc(S.upkeepNote||'')}</small></div><div class="st"><span class="lbl">The runner is</span><b style="font:700 1rem var(--f-body)">${esc(RS[r.status]||'—')}</b></div>
-    <div class="st"><span class="lbl">Heat</span><b>${heat} / 10</b><small>How hard people are watching the roads</small></div><div class="st"><span class="lbl">Run DC</span><b>${thr+1}</b><small>Wick needs ${thr+1}+ on the main road (${thr*5}% risk)</small></div></div>
+  <div class="strip"><div class="st"><span class="lbl">Run by</span><b style="font:700 1rem var(--f-body)">${esc(S.keeper||'')}</b></div><div class="st"><span class="lbl">Upkeep</span><b>${fmt(S.upkeep)} gp</b><small>Paid from Party loot at the start of each session${lastUp?`, last on ${esc(lastUp.when)}`:''}</small></div><div class="st"><span class="lbl">Wick is</span><b style="font:700 1rem var(--f-body)">${esc(status)}</b></div>
+    <div class="st"><span class="lbl">Heat</span><b>${heat} / 10</b><small>How hard people are watching the roads</small></div><div class="st"><span class="lbl">Run DC</span><b>${runDC(S,'main')+1} <small style="display:inline">main</small> · ${runDC(S,'back')+1} <small style="display:inline">back</small></b><small>Wick needs this or better on a d20</small></div></div>
   <div class="heat">${Array.from({length:10},(_,i)=>`<span class="${i<heat?'on':''}"></span>`).join('')}</div>
   ${ME==='dm'?dmShopPanel():''}
+  ${runPanel(S)}
   <section class="panel stack" style="gap:6px"><span class="lbl">The runner</span><h3 style="font-size:1.4rem">${esc(r.name||'')}</h3><span class="sub">${esc(r.who||'')}</span>${r.desc?`<p style="margin:0">${esc(r.desc)}</p>`:''}
     <div class="row"><span class="lbl">Loyalty</span><span class="pips">${[1,2,3,4,5,6].map(i=>`<span class="pip${i<=loy?' on':''}"></span>`).join('')}</span><span class="sub">${loy} of 6. If he’s questioned, he keeps quiet on a d6 roll of ${loy} or less.</span></div>
     ${r.stats?`<p class="sub" style="margin:0">${esc(r.stats)}</p>`:''}
     ${ME==='dm'&&X.runner?`<div class="dmbox"><span class="lbl">DM only</span><p style="margin:2px 0"><b>Why he might talk:</b> ${esc(X.runner.weak||'')}</p><p style="margin:2px 0"><b>What he knows:</b> ${esc(X.runner.knows||'')}</p></div>`:''}</section>
-  ${ups.length?`<section class="stack"><h3>${ME==='dm'?'Upgrades':'What the shop has'}</h3>${ups.map(u=>`<div class="panel"><b>${esc(u.name)}</b> <span class="badge">${esc({active:'active',building:'being built',planned:'planned',notfound:'not found yet',locked:'locked',lost:'lost'}[u.status]||u.status)}</span><p style="margin:4px 0 0">${esc(u.effect||'')}</p>${ME==='dm'&&u.risk?`<p class="sub" style="margin:4px 0 0"><b>Risk:</b> ${esc(u.risk)}</p>`:''}</div>`).join('')}</section>`:''}
-  <h3>Wick’s pack and the shop ledger</h3>
-  <p class="sub" style="margin:0">Send something with Wick from your Gear page or from Party loot. The DM marks it delivered, sold or lost.</p>
-  ${cg.length?`<div class="tablewrap"><table class="ledger"><thead><tr><th>Item</th><th>From</th><th>Where it is</th><th>Asking</th><th>Sold for</th>${ME==='dm'?'<th></th>':''}</tr></thead><tbody>${cg.map(x=>`<tr><td><b>${esc(x.name)}</b>${(+x.qty||1)>1?' ×'+x.qty:''}<div class="rar">sent ${esc(x.sentAt||'')}${x.by?' by '+esc(x.by==='dm'?'the DM':holderName(x.by)):''}</div></td><td>${esc(x.from||'')}</td><td>${esc(CG[x.status]||x.status)}</td><td class="n">${x.ask!=null?fmt(x.ask)+' gp':'—'}</td><td class="n">${x.status==='sold'?fmt(x.sold)+' gp':'—'}</td>${ME==='dm'?`<td>${cargoDmBtns(x)}</td>`:''}</tr>`).join('')}</tbody></table></div>`:'<p class="empty">Nothing has been sent to the shop yet.</p>'}
   <h3>Runs</h3>
-  ${(S.runs||[]).length?`<div class="tablewrap"><table class="ledger"><thead><tr><th>When</th><th>Route</th><th>Sent</th><th>Sales</th><th>Upkeep</th></tr></thead><tbody>${S.runs.map(x=>`<tr><td>${esc(x.when||'')}</td><td>${x.route==='back'?'Back roads':'Main road'}</td><td>${esc(x.out||'')}${x.pack?`<div class="rar">${esc(x.pack)}</div>`:''}</td><td class="n">${x.sold?fmt(x.sold)+' gp':'—'}</td><td>${x.upkeep?'Paid':'Unpaid'}</td></tr>`).join('')}</tbody></table></div>`:'<p class="empty">No runs yet.</p>'}
+  ${runs.length?`<div class="stack" style="gap:8px">${runs.map(x=>`<article class="panel runc"><div class="row"><b style="flex:1">${esc(x.when||'')} · ${x.route==='back'?'Back roads':'Main road'}</b>${x.late?'<span class="badge warn">a day late</span>':''}${x.sold!=null?`<b class="n">${x.sold?'+'+fmt(x.sold)+' gp':'no sales'}</b>`:''}</div>
+      ${(x.news||[]).length?`<ul class="jl">${x.news.map(n=>`<li>${esc(n)}</li>`).join('')}</ul>`:x.outcome?`<p style="margin:0">${esc(x.outcome)}</p>`:''}
+      <p class="sub" style="margin:0">${[x.out?'Took: '+x.out:'Took nothing to sell',x.soldItems?'Sold: '+x.soldItems:'',x.lostItems?'Lost: '+x.lostItems:'',x.shelf?'Left on the shelf: '+x.shelf:'',x.pay?'Wick’s pay: '+fmt(x.pay)+' gp':''].filter(Boolean).map(esc).join(' · ')}</p></article>`).join('')}</div>`:'<p class="empty">No runs yet.</p>'}
+  <h3>The shop ledger</h3>
+  ${cg.length?`<div class="tablewrap"><table class="ledger"><thead><tr><th>Item</th><th>From</th><th>Where it is</th><th>Asking</th><th>Sold for</th>${ME==='dm'?'<th></th>':''}</tr></thead><tbody>${cg.map(x=>`<tr><td><b>${esc(x.name)}</b>${(+x.qty||1)>1?' ×'+x.qty:''}<div class="rar">sent ${esc(x.sentAt||'')}${x.by?' by '+esc(x.by==='dm'?'the DM':holderName(x.by)):''}</div></td><td>${esc(x.from||'')}</td><td>${esc(CG[x.status]||x.status)}${x.status==='atshop'&&x.ask==null?'<div class="rar">needs an asking price</div>':''}</td><td class="n">${x.ask!=null?fmt(x.ask)+' gp':'—'}</td><td class="n">${x.status==='sold'?fmt(x.sold)+' gp':'—'}</td>${ME==='dm'?`<td>${cargoDmBtns(x)}</td>`:''}</tr>`).join('')}</tbody></table></div>`:'<p class="empty">Nothing has been sent to the shop yet.</p>'}
+  ${ups.length?`<section class="stack"><h3>${ME==='dm'?'Upgrades':'What the shop has'}</h3>${ups.map(u=>`<div class="panel"><b>${esc(u.name)}</b> <span class="badge">${esc({active:'active',building:'being built',planned:'planned',notfound:'not found yet',locked:'locked',lost:'lost'}[u.status]||u.status)}</span><p style="margin:4px 0 0">${esc(u.effect||'')}</p>${ME==='dm'&&u.risk?`<p class="sub" style="margin:4px 0 0"><b>Risk:</b> ${esc(u.risk)}</p>`:''}</div>`).join('')}</section>`:''}
   ${ME==='dm'&&X.trouble?`<details class="dmbox"><summary class="lbl">DM only · the run tables</summary><span class="lbl">Trouble on the road (d6)</span><ol class="jl">${X.trouble.map(t=>`<li>${esc(t.t)}</li>`).join('')}</ol><span class="lbl">What he lets slip (d4)</span><ol class="jl">${(X.spill||[]).map(t=>`<li>${esc(t)}</li>`).join('')}</ol><span class="lbl">Rumors (d6)</span><ol class="jl">${(X.rumors||[]).map(t=>`<li>${esc(t)}</li>`).join('')}</ol></details>`:''}
   </div>`}
 
@@ -788,7 +847,7 @@ const val=id=>{const x=document.getElementById(id);return x?(x.type==='checkbox'
 const num=id=>{const v=val(id);return v===''||v==null||v===false?undefined:Number(v)};
 const newId=()=>'n'+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
 const today=()=>new Date().toLocaleDateString('en-US',{month:'short',day:'numeric'});
-let IEDIT=null,IDEL=null,DMED=null,RROLL=null,SELLING=null;
+let IEDIT=null,IDEL=null,DMED=null,SELLING=null;
 // Re-read the latest copy, apply one change, write it back. Keeps a player's edit made a moment ago.
 async function rawPut(id,mutate,secret){
   let cur,kind;
@@ -848,39 +907,28 @@ function dmItemBtns(h,e){if(ME!=='dm')return'';if(IEDIT&&IEDIT.h===h&&IEDIT.e===
 const patchEntry=(h,eid,fn)=>rawPut(h,d=>{d.entries=(d.entries||[]).map(x=>x.id===eid?fn(x):x);return d});
 
 /* shop */
-function dmShopPanel(){const S=D.shop||{},X=dmx('shop'),r=S.runner||{};const heat=+S.heat||0;
-  const route=(RROLL&&RROLL.route)||'main';const thr=Math.max(1,Math.min(19,(+(S.base??2))+heat-(route==='back'?2:0)));
-  const R=RROLL&&RROLL.d20?RROLL:null;const pack=(S.cargo||[]).filter(x=>x.status==='pack');
+function rollTxt(T){if(!T)return'';const parts=[`d20 <b>${T.d20}</b> vs DC ${(+T.thr||0)+1}: ${T.hit?'<b>trouble</b>':'<b>he makes it</b>'}`];
+  if(T.hit)parts.push(`trouble d6 ${T.d6}: ${esc(T.trouble||'')}`);
+  if(T.question)parts.push(T.held?`questioned: loyalty d6 ${T.loyRoll}, he keeps quiet`:`questioned: loyalty d6 ${T.loyRoll}, <b>he talks</b>. Slip d4 ${T.d4}: ${esc(T.spill||'')}`);
+  if(T.rumor)parts.push(`rumor d6 ${T.r6}: ${esc(T.rumor)}`);
+  const eff=[T.lostCargo?'loses the cargo':'',T.goldTaken?'loses the gold':'',T.late?'a day late':'',T.taken?'doesn’t come back':'',T.heat?'heat +'+T.heat:''].filter(Boolean);
+  if(eff.length)parts.push('Result: '+eff.join(', '));return parts.join('<br>')}
+function dmShopPanel(){const S=D.shop||{},X=dmx('shop'),r=S.runner||{};const heat=+S.heat||0,tv=travel(S);const T=DMX&&DMX.trip;const H=((DMX&&DMX.trips)||{}).history||[];
   return `<section class="dmbox stack"><span class="lbl">DM tools · the shop</span>
+    <div class="row"><b style="flex:1">${S.inSession?'The table is in session. Runs resolve the moment Wick is sent.':'Between sessions. Runs take real days.'}</b>${S.inSession?`<button class="btn" data-act="dm-sess" data-v="0">End session</button>`:`<button class="btn primary" data-act="dm-sess" data-v="1">Start session (pay ${fmt(S.upkeep||0)} gp upkeep)</button>`}</div>
+    ${S.trip?`<div class="panel stack" style="gap:6px"><span class="lbl">This run, rolled when he left (players can’t see this)</span><p style="margin:0">${rollTxt(T)||'No secret roll found for this run.'}</p>${T&&!T.taken?`<p class="sub" style="margin:0">He’s actually back ${esc(whenTxt(T.returnAt))}${T.late?', a day late':''}.</p>`:''}
+      ${S.trip.phase==='missing'?`<div class="row"><input type="text" id="dm-found" placeholder="What players hear when he turns up (optional)" style="flex:1"><button class="btn primary" data-act="dm-found">He’s back</button></div>`:`<div class="row"><button class="btn primary" data-act="dm-now">Bring him home now</button><button class="btn" data-act="dm-tcancel">Call off the run</button><span class="sub">Calling it off puts his pack back as it was.</span></div>`}</div>`:''}
     <div class="row"><span class="lbl">Heat</span><button class="btn sm" data-act="dm-shop-n" data-k="heat" data-d="-1">−</button><b class="n">${heat}</b><button class="btn sm" data-act="dm-shop-n" data-k="heat" data-d="1">+</button>
       <span class="lbl" style="margin-left:12px">Wick’s loyalty</span><button class="btn sm" data-act="dm-shop-n" data-k="loyalty" data-d="-1">−</button><b class="n">${+r.loyalty||0}</b><button class="btn sm" data-act="dm-shop-n" data-k="loyalty" data-d="1">+</button>
-      <label class="field" style="margin-left:12px"><span class="lbl">Wick is</span><select id="dm-rstatus" data-dmchg="rstatus">${optsH(Object.entries(RS).filter(([k])=>k!=='road'),r.status||'party')}</select></label></div>
-    <div class="panel stack" style="gap:8px"><span class="lbl">Roll a run</span>
-      <div class="row"><select id="dm-route" data-dmchg="route">${optsH([['main','Main road'],['back','Back roads (−2)']],route)}</select><span class="sub">Base ${+(S.base??2)} + heat ${heat}${route==='back'?' − 2':''} = intercepted on 1–${thr}, run DC ${thr+1}</span><button class="btn primary" data-act="dm-roll">Roll</button></div>
-      ${R?`<div class="${R.hit?'alarm':'okbox'}"><b>${R.hit?'Trouble on the road':'He made it'}</b> · d20 ${R.d20} vs DC ${R.thr+1}${R.hit?` · trouble d6 ${R.d6}: ${esc(R.t)}`:''}${R.loy!=null?`<br>Loyalty d6 ${R.loy} vs ${R.need}: ${R.held?'he keeps quiet.':'he talks. Slip d4 '+R.d4+': '+esc(R.spill)}`:''}${!R.hit?`<br>Rumor d6 ${R.r6}: ${esc(R.rumor)}`:''}</div>`:''}</div>
-    <div class="panel stack" style="gap:8px"><span class="lbl">Log a run</span>
-      <div class="fgrid"><label class="field"><span class="lbl">When</span><input type="text" id="lr-when" placeholder="Session 5, day 3"></label>
-      <label class="field"><span class="lbl">Route</span><select id="lr-route">${optsH([['main','Main road'],['back','Back roads']],route)}</select></label>
-      <label class="field"><span class="lbl">Sent to the shop</span><input type="text" id="lr-out" value="${esc(pack.map(x=>x.name).join(', '))}"></label>
-      <label class="field"><span class="lbl">Other sales he brought back (gp)</span><input type="number" min="0" id="lr-sold"></label>
-      ${pack.length?`<label class="field"><span class="lbl">Wick’s pack (${pack.length})</span><select id="lr-pack">${optsH([['atshop','Delivered to the shop'],['lost','Lost on the road'],['pack','Still with Wick']],R&&R.hit&&[2,6].includes(R.d6)?'lost':'atshop')}</select></label>`:''}</div>
-      <label class="field"><span class="lbl">What happened</span><input type="text" id="lr-outcome" value="${esc(R?(R.hit?'Intercepted: '+R.t:'Arrived safe.'):'')}"></label>
-      <div class="row"><label class="chk"><input type="checkbox" id="lr-upkeep" checked> Upkeep paid (${fmt(S.upkeep||0)} gp)</label><label class="chk"><input type="checkbox" id="lr-pay" checked> Pay Wick (${fmt(r.pay||0)} gp)</label><span class="sub">Sales go into the party stash; upkeep and pay come out of it.</span><span style="flex:1"></span><button class="btn primary" data-act="dm-logrun">Save run</button></div></div>
+      ${S.trip?'':`<label class="field" style="margin-left:12px"><span class="lbl">Wick is</span><select id="dm-rstatus" data-dmchg="rstatus">${optsH([['party','With the party'],['shop','Staying at the shop'],['missing','Missing'],['captured','Captured']],r.status||'party')}</select></label>`}</div>
+    <div class="row" style="align-items:end"><span class="lbl">Travel days</span><label class="field"><span class="lbl">Main road, each way</span><input type="number" min="0" step="0.5" id="tv-main" value="${tv.main}" style="width:6em"></label><label class="field"><span class="lbl">Back roads, each way</span><input type="number" min="0" step="0.5" id="tv-back" value="${tv.back}" style="width:6em"></label><label class="field"><span class="lbl">At the shop</span><input type="number" min="0" step="0.5" id="tv-shop" value="${tv.shop}" style="width:6em"></label><button class="btn" data-act="dm-travel">Save</button></div>
+    ${H.length?`<details><summary class="lbl">Past rolls (${H.length})</summary>${H.slice(0,8).map(t=>`<p class="sub" style="margin:6px 0 0">${esc(whenTxt(t.leftAt))} · ${t.route==='back'?'back roads':'main road'} · ${esc((t.items||[]).join(', ')||'nothing')}<br>${rollTxt(t)}</p>`).join('')}</details>`:''}
     ${(X.upgrades||[]).length?`<div class="panel stack" style="gap:6px"><span class="lbl">Upgrades (players see active and being built)</span>${X.upgrades.map((u,i)=>`<div class="row"><b style="flex:1">${esc(u.name)}</b><select data-dmchg="upg" data-i="${i}" aria-label="${esc(u.name)} status">${optsH([['active','Active'],['building','Being built'],['planned','Planned'],['notfound','Not found yet'],['locked','Locked'],['lost','Lost']],u.status)}</select></div>`).join('')}</div>`:''}
   </section>`}
-function cargoDmBtns(x){if(ME!=='dm')return'';const live=x.status==='pack'||x.status==='atshop';
+function cargoDmBtns(x){if(ME!=='dm')return'';const live=['pack','atshop'].includes(x.status);
   if(SELLING===x.id)return `<div class="sendbox"><input type="number" min="0" id="sell-${esc(x.id)}" value="${esc(x.ask??'')}" placeholder="gp"><button class="btn sm primary" data-act="dm-sold" data-id="${esc(x.id)}">Sold</button><button class="btn sm" data-act="dm-sell-cancel">Cancel</button></div>`;
-  return live?`<div class="acts">${x.status==='pack'?`<button class="btn sm dmb" data-act="dm-cg" data-id="${esc(x.id)}" data-v="atshop">Delivered</button><button class="btn sm dmb" data-act="dm-cg" data-id="${esc(x.id)}" data-v="lost">Lost</button>`:''}<button class="btn sm dmb" data-act="dm-sell" data-id="${esc(x.id)}">Sold…</button><button class="btn sm dmb" data-act="dm-return" data-id="${esc(x.id)}">Return</button></div>`:''}
-function rollRun(){const S=D.shop||{},X=dmx('shop'),r=S.runner||{};const route=val('dm-route')||'main';const thr=Math.max(1,Math.min(19,(+(S.base??2))+(+S.heat||0)-(route==='back'?2:0)));
-  const d=n=>1+Math.floor(Math.random()*n);const R={route,thr,d20:d(20)};R.hit=R.d20<=thr;
-  if(R.hit){R.d6=d(6);const t=(X.trouble||[])[R.d6-1]||{};R.t=t.t||'';if(t.question){R.need=+r.loyalty||0;R.loy=d(6);R.held=R.loy<=R.need;if(!R.held){R.d4=d(4);R.spill=(X.spill||[])[R.d4-1]||''}}}
-  else{R.r6=d(6);R.rumor=(X.rumors||[])[R.r6-1]||''}
-  RROLL=R;render()}
-function logRun(){const S=D.shop||{},r=S.runner||{};const run={id:newId(),at:new Date().toISOString(),when:val('lr-when')||'',route:val('lr-route')||'main',out:val('lr-out')||'',sold:num('lr-sold')||0,upkeep:!!val('lr-upkeep'),outcome:val('lr-outcome')||''};
-  const pk=val('lr-pack');const pay=val('lr-pay')?(+r.pay||0):0,up=run.upkeep?(+S.upkeep||0):0;
-  if(RROLL&&RROLL.rumor)run.rumor=RROLL.rumor;
-  dmDo(async()=>{await rawPut('shop',d=>{if(pk&&pk!=='pack'){const moved=(d.cargo||[]).filter(x=>x.status==='pack');moved.forEach(x=>x.status=pk);run.pack=moved.map(x=>x.name).join(', ')+(pk==='lost'?' (lost)':' (delivered)')}d.runs=[run,...(d.runs||[])];if(run.route==='back'&&!RROLL?.hit)d.heat=Math.max(0,(+d.heat||0));return d});
-    const net=run.sold-up-pay;if(net)await stashGold(net);RROLL=null},'Run logged'+(run.sold||up||pay?`: stash ${run.sold-up-pay>=0?'+':'−'}${fmt(Math.abs(run.sold-up-pay))} gp`:''))}
+  if(PRICING===x.id)return `<div class="sendbox"><input type="number" min="0" id="price-${esc(x.id)}" value="${esc(x.ask??'')}" placeholder="gp"><button class="btn sm primary" data-act="dm-price" data-id="${esc(x.id)}">Set price</button><button class="btn sm" data-act="dm-sell-cancel">Cancel</button></div>`;
+  return live?`<div class="acts"><button class="btn sm dmb" data-act="dm-pricing" data-id="${esc(x.id)}">${x.ask==null?'Set price…':'Change price…'}</button>${x.status==='atshop'?`<button class="btn sm dmb" data-act="dm-sell" data-id="${esc(x.id)}">Sold now…</button>`:''}<button class="btn sm dmb" data-act="dm-return" data-id="${esc(x.id)}">Return</button></div>`:''}
 
 /* house */
 function dmPersonCtl(p){if(ME!=='dm'||p.link==='runner')return'';const b=(k,l)=>`<span class="tick"><span class="lbl">${l}</span><button class="btn sm dmb" data-act="dm-p" data-id="${esc(p.id)}" data-k="${k}" data-d="-1" aria-label="Lower ${l}">−</button><b class="n">${+p[k]||0}</b><button class="btn sm dmb" data-act="dm-p" data-id="${esc(p.id)}" data-k="${k}" data-d="1" aria-label="Raise ${l}">+</button></span>`;
@@ -932,11 +980,15 @@ function dmClick(a,b){
     case 'dm-item-del':dmDo(async()=>{await rawPut(h,d=>{d.entries=(d.entries||[]).filter(x=>x.id!==e&&x.in!==e);return d});IEDIT=null;IDEL=null},'Deleted');break;
     case 'dm-add-save':{const o=readItem('na');dmDo(async()=>{await rawPut(h,d=>{d.entries=[...(d.entries||[]),{id:newId(),fx:[],...o}];return d});DMED=null},o.name+' added');break}
     case 'dm-shop-n':{const k=b.dataset.k,dl=+b.dataset.d;dmDo(()=>rawPut('shop',d=>{if(k==='heat')d.heat=Math.max(0,Math.min(10,(+d.heat||0)+dl));else{d.runner=d.runner||{};d.runner.loyalty=Math.max(0,Math.min(6,(+d.runner.loyalty||0)+dl))}return d}),k==='heat'?'Heat updated':'Loyalty updated');break}
-    case 'dm-roll':rollRun();break;
-    case 'dm-logrun':logRun();break;
-    case 'dm-cg':dmDo(()=>rawPut('shop',d=>{(d.cargo||[]).forEach(x=>{if(x.id===b.dataset.id)x.status=b.dataset.v});return d}),b.dataset.v==='lost'?'Marked lost':'Marked delivered');break;
+    case 'dm-sess':{const on=b.dataset.v==='1';dmDo(async()=>{const r=await rpc('dm_shop_session',{pin:PIN,live:on});if(/wrong pin/i.test(r))throw new Error(r)},on?`Session started. ${fmt((D.shop||{}).upkeep||0)} gp upkeep paid from Party loot.`:'Session ended');break}
+    case 'dm-now':dmDo(async()=>{const r=await rpc('dm_shop_now',{pin:PIN});if(/wrong pin/i.test(r))throw new Error(r)},'Wick is back');break;
+    case 'dm-tcancel':dmDo(async()=>{const r=await rpc('dm_shop_cancel',{pin:PIN});if(/wrong pin/i.test(r))throw new Error(r)},'Run called off');break;
+    case 'dm-found':{const note=val('dm-found')||'';dmDo(async()=>{const r=await rpc('dm_shop_found',{pin:PIN,note});if(/wrong pin/i.test(r))throw new Error(r)},'Wick is back');break}
+    case 'dm-travel':{const tv={main:Math.max(0,+val('tv-main')||0),back:Math.max(0,+val('tv-back')||0),shop:Math.max(0,+val('tv-shop')||0)};dmDo(()=>rawPut('shop',d=>{d.travel=tv;return d}),'Travel days saved');break}
+    case 'dm-pricing':PRICING=b.dataset.id;SELLING=null;render();break;
+    case 'dm-price':{const id=b.dataset.id,raw=val('price-'+id);const v=raw===''?null:Math.max(0,Math.floor(+raw));dmDo(async()=>{await rawPut('shop',d=>{(d.cargo||[]).forEach(x=>{if(x.id===id)x.ask=v});return d});PRICING=null},v==null?'Price cleared':`Asking ${fmt(v)} gp`);break}
     case 'dm-sell':SELLING=b.dataset.id;render();break;
-    case 'dm-sell-cancel':SELLING=null;render();break;
+    case 'dm-sell-cancel':SELLING=null;PRICING=null;render();break;
     case 'dm-sold':{const id=b.dataset.id,v=num('sell-'+id)||0;let credit=0;dmDo(async()=>{await rawPut('shop',d=>{(d.cargo||[]).forEach(x=>{if(x.id===id&&x.status!=='sold'){x.status='sold';x.sold=v;x.soldAt=today();credit=v}});return d});if(credit)await stashGold(credit);SELLING=null},`Sold for ${fmt(v)} gp, added to the stash`);break}
     case 'dm-return':{const id=b.dataset.id;let item=null;dmDo(async()=>{await rawPut('shop',d=>{(d.cargo||[]).forEach(x=>{if(x.id===id&&x.status!=='returned'){item=x;x.status='returned'}});return d});
       if(item&&item.entry){const to=D.party.some(c=>c.id===item.fromId)||item.fromId==='stash'?item.fromId:'stash';await rawPut(to,d=>{d.entries=[...(d.entries||[]),item.entry,...(item.kids||[])];return d})}},'Returned');break}
@@ -954,7 +1006,6 @@ function dmClick(a,b){
   }
 }
 function dmChange(el){const k=el.dataset.dmchg;
-  if(k==='route'){RROLL={route:el.value};render();return}
   if(k==='rstatus')return dmDo(()=>rawPut('shop',d=>{d.runner=d.runner||{};d.runner.status=el.value;return d}),'Wick’s status updated');
   if(k==='involve')return dmDo(()=>rawPut('house',d=>{d.fin=d.fin||{};d.fin.involve=el.value;return d}),'Updated');
   if(k==='upg'){const i=+el.dataset.i,v=el.value;return dmDo(async()=>{const nx=await rawPut('shop',d=>{d.upgrades=(d.upgrades||[]).map((u,j)=>j===i?{...u,status:v}:u);return d},true);await rawPut('shop',d=>{d.upgrades=(nx.upgrades||[]).filter(u=>u.status==='active'||u.status==='building');return d})},'Upgrade updated')}
@@ -1072,7 +1123,7 @@ document.addEventListener('click',ev=>{
   if(a.startsWith('dm-')){if(ME==='dm')dmClick(a,b);return}
   if(a==='pick'){ME=b.dataset.id;LOPEN=null;SEND=null;location.hash='sheet';render();window.scrollTo(0,0)}
   else if(a==='dmpin'){ME='pin';PINERR='';render()}
-  else if(a==='switch'){PICK=null;ME=null;VIEW=null;DMX=null;PIN=null;DMED=null;IEDIT=null;RROLL=null;SELLING=null;LOPEN=null;SEND=null;EDIT=false;render()}
+  else if(a==='switch'){PICK=null;ME=null;VIEW=null;DMX=null;PIN=null;DMED=null;IEDIT=null;SELLING=null;PRICING=null;SCONF=false;LOPEN=null;SEND=null;EDIT=false;render()}
   else if(a==='lopen'){LOPEN=LOPEN===b.dataset.id?null:b.dataset.id;SEND=null;render();const o=$('#lopen');o&&o.scrollIntoView({behavior:'smooth',block:'start'})}
   else if(a==='lclose'){LOPEN=null;SEND=null;render()}
   else if(a==='move')act('p_move_item',{from_id:b.dataset.h,to_id:b.dataset.to,entry_id:b.dataset.e,actor:actor()},'Moved to '+holderName(b.dataset.to));
@@ -1085,6 +1136,11 @@ document.addEventListener('click',ev=>{
   else if(a==='delnote')act('dm_delete_note',{pin:PIN,note_id:b.dataset.id},'Note deleted');
   else if(a==='sheet-edit'){EDIT=!EDIT;render()}
   else if(a==='sheet-save'){const c=viewed();const g=id=>{const x=document.getElementById(id);return x&&x.value!==''?Math.floor(+x.value):undefined};const patch={};for(const k of ['gold','jars']){const v=g('se-'+k);if(v!==undefined)patch[k]=v}EDIT=false;act('p_update_sheet',{holder_id:c.id,patch,actor:actor()},'Sheet saved')}
+  else if(a==='s-route'){SROUTE=b.dataset.v;SCONF=false;render()}
+  else if(a==='s-ask'){SCONF=true;render()}
+  else if(a==='s-cancel'){SCONF=false;render()}
+  else if(a==='s-go'){SCONF=false;(async()=>{if(BUSY)return;BUSY=true;document.body.classList.add('busy');try{const r=await rpc('p_dispatch',{route:SROUTE,actor:actor()});await load();toast(r==='back'?'Wick ran the route. See how it went under Runs.':'Wick is on his way');render()}catch(e){toast(e.message||'That didn’t save. Try again.',true)}finally{BUSY=false;document.body.classList.remove('busy')}})()}
+  else if(a==='s-unpack')act('p_unpack',{cargo_id:b.dataset.id,actor:actor()},'Taken back. It’s in Party loot.');
   else if(a==='show-item'){const d=document.querySelector(`details.inv[data-id="${CSS.escape(b.dataset.e)}"]`);if(d){d.open=true;d.scrollIntoView({behavior:'smooth',block:'center'});d.classList.add('flash');setTimeout(()=>d.classList.remove('flash'),1400)}}
   else if(a==='pick-item'){ev.preventDefault();PICK=PICK&&PICK.e===b.dataset.e?null:{h:b.dataset.h,e:b.dataset.e};render()}
   else if(a==='pick-cancel'){PICK=null;render()}
@@ -1101,9 +1157,17 @@ document.addEventListener('drop',ev=>{if(!DRAG)return;const z=ev.target.closest&
 document.addEventListener('change',ev=>{const el=ev.target;if(el.dataset.dmchg){if(ME==='dm')dmChange(el);return}if(el.dataset.eqc){EQ[el.dataset.eqc]=el.checked;render()}else if(el.dataset.eqs){EQ[el.dataset.eqs]=el.value;render()}});
 document.addEventListener('submit',async ev=>{if(ev.target.id!=='pinform')return;ev.preventDefault();const p=$('#pin').value;
   try{const r=await rpc('dm_get',{pin:p});if(!r||r.error){PINERR=(r&&r.error)||'That PIN didn’t work.';render();return}DMX=r.docs||{};PIN=p;ME='dm';PINERR='';location.hash='sheet';render()}catch(e){PINERR=e.message;render()}});
-document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&D&&!BUSY)load().then(()=>{if(!document.activeElement||!/INPUT|TEXTAREA/.test(document.activeElement.tagName))render()}).catch(()=>{})});
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')refresh(true)});
 window.addEventListener('hashchange',()=>{render();window.scrollTo(0,0)});
-load().then(()=>{$('#foot').textContent='Live from the party ledger. Changes save as you make them.';render()})
+/* keep every screen current: pick up other people's changes, and bring Wick home when he's due */
+let LASTTICK=0,SIG='';
+const sig=()=>JSON.stringify([D&&D.updated,(D&&D.journal.notes.length),ME==='dm'&&DMX?JSON.stringify(DMX.trip||null):''].concat(D&&D.activity[0]?[D.activity[0].created_at]:[]));
+const quiet=()=>!BUSY&&!DRAG&&!PICK&&!SCONF&&!EDIT&&!SEND&&!IEDIT&&!DMED&&!SELLING&&!PRICING&&!(document.activeElement&&/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName));
+async function refresh(force){if(!D||BUSY)return;try{
+  await load();const T=D.shop&&D.shop.trip;if(T&&T.phase==='out'&&Date.now()>=+new Date(T.returnAt)&&Date.now()-LASTTICK>60000){LASTTICK=Date.now();const r=await rpc('p_tick',{});if(r!=='on the road')await load()}if(ME==='dm'&&PIN){const g=await rpc('dm_get',{pin:PIN});if(g&&!g.error)DMX=g.docs||{}}
+  const n=sig();if((force||n!==SIG||(tab()==='shop'&&D.shop&&D.shop.trip))&&quiet()){SIG=n;render()}}catch(e){}}
+setInterval(()=>{if(document.visibilityState==='visible')refresh(false)},20000);
+load().then(async()=>{$('#foot').textContent='Live from the party ledger. It refreshes on its own every few seconds.';const T=D.shop&&D.shop.trip;if(T&&T.phase==='out'&&Date.now()>=+new Date(T.returnAt)){LASTTICK=Date.now();try{await rpc('p_tick',{});await load()}catch(e){}}SIG=sig();render()})
   .catch(e=>{$('#app').innerHTML='<div class="panel"><h2>The ledger didn’t load</h2><p>'+esc(e.message)+'</p><p class="sub">Refresh the page. If the free database has paused after a quiet week, the DM can wake it from the Supabase dashboard.</p></div>'});
 })();
 </script>
