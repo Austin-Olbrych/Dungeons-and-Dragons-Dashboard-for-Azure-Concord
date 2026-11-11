@@ -369,6 +369,13 @@ body[data-page=shop] :is(.panel,.tile,.st) :is(h2,h3,.sub,.empty,p),body[data-pa
 .capc.on{border-color:var(--accent);box-shadow:0 0 0 2px color-mix(in srgb,var(--accent) 35%,transparent)}
 .capc:disabled{cursor:default;opacity:.85}
 .mbon small{font-size:.72rem}
+.testbar{border-bottom:1px solid var(--line);background:var(--surface2);position:relative;z-index:2}
+.testbar .wrap{padding-top:6px;padding-bottom:6px;gap:8px;flex-wrap:wrap;align-items:center}
+.testbar.on{background:repeating-linear-gradient(135deg,#f3c24b 0 14px,#e8b334 14px 28px);color:#2a1c00;border-bottom:2px solid #b07d0b}
+.testbar.on .btn{background:#fff7e0;color:#2a1c00;border-color:#b07d0b}
+.testbar.on .btn.danger{background:#b3283b;color:#fff;border-color:#b3283b}
+.tb-skip{display:inline-flex;gap:6px;align-items:center;flex-wrap:wrap}
+.testbar.on .lbl{color:#4a3500}
 body.busy{cursor:progress}body.busy .btn{pointer-events:none;opacity:.7}
 </style>
 </head>
@@ -378,6 +385,7 @@ body.busy{cursor:progress}body.busy .btn{pointer-events:none;opacity:.7}
   <div><h1>Azure Concord</h1><div class="sub" id="who">Three Roads campaign</div></div>
   <nav class="tabs" id="tabs" aria-label="Sections"></nav>
 </div></header>
+<div id="testbar"></div>
 <main class="wrap" id="app"><p class="empty">Opening the ledger…</p></main>
 <div class="wrap foot" id="foot"></div>
 <div id="toast" role="status" aria-live="polite" hidden></div>
@@ -1188,7 +1196,15 @@ function encounter(c){
     </section></div>`;
 }
 
-function render(){renderTabs();const app=$('#app');if(!D)return;applyPage(tab());
+let TCONF=null;
+function testBar(){const S=(D&&D.shop)||{},t=S.testSince,dm=ME==='dm';
+  if(!t&&!dm)return'';
+  const SK=[[1,'1 hour'],[24,'1 day'],[72,'3 days'],[168,'1 week']];const pend=TCONF&&TCONF.startsWith('skip:')?+TCONF.slice(5):null;
+  const skip=dm?(pend&&!t?`<span class="tb-skip"><span>Skip ${esc(SK.find(x=>x[0]===pend)[1])} ahead for real? Wick’s trip, the shelf and the heat all move forward, and this can’t be undone.</span><button class="btn sm primary" data-act="t-skip" data-v="${pend}">Yes, skip</button><button class="btn sm" data-act="t-no">No</button></span>`
+    :`<span class="tb-skip"><span class="lbl">Skip ahead</span>${SK.map(([h,l])=>`<button class="btn sm" data-act="${t?'t-skip':'t-skipask'}" data-v="${h}">${l}</button>`).join('')}</span>`):'';
+  if(t)return `<div class="testbar on"><div class="wrap row"><b>Test in progress</b><span>since ${esc(whenTxt(t))}. Anything done now ${dm?'can be':'will probably be'} undone.</span><span style="flex:1"></span>${dm?(TCONF==='undo'?`<span>Put everything back as it was?</span><button class="btn sm danger" data-act="t-end" data-v="undo">Yes, undo it all</button><button class="btn sm" data-act="t-no">No</button>`:`<button class="btn sm" data-act="t-ask">End test: undo everything</button><button class="btn sm" data-act="t-end" data-v="keep">End test: keep the changes</button>`):''}${skip}</div></div>`;
+  return `<div class="testbar"><div class="wrap row"><span class="lbl">DM</span><button class="btn sm" data-act="t-start">Start test</button><span class="sub">Saves everything so you can undo it later.</span><span style="flex:1"></span>${skip}</div></div>`}
+function render(){renderTabs();const app=$('#app');if(!D)return;applyPage(tab());$('#testbar').innerHTML=testBar();
   if(ME==='pin'){app.innerHTML=pinForm(PINERR);const f=$('#pin');f&&f.focus();return}
   if(!me()){app.innerHTML=picker();return}
   const t=tab();const chips=ME==='dm'?`<div class="row" style="margin-bottom:12px">${D.party.map(c=>`<button class="btn${c.id===viewed().id?' on':''}" data-act="view" data-id="${esc(c.id)}">${esc(first(c.name))}</button>`).join('')}</div>`:'';
@@ -1220,6 +1236,11 @@ document.addEventListener('click',ev=>{
   else if(a==='delnote')act('dm_delete_note',{pin:PIN,note_id:b.dataset.id},'Note deleted');
   else if(a==='sheet-edit'){EDIT=!EDIT;render()}
   else if(a==='sheet-save'){const c=viewed();const g=id=>{const x=document.getElementById(id);return x&&x.value!==''?Math.floor(+x.value):undefined};const patch={};for(const k of ['gold','jars']){const v=g('se-'+k);if(v!==undefined)patch[k]=v}EDIT=false;act('p_update_sheet',{holder_id:c.id,patch,actor:actor()},'Sheet saved')}
+  else if(a==='t-start'||a==='t-end'||a==='t-skip'){if(ME!=='dm')return;TCONF=null;const call=a==='t-start'?['dm_test_start',{pin:PIN}]:a==='t-end'?['dm_test_end',{pin:PIN,undo:b.dataset.v==='undo'}]:['dm_skip',{pin:PIN,hours:+b.dataset.v}];
+    (async()=>{if(BUSY)return;BUSY=true;document.body.classList.add('busy');try{const r=await rpc(call[0],call[1]);if(/wrong pin/i.test(r))throw new Error(r);await load();const g=await rpc('dm_get',{pin:PIN});if(g&&!g.error)DMX=g.docs||{};toast(r);render()}catch(e){toast(e.message||'That didn’t work. Try again.',true)}finally{BUSY=false;document.body.classList.remove('busy')}})()}
+  else if(a==='t-ask'){TCONF='undo';render()}
+  else if(a==='t-skipask'){TCONF='skip:'+b.dataset.v;render()}
+  else if(a==='t-no'){TCONF=null;render()}
   else if(a==='s-route'){SROUTE=b.dataset.v;SCONF=false;render()}
   else if(a==='s-ask'){SCONF=true;render()}
   else if(a==='s-cancel'){SCONF=false;render()}
@@ -1246,7 +1267,7 @@ window.addEventListener('hashchange',()=>{render();window.scrollTo(0,0)});
 /* keep every screen current: pick up other people's changes, and bring Wick home when he's due */
 let LASTTICK=0,LASTCOOL=0,SIG='';
 const sig=()=>JSON.stringify([D&&D.updated,(D&&D.journal.notes.length),ME==='dm'&&DMX?JSON.stringify(DMX.trip||null):''].concat(D&&D.activity[0]?[D.activity[0].created_at]:[]));
-const quiet=()=>!BUSY&&!DRAG&&!PICK&&!SCONF&&!REPRICE&&!QUIET&&!VALUING&&!EDIT&&!SEND&&!IEDIT&&!DMED&&!SELLING&&!PRICING&&!(document.activeElement&&/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName));
+const quiet=()=>!TCONF&&!BUSY&&!DRAG&&!PICK&&!SCONF&&!REPRICE&&!QUIET&&!VALUING&&!EDIT&&!SEND&&!IEDIT&&!DMED&&!SELLING&&!PRICING&&!(document.activeElement&&/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName));
 async function refresh(force){if(!D||BUSY)return;try{
   await load();const T=D.shop&&D.shop.trip;const due=T&&T.phase==='out'&&Date.now()>=+new Date(T.returnAt)&&Date.now()-LASTTICK>60000,cool=!T&&(+(D.shop||{}).heat||0)>0&&Date.now()-LASTCOOL>600000;if(due||cool){if(due)LASTTICK=Date.now();else LASTCOOL=Date.now();const r=await rpc('p_tick',{});if(r!=='on the road')await load()}if(ME==='dm'&&PIN){const g=await rpc('dm_get',{pin:PIN});if(g&&!g.error)DMX=g.docs||{}}
   const n=sig();if((force||n!==SIG||(tab()==='shop'&&D.shop&&D.shop.trip))&&quiet()){SIG=n;render()}}catch(e){}}
