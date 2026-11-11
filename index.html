@@ -108,6 +108,9 @@ table.ledger{width:100%;border-collapse:collapse;font-size:.95rem}
 .pc.cap{border-width:2px}
 .subs{display:flex;flex-direction:column;gap:6px;border-left:2px solid var(--line);margin-left:10px;padding-left:10px}
 .divn{font-size:.72rem;letter-spacing:.09em;text-transform:uppercase;font-weight:700;color:var(--accent)}
+.lbbar{height:8px;border-radius:5px;background:var(--line);overflow:hidden}.lbbar>span{display:block;height:100%;background:var(--accent)}.lbbar.over>span{background:var(--bad,#b4413a)}
+.offer .ch{display:flex;flex-wrap:wrap;gap:6px}.offer .ch .btn{white-space:normal;text-align:left}
+.mabbis{border-left:3px solid var(--accent);padding:6px 10px;margin:0;font-style:italic}
 .ctrs{display:grid;gap:10px;grid-template-columns:repeat(auto-fill,minmax(280px,1fr))}
 .ctr{border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:10px;background:var(--surface);padding:10px 12px;display:flex;flex-direction:column;gap:6px}
 /* journal */
@@ -583,6 +586,9 @@ function figure(c,dm){const {m}=dm;const t=list=>`<title>${esc(list.map(e=>e.nam
   if(one('off'))o+=`<g class="ov" transform="translate(150 ${/shield/.test(nm('off'))?160:172})">${t(m.off)}${/shield/.test(nm('off'))?`<path d="M-24 -36 L24 -36 L24 0 Q24 28 0 40 Q-24 28 -24 0Z" fill="${COL.wood}" stroke="${COL.metal}" stroke-width="4"/><circle cy="-2" r="6" fill="${COL.metal}" stroke="${COL.dark}"/>`:weapGlyph(one('off'),true)}</g>`;
   return `<svg class="figsvg" viewBox="-10 -40 220 350" role="img" aria-label="${esc(first(c.name))} wearing their equipped gear"><defs><pattern id="mailpat" width="6" height="6" patternUnits="userSpaceOnUse"><rect width="6" height="6" fill="#7d8790"/><circle cx="3" cy="3" r="2" fill="none" stroke="#c3cad1" stroke-width=".9"/></pattern></defs>${o}</svg>`}
 
+const lbN=v=>(Math.round(v*100)/100).toLocaleString('en-US');
+const lbTxt=e=>e.weight==null||e.weight===''?'':(+e.weight===0?'weighs next to nothing':(+e.qty||1)>1?`${lbN(+e.weight)} lb each`:`${lbN(+e.weight)} lb`);
+const cargoLb=x=>x.lb!=null?+x.lb:((+((x.entry||{}).weight)||0)*(+x.qty||1)+(x.kids||[]).reduce((t,k)=>t+(+k.weight||0)*(+k.qty||1),0));
 function gearTab(c){const dm=dollMap(c),{m,where}=dm;const can=canHandle(c.id);const all=items(c);
   const chip=e=>`<button class="ichip${PICK&&PICK.e===e.id?' picked':''}"${can?` draggable="true" data-drag="${esc(e.id)}" data-h="${esc(c.id)}" `:''} data-act="show-item" data-e="${esc(e.id)}" title="${esc(e.name)}: tap to see it">${esc(e.name)}${e.attune&&!e.attuned?' <span class="badge warn">not attuned</span>':''}</button>`;
   const slotBox=([k,l])=>`<div class="slot${m[k].length?' filled':''}" style="grid-area:${k}" data-drop="slot:${k}" data-h="${esc(c.id)}"><span class="lbl">${l}</span>${m[k].length?m[k].map(chip).join(''):'<span class="none">empty</span>'}</div>`;
@@ -593,7 +599,7 @@ function gearTab(c){const dm=dollMap(c),{m,where}=dm;const can=canHandle(c.id);c
     const ask=(dmx(c.id).asks||{})[e.id];
     return `<details class="inv${e.container?' cont':''}" data-id="${esc(e.id)}"${(OPENI[e.id]??!!e.container)?' open':''}${e.container?` data-drop="in:${esc(e.id)}" data-h="${esc(c.id)}"`:''} style="--d:${depth}">
       <summary${can?` draggable="true" data-drag="${esc(e.id)}" data-h="${esc(c.id)}"`:''}><span class="grip" aria-hidden="true">${can?'⠿':''}</span><span class="nm2"><b>${esc(e.name)}</b>${e.rarity?` <span class="rar">${esc(e.rarity)}</span>`:''}</span><span class="row" style="gap:5px">${b.join('')}${pips(e)}</span></summary>
-      <div class="invb">${[e.rarity,e.attune?(e.attuned?'attuned':'requires attunement'):'',(+e.uses||0)>0?`${+e.left||0} of ${+e.uses} uses left${RESET_T[e.reset]?', back at '+RESET_T[e.reset]:''}`:''].filter(Boolean).length?`<p class="sub">${esc([e.rarity,e.attune?(e.attuned?'Attuned':'Requires attunement'):'',(+e.uses||0)>0?`${+e.left||0} of ${+e.uses} uses left${RESET_T[e.reset]?', back after a '+RESET_T[e.reset]:''}`:''].filter(Boolean).join(' · '))}</p>`:''}${e.desc?`<p>${esc(e.desc)}</p>`:''}${(e.fx||[]).length?`<ul class="jl">${e.fx.map(f=>`<li>${esc(fxLine(f))}</li>`).join('')}</ul>`:''}${ask?`<p class="dmnote">DM: ${esc(ask)}</p>`:''}${ME==='dm'?dmItemBtns(c.id,e):''}${itemActions(c.id,e,true)}</div>
+      <div class="invb">${[e.rarity,lbTxt(e),e.attune?(e.attuned?'attuned':'requires attunement'):'',(+e.uses||0)>0?`${+e.left||0} of ${+e.uses} uses left${RESET_T[e.reset]?', back at '+RESET_T[e.reset]:''}`:''].filter(Boolean).length?`<p class="sub">${esc([e.rarity,lbTxt(e),e.attune?(e.attuned?'Attuned':'Requires attunement'):'',(+e.uses||0)>0?`${+e.left||0} of ${+e.uses} uses left${RESET_T[e.reset]?', back after a '+RESET_T[e.reset]:''}`:''].filter(Boolean).join(' · '))}</p>`:''}${e.desc?`<p>${esc(e.desc)}</p>`:''}${(e.fx||[]).length?`<ul class="jl">${e.fx.map(f=>`<li>${esc(fxLine(f))}</li>`).join('')}</ul>`:''}${ask?`<p class="dmnote">DM: ${esc(ask)}</p>`:''}${ME==='dm'?dmItemBtns(c.id,e):''}${itemActions(c.id,e,true)}</div>
       ${e.container?`<div class="incont">${inn.length?inn.map(x=>row(x,depth+1)).join(''):`<p class="none">Empty. Drag things here to put them in the ${esc(e.name)}.</p>`}</div>`:''}</details>`};
   const top=all.filter(e=>!e.in);
   const eq=top.filter(e=>where[e.id]),bags=top.filter(e=>e.container),loose=top.filter(e=>!where[e.id]&&!e.container);
@@ -747,7 +753,7 @@ function activityHTML(){const a=(D.activity||[]).filter(x=>x.action!=='dm_put').
 /* ---------- shop ---------- */
 const CG={pack:'In Wick’s pack, waiting for his next run',road:'With Wick on the road',atshop:'On Steven’s shelf',atnest:'With Orsolo at the Nest',sold:'Sold',lost:'Lost on the road',returned:'Returned'};
 const RS={party:'With the party',toShop:'Traveling to the shop',shop:'At the shop',toParty:'Traveling to the party',late:'Overdue',captured:'Captured',missing:'Missing',road:'On a run'};
-let SROUTE='main',SCONF=false,PRICING=null,REPRICE=null,QUIET=null,VALUING=null;
+let SROUTE='main',SPAY='carry',CTOWN=null,SCONF=false,PRICING=null,REPRICE=null,QUIET=null,VALUING=null;
 const DAY=86400000;
 function whenTxt(iso){if(!iso)return'';const d=new Date(iso);const days=(d-Date.now())/DAY;
   return d.toLocaleString(undefined,Math.abs(days)<6?{weekday:'short',hour:'numeric',minute:'2-digit'}:{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'})}
@@ -777,7 +783,7 @@ function tracker(S){const T=S.trip;const st=tripState(T);const pct=v=>(Math.max(
     <p class="sub" style="margin:0">${T.legs==='nest'?'To the Nest and back':(T.legs==='both'?'The Nest, then the ':'')+(T.route==='back'?'back roads':'main road')+(T.dc?` · run DC ${esc(T.dc)}`:'')} · sent by ${esc(T.by==='dm'?'the DM':holderName(T.by))}${(T.items||[]).length?` · carrying ${esc(T.items.join(', '))}`:' · carrying nothing to sell'}</p></div>`}
 const destTxt=x=>x.dest==='nest'?'for Orsolo':(x.plain&&x.value!=null?`Steven buys it outright for ${fmt(Math.floor(x.value/2))} gp`:x.ask!=null?`asking ${fmt(x.ask)} gp${x.min!=null?`, lowest ${fmt(x.min)}`:''}`:'no asking price yet');
 function repriceForm(x){return `<div class="sendbox"><label class="field"><span class="lbl">Asking (gp)</span><input type="number" min="0" id="rp-ask" value="${esc(x.ask??'')}" style="width:7em"></label><label class="field"><span class="lbl">Lowest you’ll take</span><input type="number" min="0" id="rp-min" value="${esc(x.min??'')}" style="width:7em"></label><button class="btn primary sm" data-act="rp-go" data-id="${esc(x.id)}">Save</button><button class="btn sm" data-act="rp-cancel">Cancel</button></div>`}
-function runPanel(S){const r=S.runner||{},tv=travel(S),pack=(S.cargo||[]).filter(x=>x.status==='pack');const can=!!ME&&ME!=='pin';
+function runPanel(S){const r=S.runner||{},tv=travel(S),pack=(S.cargo||[]).filter(x=>x.status==='pack');const can=!!ME&&ME!=='pin';const plb=pack.reduce((t,x)=>t+cargoLb(x),0);
   const toNest=pack.some(x=>x.dest==='nest'),toShop=!toNest||pack.some(x=>x.dest!=='nest');
   if(S.trip)return `<section class="panel stack runp"><div class="row"><span class="lbl" style="flex:1">Wick’s run</span>${S.inSession?'<span class="badge on">in session</span>':''}</div>${tracker(S)}
     <p class="sub" style="margin:0">You’ll find out how it went when he’s back with news or your gold.</p>
@@ -789,10 +795,10 @@ function runPanel(S){const r=S.runner||{},tv=travel(S),pack=(S.cargo||[]).filter
   const where=toNest&&toShop?`to the Nest first, then the shop by the <b>${SROUTE==='back'?'back roads':'main road'}</b>`:toNest?'to the Nest':`to the shop by the <b>${SROUTE==='back'?'back roads':'main road'}</b>`;
   return `<section class="panel stack runp"><div class="row"><span class="lbl" style="flex:1">Wick’s run</span>${S.inSession?'<span class="badge on">in session: runs happen at once</span>':''}</div>
     <p style="margin:0"><b>Wick is with the party.</b> Load his pack, pick a road, and send him off. Things for Orsolo get dropped at the Nest on the way; Steven tries to sell the rest at the shop, and Wick brings home whatever has sold, less his ${fmt(r.pay||0)} gp.</p>
-    <div class="stack" style="gap:6px"><span class="lbl">In his pack (${pack.length})</span>${pack.length?`<ul class="packl">${pack.map(x=>`<li><span style="flex:1"><b>${esc(x.name)}</b>${(+x.qty||1)>1?' ×'+x.qty:''}${x.hot?' <span class="badge warn">hot</span>':''} <span class="sub">from ${esc(x.from||'')} · ${esc(destTxt(x))}</span>${REPRICE===x.id?repriceForm(x):''}</span>${can?`${x.dest!=='nest'&&!x.plain&&REPRICE!==x.id?`<button class="btn sm" data-act="rp-open" data-id="${esc(x.id)}">Change price</button>`:''}<button class="btn sm" data-act="s-unpack" data-id="${esc(x.id)}">Take it back</button>`:''}</li>`).join('')}</ul>`:'<p class="empty" style="margin:0">Nothing yet. Use “Sell…” on an item on your Gear page or in Party loot.</p>'}</div>
+    <div class="stack" style="gap:6px"><div class="row"><span class="lbl" style="flex:1">In his pack (${pack.length})</span><span class="sub n">${lbN(plb)} of 100 lb</span></div><div class="lbbar${plb>100?' over':''}" role="img" aria-label="${lbN(plb)} of 100 pounds"><span style="width:${Math.min(100,plb)}%"></span></div>${pack.length?`<ul class="packl">${pack.map(x=>`<li><span style="flex:1"><b>${esc(x.name)}</b>${(+x.qty||1)>1?' ×'+x.qty:''}${x.hot?' <span class="badge warn">hot</span>':''} <span class="sub">from ${esc(x.from||'')} · ${esc(destTxt(x))}${cargoLb(x)?' · '+lbN(cargoLb(x))+' lb':''}</span>${REPRICE===x.id?repriceForm(x):''}</span>${can?`${x.dest!=='nest'&&!x.plain&&REPRICE!==x.id?`<button class="btn sm" data-act="rp-open" data-id="${esc(x.id)}">Change price</button>`:''}<button class="btn sm" data-act="s-unpack" data-id="${esc(x.id)}">Take it back</button>`:''}</li>`).join('')}</ul>`:'<p class="empty" style="margin:0">Nothing yet. Use “Sell…” on an item on your Gear page or in Party loot.</p>'}</div>
     ${toShop?`<div class="routes">${opt('main')}${opt('back')}</div>`:`<p class="sub" style="margin:0">Only things for Orsolo, so it’s a short trip to the Nest and back: about ${dayTxt(tv.nest*2)}, and no road roll.</p>`}
     ${toNest&&toShop?`<p class="sub" style="margin:0">He stops at the Nest first (${dayTxt(tv.nest)}), so Orsolo’s things are safe even if the road goes badly.</p>`:''}
-    ${can?(SCONF?`<div class="sendbox"><span>Send Wick ${where} with ${pack.length?pack.length+' item'+(pack.length===1?'':'s'):'nothing to sell'}? ${S.inSession?'He’ll be back right away.':`He should be back about ${esc(whenTxt(eta))}.`} Once he leaves, nothing can be taken back.</span><button class="btn primary" data-act="s-go">Send him</button><button class="btn" data-act="s-cancel">Not yet</button></div>`:`<div class="row"><button class="btn primary" data-act="s-ask">Send Wick</button><span class="sub">Taking something back puts it in Party loot.</span></div>`):''}</section>`}
+    ${can?(SCONF?`<div class="sendbox"><span>Send Wick ${where} with ${pack.length?pack.length+' item'+(pack.length===1?'':'s'):'nothing to sell'}? ${S.inSession?'He’ll be back right away.':`He should be back about ${esc(whenTxt(eta))}.`} Once he leaves, nothing can be taken back.</span>${toShop?`<div class="routes" style="width:100%"><button class="route${SPAY==='carry'?' on':''}" data-act="s-pay" data-v="carry" aria-pressed="${SPAY==='carry'}"><b>Bring the coin home</b><span>Gold weighs 1 lb per 50 coins, so he can carry up to 5,000 gp. Steven holds anything over that for the next run.</span><span class="sub">If the road goes badly, the coin can be taken.</span></button><button class="route${SPAY==='bank'?' on':''}" data-act="s-pay" data-v="bank" aria-pressed="${SPAY==='bank'}"><b>Bank it in Vaelmar</b><span>Steven deposits what sold in the Vaelmar bank, and Wick brings home a receipt.</span><span class="sub">Safe on the road, but it lands in the bank, not Party loot.</span></button></div>`:''}<button class="btn primary" data-act="s-go">Send him</button><button class="btn" data-act="s-cancel">Not yet</button></div>`:`<div class="row"><button class="btn primary" data-act="s-ask">Send Wick</button><span class="sub">Taking something back puts it in Party loot.</span></div>`):''}</section>`}
 const STEVEN_LV=[
   {m:0,t:'The cousin behind the counter',b:2,f:['Tries to sell everything you send at your asking price, and takes any offer at or above your lowest.','Buys plain gear outright at half its value.','No eye for value yet: the only hint that something went cheap is how fast it sold.']},
   {m:6,t:'Knows the regulars',b:3,f:['Marks down anything stuck on the shelf by 10% every 3 days, never below your lowest price.']},
@@ -847,7 +853,7 @@ function shop(){const S=D.shop||{},r=S.runner||{};const cg=S.cargo||[];const X=d
     ${r.stats?`<p class="sub" style="margin:0">${esc(r.stats)}</p>`:''}
     ${ME==='dm'&&X.runner?`<div class="dmbox"><span class="lbl">DM only</span><p style="margin:2px 0"><b>Why he might talk:</b> ${esc(X.runner.weak||'')}</p><p style="margin:2px 0"><b>What he knows:</b> ${esc(X.runner.knows||'')}</p></div>`:''}</section>
   <h3>Runs</h3>
-  ${runs.length?`<div class="stack" style="gap:8px">${runs.map(x=>`<article class="panel runc"><div class="row"><b style="flex:1">${esc(x.when||'')} · ${x.legs==='nest'?'The Nest':(x.legs==='both'?'The Nest, then the ':'')+(x.route==='back'?'back roads':'main road')}</b>${x.late?'<span class="badge warn">a day late</span>':''}${x.sold!=null?`<b class="n">${x.sold?'+'+fmt(x.sold)+' gp':'no sales'}</b>`:''}</div>
+  ${runs.length?`<div class="stack" style="gap:8px">${runs.map(x=>`<article class="panel runc"><div class="row"><b style="flex:1">${esc(x.when||'')} · ${x.legs==='nest'?'The Nest':(x.legs==='both'?'The Nest, then the ':'')+(x.route==='back'?'back roads':'main road')}</b>${x.late?'<span class="badge warn">a day late</span>':''}${x.sold!=null?`<b class="n">${x.sold?'+'+fmt(x.sold)+' gp'+(x.banked?' to the bank':''):'no sales'}</b>`:''}</div>
       ${(x.news||[]).length?`<ul class="jl">${x.news.map(n=>`<li>${esc(n)}</li>`).join('')}</ul>`:x.outcome?`<p style="margin:0">${esc(x.outcome)}</p>`:''}
       <p class="sub" style="margin:0">${[x.out?'Took: '+x.out:'Took nothing to sell',x.soldItems?'Sold: '+x.soldItems:'',x.nest?'Left with Orsolo: '+x.nest:'',x.lostItems?'Lost: '+x.lostItems:'',x.shelf?'Still on the shelf: '+x.shelf:'',x.pay?'Wick’s pay: '+fmt(x.pay)+' gp':''].filter(Boolean).map(esc).join(' · ')}</p></article>`).join('')}</div>`:'<p class="empty">No runs yet.</p>'}
   <h3>The shop ledger</h3>
@@ -866,25 +872,73 @@ function standing(H){const cs=(H.people||[]).filter(p=>p.tier==='captain'||p.tie
 function signetBearer(){for(const c of D.party){const e=(c.entries||[]).find(x=>/silver wolf signet/i.test(x.name||''));if(e&&!e.in&&e.active!==false)return c.id}
   for(const c of D.party){if((c.entries||[]).some(x=>/silver wolf signet/i.test(x.name||'')))return c.id}return null}
 const INVOLVE={hands:['Hands off','Business as usual: the captains run things their way and keep more for it.'],liaison:['Through Bellamy','Bellamy carries the Seven’s word to the captains and makes sure things get done.'],check:['Checking in','The Seven check in each session and weigh in on the big calls.'],run:['Running it','The Seven run the House directly, and the captains answer to them.']};
-function booksPanel(H){const fin=H.fin;if(!fin)return'';const ps=H.people||[];const caps=ps.filter(p=>p.tier==='captain');const inv=fin.involve||'hands';const sk=+((fin.skim||{})[inv])||0;
-  const ear=caps.reduce((s,p)=>s+(+p.take||0),0),skim=Math.round(ear*sk/100),crew=caps.reduce((s,p)=>s+(+p.cost||0),0);
-  const over=(fin.overhead||[]).filter(o=>!o.when||o.when===inv);const overT=over.reduce((s,o)=>s+(+o.gp||0),0);const net=ear-skim-crew-overT;
+/* The House's books. Each captain keeps a cut: the base for how involved the Seven are, 3% more for every point of
+   loyalty under 3 (3% less above it), and a point less for each point of Mabbis's loyalty over 3 (he watches the book).
+   Respect changes what a division brings in: 5% a point either side of 3. Bellamy stays out of the math. */
+function houseBooks(H){const fin=H.fin||{};const ps=H.people||[];const inv=fin.involve||'hands';const base=+((fin.skim||{})[inv])||0;
+  const mab=ps.find(p=>p.tier==='ledger');const trim=mab?Math.max(0,(+mab.loyalty||0)-3):0;
+  const caps=ps.filter(p=>p.tier==='captain').map(p=>{const L=+p.loyalty||0,R=+p.respect||0,la=(3-L)*3;const pct=Math.max(0,Math.min(90,base+la-trim));
+    const earn=Math.round((+p.take||0)*(1+(R-3)*0.05));const keep=Math.round(earn*pct/100);
+    const why=[`${base}% base`,la?`loyalty ${L}: ${la>0?'+':'−'}${Math.abs(la)}%`:`loyalty ${L}: steady`,trim?`Mabbis watching the book: −${trim}%`:''].filter(Boolean).join(' · ');
+    const rwhy=R===3?`respect ${R}: as expected`:`respect ${R}: ${R>3?'+':'−'}${Math.abs(R-3)*5}% brought in`;
+    return {p,earn,pct,keep,cost:+p.cost||0,why,rwhy}});
+  const over=(fin.overhead||[]).filter(o=>!o.when||o.when===inv);const extra=fin.extra||[];
+  const ear=caps.reduce((t,c)=>t+c.earn,0),keep=caps.reduce((t,c)=>t+c.keep,0),crew=caps.reduce((t,c)=>t+c.cost,0),overT=over.reduce((t,o)=>t+(+o.gp||0),0),extraT=extra.reduce((t,o)=>t+(+o.gp||0),0);
+  const net=ear-keep-crew-overT+extraT;const avg=ear?Math.round(keep/ear*100):base;
+  let note=[];if(mab&&(+mab.respect||0)>=3&&caps.length){const hi=caps.slice().sort((a,b)=>b.pct-a.pct)[0],lo=caps.slice().sort((a,b)=>a.pct-b.pct)[0];const fn=c=>c.p.name.replace(/\s*“.*”\s*/,' ').split(' ')[0];
+    note.push(`${fn(hi)} keeps the most of anyone, ${hi.pct}%.${(+hi.p.loyalty||0)<3?' Loyalty that thin shows up in the margins.':''}`);
+    if(lo!==hi&&lo.pct<hi.pct)note.push(`${fn(lo)} keeps the least, ${lo.pct}%.`);
+    if(trim)note.push('I read every page, so nobody takes quite as much as they’d like.');
+    if(extra.length)note.push(`Contract money this session: ${extraT<0?'−':'+'}${fmt(Math.abs(extraT))} gp.`)}
+  return {inv,base,trim,caps,over,extra,ear,keep,crew,overT,extraT,net,avg,mab,note}}
+function booksPanel(H){const fin=H.fin;if(!fin)return'';const B=houseBooks(H);const inv=B.inv;
   const M=(DMX&&DMX.market)||{};const pend=ME==='dm'?(+((M.nest||{}).pending)||0):null;const atNest=((D.shop||{}).cargo||[]).filter(x=>x.status==='atnest');
-  const INV=Object.fromEntries(Object.entries(INVOLVE).map(([k,v])=>[k,v[0].toLowerCase()]));
-  const g=v=>`${v<0?'−':'+'}${fmt(Math.abs(v))} gp`;
+  const g=v=>`${v<0?'−':'+'}${fmt(Math.abs(v))} gp`;const nm=p=>esc(p.name.replace(/\s*“.*”\s*/,' '));
   const row=(l,v,sub,cls)=>`<tr class="${cls||''}"><td>${l}${sub?`<div class="rar">${sub}</div>`:''}</td><td class="n">${v}</td></tr>`;
   return `<section class="panel stack books" style="gap:8px"><div class="row"><h3 style="flex:1">How the books add up, each session</h3><span class="badge">${esc((INVOLVE[inv]||[inv])[0])}</span></div>
     <div class="tablewrap"><table class="ledger"><tbody>
-      ${caps.map(p=>row(`${esc((p.div||'').split('·')[0].trim()||p.name)}`,g(+p.take||0),esc(p.name))).join('')}
-      ${row('<b>What the divisions bring in</b>',`<b>${g(ear)}</b>`,'','sum')}
-      ${row(`Captains keep ${sk}%`,g(-skim),`The less involved you are, the more they keep (${esc(INV[inv]||inv)}).`)}
-      ${caps.map(p=>row(`${esc(p.name.replace(/\s*“.*”\s*/,' '))}’s crews`,g(-(+p.cost||0)))).join('')}
-      ${over.map(o=>row(esc(o.name),g(-(+o.gp||0)))).join('')}
-      ${row('<b>The House’s take</b>',`<b class="${net<0?'warn':''}">${g(net)}</b>`,'','sum')}
+      ${B.caps.map(c=>row(`${esc((c.p.div||'').split('·')[0].trim()||c.p.name)}`,g(c.earn),`${nm(c.p)} · ${esc(c.rwhy)}`)).join('')}
+      ${row('<b>What the divisions bring in</b>',`<b>${g(B.ear)}</b>`,'','sum')}
+      ${B.caps.map(c=>row(`${nm(c.p)} keeps ${c.pct}%`,g(-c.keep),esc(c.why))).join('')}
+      ${B.caps.map(c=>row(`${nm(c.p)}’s crews`,g(-c.cost))).join('')}
+      ${B.over.map(o=>row(esc(o.name),g(-(+o.gp||0)))).join('')}
+      ${B.extra.map(o=>row(`Contract: ${esc(o.name)}`,g(+o.gp||0),o.once?'Paid once':`${+o.left||1} more session${(+o.left||1)===1?'':'s'}, counting this one`)).join('')}
+      ${row('<b>The House’s take</b>',`<b class="${B.net<0?'warn':''}">${g(B.net)}</b>`,'','sum')}
       ${row('Orsolo’s fence sales',ME==='dm'?g(pend):(atNest.length?'when settled':'—'),ME==='dm'?'What’s sold so far, after his cut. Players see it when you settle.':atNest.length?`${atNest.length} item${atNest.length===1?'':'s'} with Orsolo. The money comes in here when the DM settles the session.`:'Nothing with Orsolo right now.')}
-      ${ME==='dm'?row('<b>Settle session pays into Party loot</b>',`<b>${g(net+pend)}</b>`,'','sum total'):''}
+      ${ME==='dm'?row('<b>Settle session pays into Party loot</b>',`<b>${g(B.net+pend)}</b>`,'','sum total'):''}
     </tbody></table></div>
+    <p class="sub" style="margin:0">Each captain’s cut starts at ${B.base}% for how involved you are (${esc(((INVOLVE[inv]||[inv])[0]||'').toLowerCase())}). Low loyalty adds 3% a point under 3; high loyalty takes 3% off a point over 3. Respect moves what a division brings in by 5% a point either side of 3. Mabbis keeps the book: each point of his loyalty over 3 takes a point off everyone’s cut.</p>
+    ${B.note.length?`<p class="mabbis"><b style="font-style:normal">Mabbis, in the margin:</b> “${esc(B.note.join(' '))}”</p>`:''}
     <p class="sub" style="margin:0">The Vaelmar shop’s upkeep isn’t part of these books. It’s paid at the start of each session.</p></section>`}
+const CHOICE_T={sign:'Signed',leave:'Left to the captains',own:'Their own call'};
+function fxTxt(fx){if(!fx)return'no effect';const H=D.house||{};const nm=id=>((H.people||[]).find(p=>p.id===id)||{}).name||id;const o=[];
+  for(const [id,v] of Object.entries(fx.people||{}))for(const k of ['loyalty','respect','influence'])if(+v[k])o.push(`${nm(id).split(' ')[0]} ${k} ${+v[k]>0?'+':''}${+v[k]}`);
+  if(+fx.heat)o.push(`heat ${+fx.heat>0?'+':''}${+fx.heat}`);if(+fx.mood)o.push(`mood ${+fx.mood>0?'+':''}${+fx.mood}`);if(+fx.gold)o.push(`${fmt(+fx.gold)} gp once`);if(+fx.income)o.push(`${fmt(+fx.income)} gp × ${+fx.sessions||3} sessions`);return o.join(', ')||'no effect'}
+function offersPanel(H){if(!H.fin)return'';const os=H.offers||[];const can=!!ME&&ME!=='pin'&&ME!=='dm';const pool=(((DMX&&DMX.contracts)||{}).pool)||[];const pe=id=>pool.find(x=>x.id===id)||{};
+  const open=os.filter(o=>o.status==='open'),wait=os.filter(o=>o.status==='waiting'),done=os.filter(o=>o.status==='done').slice().reverse();
+  const who=id=>id==='captains'?'the captains':id==='dm'?'the DM':holderName(id);
+  const dmFx=o=>ME==='dm'?`<p class="dmnote" style="margin:0">DM · sign: ${esc(fxTxt((pe(o.id).sign||{}).fx))} · leave: ${esc(fxTxt((pe(o.id).leave||{}).fx))}${pe(o.id).dm?` · ${esc(pe(o.id).dm)}`:''}</p>`:'';
+  const resolve=o=>ME!=='dm'?'':`<div class="stack" style="gap:6px"><div class="row"><label class="field"><span class="lbl">Resolve with</span><select id="cr-as-${esc(o.id)}">${optsH([['sign','The sign effects'],['leave','The leave effects'],['none','No effect (adjust by hand)']],o.status==='waiting'?'none':'leave')}</select></label></div><label class="field"><span class="lbl">What happened (players see this)</span><textarea id="cr-res-${esc(o.id)}" rows="2"></textarea></label><div><button class="btn sm primary" data-act="dm-ct-resolve" data-id="${esc(o.id)}">Resolve</button></div></div>`;
+  const card=o=>`<div class="ctr offer"><b style="font:400 1.1rem var(--f-display)">${esc(o.title)}</b>${o.desk?`<span class="rar">${esc(o.desk)}</span>`:''}<span class="rar">Wick brought it ${esc(o.at||'')}</span><p style="margin:0">${esc(o.told||'')}</p>${dmFx(o)}
+    ${o.status==='open'?(can?(CTOWN===o.id?`<label class="field"><span class="lbl">What do you want done instead?</span><textarea id="ct-own-${esc(o.id)}" rows="3"></textarea></label><div class="row"><button class="btn sm primary" data-act="ct-own-go" data-id="${esc(o.id)}">Send it to the DM</button><button class="btn sm" data-act="ct-own-no">Cancel</button></div>`
+      :`<div class="ch"><button class="btn sm primary" data-act="ct-pick" data-v="sign" data-id="${esc(o.id)}">${esc(o.sign||'Sign it')}</button><button class="btn sm" data-act="ct-pick" data-v="leave" data-id="${esc(o.id)}">${esc(o.leave||'Leave it to the captains')}</button><button class="btn sm" data-act="ct-own" data-id="${esc(o.id)}">Make your own call…</button></div>`)
+      :(ME==='dm'?`<details><summary class="lbl">Decide it for them</summary>${resolve(o)}</details>`:''))
+    :`<p style="margin:0"><b>${esc(o.by===ME?'You':who(o.by))} made their own call:</b> ${esc(o.note||'')}</p><p class="sub" style="margin:0">Waiting on the DM to say how it goes.</p>${resolve(o)}`}</div>`;
+  return `<section class="stack" style="gap:8px"><div class="row"><h3 style="flex:1">Contracts on the table</h3>${open.length?`<span class="badge on">${open.length} waiting</span>`:''}</div>
+    <p class="sub" style="margin:0">Wick brings one or two from the House each time he comes home. Sign it, leave it to the captains, or make your own call. Anything nobody answers by the end of the session is left to the captains. How many you decide each session sets how involved the House thinks you are.</p>
+    ${open.length||wait.length?`<div class="ctrs">${open.map(card).join('')}${wait.map(card).join('')}</div>`:'<p class="empty" style="margin:0">Nothing on the table right now.</p>'}
+    ${done.length?`<details><summary class="lbl">Decided (${done.length})</summary><ul class="jl">${done.map(o=>`<li><b>${esc(o.title)}</b> <span class="badge">${esc(CHOICE_T[o.choice]||o.choice||'')}</span> <span class="sub">${esc(o.decidedAt||'')}${o.by?' · '+esc(who(o.by)):''}</span>${o.note?`<div class="sub">“${esc(o.note)}”</div>`:''}${o.result?`<div>${esc(o.result)}</div>`:''}</li>`).join('')}</ul></details>`:''}
+  </section>`}
+function dmPoolPanel(){const pool=(((DMX&&DMX.contracts)||{}).pool)||[];const ready=pool.filter(c=>c.ready!==false&&!c.used).length;const H=D.house||{};
+  const ppl=[['','(nobody)'],...(H.people||[]).filter(p=>['captain','ledger','liaison'].includes(p.tier)).map(p=>[p.id,p.name])];
+  const side=(k,l)=>`<fieldset class="panel stack" style="gap:6px"><legend class="lbl">${l}</legend><input type="text" id="np-${k}-label" placeholder="Button text, e.g. ${k==='sign'?'Sign it: Vesna’s crews take the job':'Leave it to Vesna'}"><textarea id="np-${k}-result" rows="2" placeholder="What players read after choosing"></textarea>
+    <div class="fgrid"><label class="field"><span class="lbl">Who it moves</span><select id="np-${k}-who">${optsH(ppl,'')}</select></label><label class="field"><span class="lbl">Loyalty ±</span><input type="number" id="np-${k}-loy" value="0"></label><label class="field"><span class="lbl">Respect ±</span><input type="number" id="np-${k}-res" value="0"></label><label class="field"><span class="lbl">Heat ±</span><input type="number" id="np-${k}-heat" value="0"></label><label class="field"><span class="lbl">Gold once</span><input type="number" id="np-${k}-gold" value="0"></label><label class="field"><span class="lbl">Gold a session</span><input type="number" id="np-${k}-inc" value="0"></label><label class="field"><span class="lbl">For sessions</span><input type="number" min="1" id="np-${k}-ses" value="3"></label></div></fieldset>`;
+  return `<details><summary class="lbl">Contract pool (${ready} ready of ${pool.length})</summary><div class="stack" style="gap:8px;margin-top:6px">
+    <div class="row"><button class="btn sm primary" data-act="dm-pool" data-op="deliver">Have Wick drop one off now</button><span class="sub">Otherwise he brings one or two each time he gets home.</span></div>
+    ${pool.length?`<ul class="jl">${pool.map(c=>`<li><b>${esc(c.title)}</b> <span class="badge${c.used?'':c.ready===false?' warn':' on'}">${c.used?'delivered':c.ready===false?'held back':'ready'}</span> <span class="sub">sign: ${esc(fxTxt((c.sign||{}).fx))} · leave: ${esc(fxTxt((c.leave||{}).fx))}</span>
+      <span class="row" style="gap:4px;display:inline-flex">${c.used?`<button class="btn sm" data-act="dm-pool" data-op="reuse" data-id="${esc(c.id)}">Put back in the deck</button>`:c.ready===false?`<button class="btn sm" data-act="dm-pool" data-op="ready" data-id="${esc(c.id)}">Ready</button>`:`<button class="btn sm" data-act="dm-pool" data-op="hold" data-id="${esc(c.id)}">Hold back</button>`}<button class="btn sm danger" data-act="dm-pool" data-op="delete" data-id="${esc(c.id)}">Delete</button></span></li>`).join('')}</ul>`:'<p class="sub" style="margin:0">The pool is empty. Add contracts below, or ask Claude to load the reviewed ones.</p>'}
+    <details><summary class="lbl">Add a contract to the pool</summary><div class="stack" style="gap:6px;margin-top:6px"><input type="text" id="np-title" placeholder="Title"><input type="text" id="np-desk" placeholder="Whose desk it comes from"><textarea id="np-told" rows="3" placeholder="What the players read"></textarea><input type="text" id="np-dm" placeholder="DM-only note">
+      ${side('sign','If they sign')}${side('leave','If they leave it to the captains')}<div><button class="btn sm primary" data-act="dm-pool-add">Add to the pool</button></div></div></details></div></details>`}
 function house(){const H=D.house||{};const ps=H.people||[];const X=dmx('house');const XP=X.people||{};
   const st=standing(H),band=Math.max(0,Math.min(5,Math.round(st)));
   const bar=(v,k)=>`<span class="bar5 ${v>=4?'good':v>=2?'mid':'bad'}" title="${k} ${v}">${[1,2,3,4,5].map(i=>`<span class="${i<=v?'on':''}"></span>`).join('')}</span>`;
@@ -896,7 +950,7 @@ function house(){const H=D.house||{};const ps=H.people||[];const X=dmx('house');
   const caps=ps.filter(p=>p.tier==='captain'),mid=ps.filter(p=>p.tier==='ledger'||p.tier==='liaison'),outs=ps.filter(p=>p.tier==='outside');
   const wolfId=signetBearer();const name=id=>(ps.find(p=>p.id===id)||{}).name||id;
   const fin=H.fin;let finRow='';
-  if(fin){const sk=+((fin.skim||{})[fin.involve||'hands'])||0;const ear=caps.reduce((s,p)=>s+(+p.take||0),0),skim=Math.round(ear*sk/100),cost=caps.reduce((s,p)=>s+(+p.cost||0),0)+(fin.overhead||[]).filter(o=>!o.when||o.when===(fin.involve||'hands')).reduce((s,o)=>s+(+o.gp||0),0),net=ear-skim-cost;
+  if(fin){const net=houseBooks(H).net;
     finRow=`<div class="st"><span class="lbl">The House’s books</span><b class="${net<0?'warn':''}">${net<0?'−':'+'}${fmt(Math.abs(net))} gp</b><small>a session, before Orsolo’s sales</small></div>`}
   const story=(X.policy||{}).story||[];const delivered=H.delivered||[];
   return `<div class="stack"><div><h2 style="font-size:1.6rem">${esc(H.name||'The House')}</h2><div class="sub">${esc(H.sub||'')}</div></div>
@@ -907,11 +961,12 @@ function house(){const H=D.house||{};const ps=H.people||[];const X=dmx('house');
     <p class="sub" style="margin:0">Each captain and the Ledgerkeeper score the average of their loyalty and respect, weighted by their influence.</p></section>
   ${ME==='dm'?dmHousePanel():''}
   ${(H.delivered||[]).length?`<section class="stack" style="gap:8px"><h3>Delivered to the party</h3>${H.delivered.map(x=>`<div class="ctr"><b style="font:400 1.1rem var(--f-display)">${esc(x.t)}</b>${x.at?`<span class="rar">Received ${esc(x.at)}</span>`:''}${x.letter?`<details><summary class="lbl">Read the letter</summary><div class="paper">${esc(x.letter)}</div></details>`:''}</div>`).join('')}</section>`:''}
-  <div class="strip">${H.fin?(()=>{const inv=H.fin.involve||'hands',I=INVOLVE[inv]||[inv,''],sk=+((H.fin.skim||{})[inv])||0;return `<div class="st"><span class="lbl">House policy</span><b style="font:700 1rem var(--f-body)">${esc(I[0])}</b><small>${esc(I[1])} Captains keep ${sk}%.${inv==='hands'&&H.policy&&H.policy.said?` “${esc(H.policy.said)}”`:''}</small></div>`})():''}${finRow}</div>
+  <div class="strip">${H.fin?(()=>{const inv=H.fin.involve||'hands',I=INVOLVE[inv]||[inv,''],sk=houseBooks(H).avg;return `<div class="st"><span class="lbl">House policy</span><b style="font:700 1rem var(--f-body)">${esc(I[0])}</b><small>${esc(I[1])} Captains keep about ${sk}% on average.${inv==='hands'&&H.policy&&H.policy.said?` “${esc(H.policy.said)}”`:''}</small></div>`})():''}${finRow}</div>
   <div class="org-top"><span class="lbl">The Seven</span><div class="row" style="gap:6px">${D.party.map(c=>`<span class="pchip${c.id===wolfId?' wolf':''}"${c.id===wolfId?' title="Wears the Silver Wolf Signet"':''}>${c.id===wolfId?'<span aria-hidden="true">◈ </span>':''}${esc(first(c.name))}${c.id===wolfId?'<span class="sr"> (wears the Silver Wolf Signet)</span>':''}</span>`).join('')}</div>${wolfId?'':'<p class="sub" style="margin:0">Nobody is wearing the Silver Wolf Signet right now.</p>'}<p class="sub" style="margin:0">${esc(wolfId&&wolfId===H.wolf?(H.leaderNote||''):wolfId?`${holderName(wolfId)} wears the Wolf now, so the Guild treats that word as the party’s.`:'')}</p></div>
   <div class="midrow">${mid.map(card).join('')}</div>
   <div class="caps">${caps.map(c=>`<div class="stack" style="gap:6px"><span class="divn">${esc(c.div||'')}</span>${card(c)}<div class="subs">${ps.filter(p=>p.parent===c.id).map(card).join('')}</div></div>`).join('')}</div>
   ${outs.length?`<div class="stack" style="gap:6px"><span class="lbl">Outside the House</span><div class="caps">${outs.map(card).join('')}</div></div>`:''}
+  ${offersPanel(H)}
   ${booksPanel(H)}
   ${(H.contracts||[]).length?`<h3>Contracts you’ve been read</h3><div class="ctrs">${H.contracts.map((c,ci)=>`<div class="ctr"><b style="font:400 1.1rem var(--f-display)">${esc(c.name)}</b>${c.desk?`<span class="rar">${esc(c.desk)}</span>`:''}<p style="margin:0">${esc(c.told||'')}</p><div style="border-top:1px dashed var(--line);padding-top:6px"><span class="lbl">Latest from Bellamy</span><p style="margin:2px 0 0" class="${c.update?'':'sub'}">${esc(c.update||'No news yet. Ask the DM for an update.')}</p></div>${ME==='dm'&&(X.contracts||{})[c.name]&&DMED!=='ctr:'+ci?`<p class="dmnote" style="margin:0">DM: ${esc(X.contracts[c.name])}</p>`:''}${dmContractCtl(c,ci)}</div>`).join('')}</div>`:''}
   ${ME==='dm'?`<details class="dmbox"><summary class="lbl">DM only · tensions and story</summary>
@@ -991,7 +1046,8 @@ function itemForm(h,e,isNew){const p=isNew?'na':'ie';const ask=isNew?'':((dmx(h)
     <label class="field"><span class="lbl">Uses (max)</span><input type="number" min="0" id="${p}-uses" value="${esc(e.uses??0)}"></label>
     <label class="field"><span class="lbl">Uses left</span><input type="number" min="0" id="${p}-left" value="${esc(e.left??e.uses??0)}"></label>
     <label class="field"><span class="lbl">Recharges</span><select id="${p}-reset">${optsH(RESET_O,e.reset||'')}</select></label>
-    <label class="field"><span class="lbl">Value (gp)</span><input type="number" min="0" id="${p}-value" value="${esc(e.value??'')}" placeholder="${esc(valueGuess(e))}"></label></div>
+    <label class="field"><span class="lbl">Value (gp)</span><input type="number" min="0" id="${p}-value" value="${esc(e.value??'')}" placeholder="${esc(valueGuess(e))}"></label>
+    <label class="field"><span class="lbl">Weight (lb each)</span><input type="number" min="0" step="0.05" id="${p}-weight" value="${esc(e.weight??'')}" placeholder="e.g. 3"></label></div>
     <p class="sub" style="margin:0">Value guide: plain gear uses its list price. Magic items: common 100 · uncommon 400 · rare 4,000 · very rare 40,000 · legendary 200,000.</p>
     <label class="field"><span class="lbl">What it does</span><textarea id="${p}-desc" rows="3">${esc(e.desc||'')}</textarea></label>
     <div class="row"><label class="chk"><input type="checkbox" id="${p}-attune"${e.attune?' checked':''}> Requires attunement</label><label class="chk"><input type="checkbox" id="${p}-attuned"${e.attuned?' checked':''}> Attuned</label><label class="chk"><input type="checkbox" id="${p}-active"${e.active!==false?' checked':''}> Worn or in use</label></div>
@@ -1000,7 +1056,7 @@ function itemForm(h,e,isNew){const p=isNew?'na':'ie';const ask=isNew?'':((dmx(h)
     <p class="sub" style="margin:0">Combat effects (the Encounter tab’s reminders) are kept as they are; ask Claude to add or change those.</p>
     <div class="row">${isNew?`<button class="btn primary" data-act="dm-add-save" data-h="${esc(h)}">Add</button><button class="btn" data-act="dm-close">Cancel</button>`
       :`<button class="btn primary" data-act="dm-item-save" data-h="${esc(h)}" data-e="${esc(e.id)}">Save item</button><button class="btn" data-act="dm-item-cancel">Cancel</button><span style="flex:1"></span>${IDEL===e.id?`<span class="warn">Delete ${esc(e.name)} for good?</span><button class="btn danger" data-act="dm-item-del" data-h="${esc(h)}" data-e="${esc(e.id)}">Delete</button>`:`<button class="btn danger" data-act="dm-item-askdel" data-e="${esc(e.id)}">Delete</button>`}`}</div></div>`}
-function readItem(p){const o={name:(val(p+'-name')||'').trim()||'Unnamed',kind:val(p+'-kind')||'item',rarity:val(p+'-rarity')||'',qty:num(p+'-qty')||1,uses:num(p+'-uses')||0,reset:val(p+'-reset')||'',desc:val(p+'-desc')||'',attune:!!val(p+'-attune'),attuned:!!val(p+'-attuned'),active:!!val(p+'-active'),hot:!!val(p+'-hot'),quest:!!val(p+'-quest'),plain:!!val(p+'-plain')};{const v=val(p+'-value');o.value=v===''||v==null?undefined:Math.max(0,Math.floor(+v))}o.left=Math.min(o.uses,num(p+'-left')??o.uses);return o}
+function readItem(p){const o={name:(val(p+'-name')||'').trim()||'Unnamed',kind:val(p+'-kind')||'item',rarity:val(p+'-rarity')||'',qty:num(p+'-qty')||1,uses:num(p+'-uses')||0,reset:val(p+'-reset')||'',desc:val(p+'-desc')||'',attune:!!val(p+'-attune'),attuned:!!val(p+'-attuned'),active:!!val(p+'-active'),hot:!!val(p+'-hot'),quest:!!val(p+'-quest'),plain:!!val(p+'-plain')};{const v=val(p+'-value');o.value=v===''||v==null?undefined:Math.max(0,Math.floor(+v))}{const w=val(p+'-weight');o.weight=w===''||w==null?undefined:Math.max(0,+w)}o.left=Math.min(o.uses,num(p+'-left')??o.uses);return o}
 const VALUE_BY_RARITY={common:100,uncommon:400,rare:4000,'very rare':40000,legendary:200000};
 const valueGuess=e=>{const r=(e.rarity||'').toLowerCase();return VALUE_BY_RARITY[r]?'about '+fmt(VALUE_BY_RARITY[r]):'e.g. 250'};
 function dmAddForm(h){return itemForm(h,{kind:'item',qty:1,uses:0,active:true},true)}
@@ -1049,12 +1105,13 @@ function dmContractCtl(c,i){if(ME!=='dm')return'';const X=dmx('house');
     <label class="field"><span class="lbl">DM note</span><textarea id="ct-dm" rows="2">${esc((X.contracts||{})[c.name]||'')}</textarea></label>
     <div class="row"><button class="btn sm primary" data-act="dm-ctr-save" data-i="${i}">Save contract</button><button class="btn sm" data-act="dm-close">Cancel</button></div></div>`}
 function dmHousePanel(){const H=D.house||{},X=dmx('house'),fin=H.fin||{};const story=(X.policy||{}).story||[];const del=(H.delivered||[]).map(x=>x.t);
-  const caps=(H.people||[]).filter(p=>p.tier==='captain');const sk=+((fin.skim||{})[fin.involve||'hands'])||0;const ear=caps.reduce((s,p)=>s+(+p.take||0),0),cost=caps.reduce((s,p)=>s+(+p.cost||0),0)+(fin.overhead||[]).filter(o=>!o.when||o.when===(fin.involve||'hands')).reduce((s,o)=>s+(+o.gp||0),0),net=ear-Math.round(ear*sk/100)-cost;
+  const net=houseBooks(H).net;
   return `<section class="dmbox stack"><span class="lbl">DM tools · the House</span>
     <label class="field"><span class="lbl">What’s behind the standing (players see this)</span><textarea id="hs-note" rows="3">${esc(H.standingNote||'')}</textarea></label><div><button class="btn sm primary" data-act="dm-standing">Save note</button></div>
     <div class="row"><label class="field"><span class="lbl">How involved the party is</span><select id="hs-inv" data-dmchg="involve">${optsH([['hands','Hands-off'],['liaison','Through Bellamy'],['check','Checks in each session'],['run','Runs it directly']],fin.involve||'hands')}</select></label>
       <span class="sub">The books: ${net<0?'−':'+'}${fmt(Math.abs(net))} gp a session</span><button class="btn sm primary" data-act="dm-settle" data-v="${net}">Settle this session into the stash</button></div>
     ${story.length?`<div class="stack" style="gap:6px"><span class="lbl">Story items</span>${story.map((s,i)=>`<div class="row"><b style="flex:1">${esc(s.t)}</b>${del.includes(s.t)?`<span class="badge">delivered</span><button class="btn sm" data-act="dm-undeliver" data-i="${i}">Take back</button>`:`<button class="btn sm primary" data-act="dm-deliver" data-i="${i}">Deliver to the party</button>`}</div>`).join('')}<p class="sub" style="margin:0">Delivering shows its title${story.some(s=>s.letter)?' and letter':''} on the players’ House tab. Your notes stay DM-only.</p></div>`:''}
+    ${dmPoolPanel()}
     <details><summary class="lbl">Add a contract</summary><div class="stack" style="gap:6px;margin-top:6px"><input type="text" id="nc-name" placeholder="Name"><input type="text" id="nc-desk" placeholder="Held by"><textarea id="nc-told" rows="2" placeholder="What the party was told"></textarea><div><button class="btn sm primary" data-act="dm-ctr-add">Add contract</button></div></div></details>
   </section>`}
 
@@ -1089,6 +1146,14 @@ function dmClick(a,b){
     case 'dm-item-del':dmDo(async()=>{await rawPut(h,d=>{d.entries=(d.entries||[]).filter(x=>x.id!==e&&x.in!==e);return d});IEDIT=null;IDEL=null},'Deleted');break;
     case 'dm-add-save':{const o=readItem('na');dmDo(async()=>{await rawPut(h,d=>{d.entries=[...(d.entries||[]),{id:newId(),fx:[],...o}];return d});DMED=null},o.name+' added');break}
     case 'dm-shop-n':{const k=b.dataset.k,dl=+b.dataset.d;dmDo(()=>rawPut('shop',d=>{if(k==='heat')d.heat=Math.max(0,Math.min(10,(+d.heat||0)+dl));else if(k==='stevenAdj')d.stevenAdj=(+d.stevenAdj||0)+dl;else{d.runner=d.runner||{};d.runner.loyalty=Math.max(0,Math.min(6,(+d.runner.loyalty||0)+dl))}return d}),k==='heat'?'Heat updated':k==='stevenAdj'?'Steven’s marks updated':'Loyalty updated');break}
+    case 'dm-ct-resolve':{const id=b.dataset.id;const as=val('cr-as-'+id)||'none',res=val('cr-res-'+id)||'';dmDo(async()=>{const r=await rpc('dm_contract_resolve',{pin:PIN,offer_id:id,as_choice:as,result:res});if(r!=='Settled.')throw new Error(r)},'Contract settled');break}
+    case 'dm-pool':{const op=b.dataset.op,id=b.dataset.id||null;let msg='';dmDo(async()=>{msg=await rpc('dm_contract_pool',{pin:PIN,op,cid:id,c:null});if(/wrong pin|unknown/i.test(msg))throw new Error(msg)},op==='deliver'?'Done':'Saved');setTimeout(()=>{if(op==='deliver'&&msg)toast(msg)},900);break}
+    case 'dm-pool-add':{const t=(val('np-title')||'').trim();if(!t){toast('Give it a title.',true);break}
+      const side=k=>{const who=val(`np-${k}-who`),fx={};const L=+val(`np-${k}-loy`)||0,R=+val(`np-${k}-res`)||0;if(who&&(L||R))fx.people={[who]:{...(L?{loyalty:L}:{}),...(R?{respect:R}:{})}};
+        for(const [f,id] of [['heat','heat'],['gold','gold'],['income','inc']]){const v=+val(`np-${k}-${id}`)||0;if(v)fx[f]=v}if(fx.income)fx.sessions=Math.max(1,+val(`np-${k}-ses`)||3);
+        return {label:(val(`np-${k}-label`)||'').trim()||(k==='sign'?'Sign it':'Leave it to the captains'),result:(val(`np-${k}-result`)||'').trim(),fx}};
+      const c={title:t,desk:(val('np-desk')||'').trim(),told:(val('np-told')||'').trim(),dm:(val('np-dm')||'').trim(),sign:side('sign'),leave:side('leave')};
+      dmDo(async()=>{const r=await rpc('dm_contract_pool',{pin:PIN,op:'add',cid:null,c});if(!/added/i.test(r||''))throw new Error(r)},'Added to the pool');break}
     case 'dm-sess':{const on=b.dataset.v==='1',src=b.dataset.src||'party';dmDo(async()=>{const r=await rpc('dm_shop_session',{pin:PIN,live:on,source:src});if(/wrong pin|already/i.test(r))throw new Error(r)},on?`Session started. ${fmt((D.shop||{}).upkeep||0)} gp upkeep paid from ${src==='bank'?'the Vaelmar bank. Wick carries the receipt':'Party loot'}.`:'Session ended');break}
     case 'dm-now':dmDo(async()=>{const r=await rpc('dm_shop_now',{pin:PIN});if(/wrong pin/i.test(r))throw new Error(r)},'Wick is back');break;
     case 'dm-tcancel':dmDo(async()=>{const r=await rpc('dm_shop_cancel',{pin:PIN});if(/wrong pin/i.test(r))throw new Error(r)},'Run called off');break;
@@ -1108,7 +1173,7 @@ function dmClick(a,b){
       dmDo(async()=>{await rawPut('house',d=>{d.contracts=(d.contracts||[]).map((c,j)=>j===i?{...c,status:st,desk,update:up}:c);return d});if(dn!==((dmx('house').contracts||{})[name]||''))await rawPut('house',d=>{d.contracts=d.contracts||{};d.contracts[name]=dn;return d},true);DMED=null},'Contract saved');break}
     case 'dm-ctr-add':{const name=(val('nc-name')||'').trim();if(!name)return toast('Give the contract a name.',true);dmDo(()=>rawPut('house',d=>{d.contracts=[...(d.contracts||[]),{name,status:'active',desk:val('nc-desk')||'',told:val('nc-told')||'',update:''}];return d}),'Contract added');break}
     case 'dm-standing':{const t=val('hs-note');dmDo(()=>rawPut('house',d=>{d.standingNote=t;return d}),'Saved');break}
-    case 'dm-settle':{const n=+b.dataset.v;let ns=0;dmDo(async()=>{await stashGold(n);await rawPut('house',d=>{d.log=[...(d.log||[]),{when:today(),text:`Settled the books: ${n<0?'−':'+'}${fmt(Math.abs(n))} gp`}].slice(-60);return d});try{const r=await rpc('dm_settle_nest',{pin:PIN});ns=(r&&r.gold)||0}catch(e){}},`Stash ${n<0?'−':'+'}${fmt(Math.abs(n))} gp`);setTimeout(()=>{if(ns)toast(`Orsolo’s sales: +${fmt(ns)} gp to the stash`)},1500);break}
+    case 'dm-settle':{const n=+b.dataset.v;let ns=0,cs='';dmDo(async()=>{await stashGold(n);await rawPut('house',d=>{d.log=[...(d.log||[]),{when:today(),text:`Settled the books: ${n<0?'−':'+'}${fmt(Math.abs(n))} gp`}].slice(-60);return d});try{const r=await rpc('dm_settle_nest',{pin:PIN});ns=(r&&r.gold)||0}catch(e){}try{const c=await rpc('dm_contracts_settle',{pin:PIN});if(c&&c.total)cs=`Contracts: the Seven decided ${c.decided} of ${c.total}${c.auto?` (${c.auto} left to the captains)`:''}.${c.changed?' The House now treats them as '+(INVOLVE[c.involve]||[c.involve])[0].toLowerCase()+'.':''}`}catch(e){}},`Stash ${n<0?'−':'+'}${fmt(Math.abs(n))} gp`);setTimeout(()=>{if(ns)toast(`Orsolo’s sales: +${fmt(ns)} gp to the stash`)},1500);setTimeout(()=>{if(cs)toast(cs)},3200);break}
     case 'dm-deliver':{const s=((dmx('house').policy||{}).story||[])[i];if(!s)return;dmDo(()=>rawPut('house',d=>{d.delivered=[...(d.delivered||[]).filter(x=>x.t!==s.t),{t:s.t,tie:s.tie||'',letter:s.letter||'',at:today()}];return d}),'Delivered to the party');break}
     case 'dm-undeliver':{const s=((dmx('house').policy||{}).story||[])[i];if(!s)return;dmDo(()=>rawPut('house',d=>{d.delivered=(d.delivered||[]).filter(x=>x.t!==s.t);return d}),'Taken back');break}
     case 'dm-jsave':{const o={title:val('js-title'),played:val('js-played'),world:val('js-world'),quote:val('js-quote'),summary:val('js-summary')};for(const [k] of JLIST)o[k]=fromLines(k,val('js-'+k));const dn=val('js-dm');
@@ -1270,7 +1335,12 @@ document.addEventListener('click',ev=>{
   else if(a==='s-route'){SROUTE=b.dataset.v;SCONF=false;render()}
   else if(a==='s-ask'){SCONF=true;render()}
   else if(a==='s-cancel'){SCONF=false;render()}
-  else if(a==='s-go'){SCONF=false;(async()=>{if(BUSY)return;BUSY=true;document.body.classList.add('busy');try{const r=await rpc('p_dispatch',{route:SROUTE,actor:actor()});await load();toast(r==='back'?'Wick ran the route. See how it went under Runs.':'Wick is on his way');render()}catch(e){toast(e.message||'That didn’t save. Try again.',true)}finally{BUSY=false;document.body.classList.remove('busy')}})()}
+  else if(a==='ct-pick'){const v=b.dataset.v;act('p_contract_choose',{offer_id:b.dataset.id,choice:v,note:'',actor:actor()},v==='sign'?'Signed.':'Left to the captains.')}
+  else if(a==='ct-own'){CTOWN=b.dataset.id;render()}
+  else if(a==='ct-own-no'){CTOWN=null;render()}
+  else if(a==='ct-own-go'){const id=b.dataset.id,note=(val('ct-own-'+id)||'').trim();if(!note){toast('Say what you want done.',true);return}CTOWN=null;act('p_contract_choose',{offer_id:id,choice:'own',note,actor:actor()},'Sent to the DM.')}
+  else if(a==='s-pay'){SPAY=b.dataset.v==='bank'?'bank':'carry';render()}
+  else if(a==='s-go'){SCONF=false;(async()=>{if(BUSY)return;BUSY=true;document.body.classList.add('busy');try{const r=await rpc('p_dispatch',{route:SROUTE,actor:actor(),payout:SPAY});await load();toast(r==='back'?'Wick ran the route. See how it went under Runs.':'Wick is on his way');render()}catch(e){toast(e.message||'That didn’t save. Try again.',true)}finally{BUSY=false;document.body.classList.remove('busy')}})()}
   else if(a==='s-unpack')act('p_unpack',{cargo_id:b.dataset.id,actor:actor()},'Taken back. It’s in Party loot.');
   else if(a==='show-item'){const d=document.querySelector(`details.inv[data-id="${CSS.escape(b.dataset.e)}"]`);if(d){d.open=true;d.scrollIntoView({behavior:'smooth',block:'center'});d.classList.add('flash');setTimeout(()=>d.classList.remove('flash'),1400)}}
   else if(a==='pick-item'){ev.preventDefault();PICK=PICK&&PICK.e===b.dataset.e?null:{h:b.dataset.h,e:b.dataset.e};render()}
@@ -1293,7 +1363,7 @@ window.addEventListener('hashchange',()=>{render();window.scrollTo(0,0)});
 /* keep every screen current: pick up other people's changes, and bring Wick home when he's due */
 let LASTTICK=0,LASTCOOL=0,SIG='';
 const sig=()=>JSON.stringify([D&&D.updated,(D&&D.journal.notes.length),ME==='dm'&&DMX?JSON.stringify(DMX.trip||null):''].concat(D&&D.activity[0]?[D.activity[0].created_at]:[]));
-const quiet=()=>!TCONF&&!BUSY&&!DRAG&&!PICK&&!SCONF&&!REPRICE&&!QUIET&&!VALUING&&!EDIT&&!SEND&&!IEDIT&&!DMED&&!SELLING&&!PRICING&&!(document.activeElement&&/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName));
+const quiet=()=>!TCONF&&!BUSY&&!DRAG&&!PICK&&!SCONF&&!CTOWN&&!REPRICE&&!QUIET&&!VALUING&&!EDIT&&!SEND&&!IEDIT&&!DMED&&!SELLING&&!PRICING&&!(document.activeElement&&/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName));
 async function refresh(force){if(!D||BUSY)return;try{
   await load();const T=D.shop&&D.shop.trip;const due=T&&T.phase==='out'&&Date.now()>=+new Date(T.returnAt)&&Date.now()-LASTTICK>60000,cool=!T&&(+(D.shop||{}).heat||0)>0&&Date.now()-LASTCOOL>600000;if(due||cool){if(due)LASTTICK=Date.now();else LASTCOOL=Date.now();const r=await rpc('p_tick',{});if(r!=='on the road')await load()}if(ME==='dm'&&PIN){const g=await rpc('dm_get',{pin:PIN});if(g&&!g.error)DMX=g.docs||{}}
   const n=sig();if((force||n!==SIG||(tab()==='shop'&&D.shop&&D.shop.trip))&&quiet()){SIG=n;render()}}catch(e){}}

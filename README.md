@@ -20,3 +20,11 @@ D&D Beyond is the character sheet: stats, skills, HP, attacks, spells, and anyth
 ## Selling (fix-5)
 
 `supabase/fix-5.sql` adds item values, hot and quest tags, Steven's shelf (daily buyer rolls, greed-based DCs, offers vs. the player's lowest price, markdowns and his levels), Orsolo's fence (sells at value or +15%, keeps 15%, may skim by loyalty; paid at Settle session), Wick's Nest stop, lying low, and paying a House captain to cool the heat. All rolls stay in the DM-only `market` document until Wick reports back.
+
+## Weight, coin and contracts (fix-8)
+
+- Every item has a weight in pounds (D&D Beyond's where it has one; homebrew items have estimates the DM can change in the item editor).
+- Wick carries up to 100 lb. Players can't load his pack past that.
+- Coming home, Steven's money is either carried as coin (50 coins to the pound, up to 5,000 gp, and it can be robbed) or banked in Vaelmar, with Wick bringing back a receipt.
+- The House books: each captain keeps the base cut for how involved the Seven are, plus 3% for each point of loyalty under 3 (less above). Respect moves what a division brings in by 5% a point. Each point of Mabbis's loyalty over 3 takes a point off everyone's cut. Bellamy stays out of the math.
+- Contracts come from a DM-only pool. Wick brings one or two each time he comes home. Players sign, leave it to the captains, or make their own call (the DM resolves those). Anything unanswered at Settle session is left to the captains, and how many the Seven decided sets how involved the House thinks they are.
