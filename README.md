@@ -28,3 +28,10 @@ D&D Beyond is the character sheet: stats, skills, HP, attacks, spells, and anyth
 - Coming home, Steven's money is either carried as coin (50 coins to the pound, up to 5,000 gp, and it can be robbed) or banked in Vaelmar, with Wick bringing back a receipt.
 - The House books: each captain keeps the base cut for how involved the Seven are, plus 3% for each point of loyalty under 3 (less above). Respect moves what a division brings in by 5% a point. Each point of Mabbis's loyalty over 3 takes a point off everyone's cut. Bellamy stays out of the math.
 - Contracts come from a DM-only pool. Wick brings one or two each time he comes home. Players sign, leave it to the captains, or make their own call (the DM resolves those). Anything unanswered at Settle session is left to the captains, and how many the Seven decided sets how involved the House thinks they are.
+
+## News from the House (fix-9)
+
+- Each time Wick comes home he brings word on the contracts: a small update each run, then the outcome the DM picked from a ready-made list (or wrote).
+- The DM sees each outcome's impact on the captains and anything of note before picking it, and can tell the table right away instead of waiting for Wick.
+- Bellamy is either with the party (Wick brings word and she chimes in) or at the House (the news is her report). The DM can have Wick bring word that the House wants her.
+- Item weights show next to every item, and the sell form shows how full Wick's pack will be.
