@@ -117,6 +117,7 @@ table.ledger{width:100%;border-collapse:collapse;font-size:.95rem}
 .rmap{width:100%;height:auto;max-height:360px;display:block}.rmap text{fill:var(--ink);font:600 13px var(--f-body)}.rmap .rl{font:600 11px var(--f-mono,monospace);fill:var(--ink);opacity:.75}
 .rmap .road{stroke:var(--line);stroke-width:3;fill:none}.rmap .road.on{stroke:var(--accent);stroke-width:5}.rmap .pl{fill:var(--surface);stroke:var(--ink);stroke-width:2}.rmap .pl.here{fill:var(--accent)}
 .rmap .lbg{fill:var(--surface);opacity:.85}
+.lootg{grid-template-columns:repeat(auto-fill,minmax(250px,1fr));grid-auto-rows:1fr}.lootg .lg{display:flex;flex-direction:column;gap:2px;border-top:1px dashed var(--line);padding-top:6px}.lootg ul{margin:0;padding-left:18px}.lootg .more{font-weight:700;font-size:.85rem}.lootc{grid-template-columns:repeat(auto-fill,minmax(250px,1fr))}
 .mabbis{border-left:3px solid var(--accent);padding:6px 10px;margin:0;font-style:italic}
 .ctrs{display:grid;gap:10px;grid-template-columns:repeat(auto-fill,minmax(280px,1fr))}
 .ctr{border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:10px;background:var(--surface);padding:10px 12px;display:flex;flex-direction:column;gap:6px}
@@ -408,7 +409,7 @@ const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&
 const sgn=n=>(n>=0?'+':'')+n;
 const fmt=n=>(+n||0).toLocaleString('en-US');
 const ABIL=['str','dex','con','int','wis','cha'];
-const TABS=[['sheet','Gear'],['party','Party'],['loot','Loot'],['shop','Shop'],['house','The House'],['journal','Journal'],['encounter','Encounter']];
+const TABS=[['sheet','Gear'],['loot','Party/Loot'],['shop','Shop'],['house','The House'],['journal','Journal'],['encounter','Encounter']];
 let D=null,ME=null,JSEL=null,VIEW=null,PINERR='';
 const first=s=>String(s||'').split(' ')[0];
 const isOn=e=>e.active!==false&&(!e.attune||e.attuned);
@@ -435,7 +436,7 @@ function pips(e){const m=+e.uses||0;if(!m)return'';if(m>6)return`<span class="pi
 const me=()=>D&&(ME==='dm'?{id:'dm',name:'the DM'}:D.party.find(c=>c.id===ME));
 const viewed=()=>D&&D.party.find(c=>c.id===(ME==='dm'?(VIEW||D.party[0].id):ME));
 
-function tab(){const h=(location.hash||'').slice(1);return TABS.some(t=>t[0]===h)?h:'sheet'}
+function tab(){const h=(location.hash||'').slice(1).replace(/^party$/,'loot');return TABS.some(t=>t[0]===h)?h:'sheet'}
 function gearLabel(){const c=viewed();if(!c)return'Gear';const n=first(c.name);return n+(/s$/i.test(n)?'’':'’s')+' Gear'}
 function renderTabs(){$('#tabs').innerHTML=ME&&ME!=='pin'?TABS.map(([k,l])=>`<a href="#${k}"${tab()===k?' aria-current="page"':''}>${k==='sheet'?esc(gearLabel()):k==='encounter'?'Encounter<span class="beta">beta</span>':esc(l)}</a>`).join(''):'';
   const m=ME==='pin'?null:me();$('#who').innerHTML=m?`${ME==='dm'?'Viewing as':'Playing as'} <b>${esc(m.name)}</b> · <button class="btn" style="padding:1px 8px;font-size:.82rem" data-act="switch">Switch</button>`:'Three Roads campaign'}
@@ -739,21 +740,26 @@ function itemActions(holderId,e,onSheet){
 }
 
 /* ---------- loot ---------- */
+const isGear=e=>/uncommon|rare|legendary|artifact/i.test(e.rarity||'')&&!e.quest;
+const raceCls=c=>(c.cls||'').replace(/\s*·\s*played by .*$/i,'');
 function loot(){const hs=[...D.party,...(D.stash?[D.stash]:[])];const on=hs.reduce((s,c)=>s+(+c.gold||0),0),jars=hs.reduce((s,c)=>s+(+c.jars||0),0);
   const open=LOPEN&&hs.find(c=>c.id===LOPEN);
-  const list=c=>{const it=items(c);const top=it.filter(e=>!e.in);return `<section class="panel stack${thc(c)}" style="${thv(c)}" id="lopen"><div class="row"><h2 style="flex:1">${esc(holderName(c.id))}</h2><button class="btn" data-act="lclose">Close</button></div>
+  const list=c=>{const it=items(c);const top=it.filter(e=>!e.in);return `<section class="panel stack${thc(c)}" style="${thv(c)}" id="lopen"><div class="row"><div style="flex:1;min-width:0"><h2 style="margin:0">${esc(holderName(c.id))}${PLAYERS[c.id]?` <span class="sub" style="font-size:1rem">played by ${esc(PLAYERS[c.id])}</span>`:''}</h2>${c.id!=='stash'?`<div class="sub">${esc(raceCls(c))}${c.ac!=null?` · AC ${esc(c.ac)}`:''}${(c.ddb||DDB[c.id])?` · <a href="${esc(c.ddb||DDB[c.id])}" target="_blank" rel="noopener">D&amp;D Beyond sheet</a>`:''}</div>`:''}</div><button class="btn" data-act="lclose">Close</button></div>
     ${canHandle(c.id)?`<p class="sub" style="margin:0">${c.id==='stash'?'Take something, or send it to the shop with Wick.':'Hand things to the party loot, or send them to the shop with Wick.'}</p>`:''}
     <div class="gear">${top.length?top.map(e=>`<div class="gr"><span class="n2"><b>${esc(e.name)}</b>${(+e.qty||1)>1?' ×'+esc(e.qty):''}${e.rarity?` <span class="rar">${esc(e.rarity)}</span>`:''}${lbChip(e)}</span><span class="row" style="gap:5px">${e.attune?(e.attuned?'<span class="badge">attuned</span>':'<span class="badge warn">not attuned</span>'):''}${pips(e)}</span>${e.desc||itemLine(e)?`<span class="d">${esc(itemLine(e)||e.desc)}</span>`:''}${e.container?`<span class="d"><b>Holds:</b> ${esc(it.filter(x=>x.in===e.id).map(x=>x.name).join(', ')||'nothing')}</span>`:''}${dmx(c.id).asks&&dmx(c.id).asks[e.id]?`<span class="d dmnote">DM: ${esc(dmx(c.id).asks[e.id])}</span>`:''}${ME==='dm'?`<span class="d">${dmItemBtns(c.id,e)}</span>`:''}<span class="d">${itemActions(c.id,e)}</span></div>`).join(''):'<p class="empty" style="padding:10px">Nothing here.</p>'}</div>
     ${ME==='dm'?(DMED==='add:'+c.id?dmAddForm(c.id):`<div><button class="btn sm dmb" data-act="dm-open" data-v="add:${esc(c.id)}">Add an item here</button></div>`):''}</section>`};
-  return `<div class="stack"><h2>Party loot</h2>
+  return `<div class="stack"><h2>The party and their loot</h2>
   <div class="panel row" style="gap:18px"><span><b class="n" style="font-size:1.3rem">${fmt(on)}</b> gp on hand</span><span><b class="n" style="font-size:1.3rem">${fmt(D.stash&&D.stash.bank)}</b> gp in the Vaelmar bank</span><span><b class="n" style="font-size:1.3rem">${jars}</b> ash jars</span></div>
   ${D.stash&&D.stash.purseNote?`<p class="sub" style="margin:0">${esc(D.stash.purseNote)}</p>`:''}
   ${open?list(open):''}
-  <div class="pick" style="grid-template-columns:repeat(auto-fill,minmax(260px,1fr))">${hs.map(c=>{const it=items(c).filter(e=>!e.in);const nb=it.filter(notable);
-    return `<button class="tile${LOPEN===c.id?' sel':''}${thc(c)}" style="${thv(c)}" data-act="lopen" data-id="${esc(c.id)}">${tIco(c)}<span class="top"><span class="nm"><span class="cn">${esc(holderName(c.id))}</span>${PLAYERS[c.id]?`<span class="pdiv"> | </span><span class="pn">${esc(PLAYERS[c.id])}</span>`:''}${c.id===ME?' <span class="badge">you</span>':''}</span><span class="pips">${items(c).length} items</span></span>
+  <div class="pick lootg">${hs.map(c=>{const it=items(c).filter(e=>!e.in&&(e.kind||'item')==='item');const gear=it.filter(isGear),quest=it.filter(e=>e.quest),rest=it.length-gear.length-quest.length;
+    const grp=(t,list,n)=>list.length?`<span class="lg"><span class="lbl">${t} <span class="rar">${list.length}</span></span><ul>${list.slice(0,n).map(e=>`<li><b>${esc(e.name)}</b>${e.rarity?` <span class="rar">${esc(e.rarity)}</span>`:''}</li>`).join('')}</ul>${list.length>n?`<span class="more">+ ${list.length-n} more</span>`:''}</span>`:'';
+    return `<button class="tile${LOPEN===c.id?' sel':''}${thc(c)}" style="${thv(c)}" data-act="lopen" data-id="${esc(c.id)}">${tIco(c)}<span class="top"><span class="nm"><span class="cn">${esc(holderName(c.id))}</span>${PLAYERS[c.id]?`<span class="pdiv"> | </span><span class="pn">${esc(PLAYERS[c.id])}</span>`:''}${c.id===ME?' <span class="badge">you</span>':''}</span><span class="pips">${c.id==='stash'?items(c).length+' items':'AC '+esc(c.ac??'?')}</span></span>
+    ${c.id!=='stash'?`<span class="sub">${esc(raceCls(c))}</span>`:'<span class="sub">Shared by the party</span>'}
     <span class="coins"><span class="gp">${fmt(c.gold)} gp</span><span>${+c.jars||0} ash jars</span></span>
-    ${nb.length?`<ul>${nb.map(e=>`<li><b>${esc(e.name)}</b>${e.container?` <span class="rar">holds ${items(c).filter(x=>x.in===e.id).length}</span>`:itemLine(e)?`<div class="rar">${esc(itemLine(e))}</div>`:''}</li>`).join('')}</ul>`:'<span class="empty">No magic or story items.</span>'}
-    ${it.length-nb.length>0?`<span class="rar">+ ${it.length-nb.length} common item${it.length-nb.length>1?'s':''}</span>`:''}</button>`}).join('')}</div>
+    ${grp('Magic gear',gear,4)}${grp('Quest items',quest,3)}${!gear.length&&!quest.length?'<span class="empty">No magic or quest items.</span>':''}
+    <span class="rar" style="margin-top:auto">${rest>0?`+ ${rest} other item${rest>1?'s':''}`:''}</span></button>`}).join('')}</div>
+  <h3>Companions</h3><div class="pick lootc">${COMPANIONS.map(x=>`<div class="tile comp" style="cursor:default"><span class="top"><span class="nm">${esc(x.name)}</span><span class="pips">AC ${x.ac}</span></span><span class="sub">${esc(x.cls)}</span>${x.role?`<span>${esc(x.role)}${/^Bellamy/.test(x.name)?belBadge():''}</span>`:''}<a class="sub" href="${esc(x.ddb)}" target="_blank" rel="noopener">D&amp;D Beyond sheet</a></div>`).join('')}</div>
   ${activityHTML()}</div>`}
 const ACT_L={move:'moved',send_to_shop:'sent to the shop',update_item:'updated',update_sheet:'updated their sheet',dm_put:'DM edit'};
 function activityHTML(){const a=(D.activity||[]).filter(x=>x.action!=='dm_put').slice(0,15);if(!a.length)return'';
@@ -1378,7 +1384,7 @@ function render(){renderTabs();const app=$('#app');if(!D)return;applyPage(tab())
   if(!me()){app.innerHTML=picker();return}
   const t=tab();const chips=ME==='dm'?`<div class="row" style="margin-bottom:12px">${D.party.map(c=>`<button class="btn${c.id===viewed().id?' on':''}" data-act="view" data-id="${esc(c.id)}">${esc(first(c.name))}</button>`).join('')}</div>`:'';
   const chips2=ME==='dm'&&(t==='sheet'||t==='encounter')?chips:'';
-  app.innerHTML=t==='sheet'?chips2+sheet(viewed()):t==='encounter'?chips2+encounter(viewed()):t==='party'?partyTiles():t==='loot'?loot():t==='shop'?shop():t==='house'?house():journal();}
+  app.innerHTML=t==='sheet'?chips2+sheet(viewed()):t==='encounter'?chips2+encounter(viewed()):t==='party'||t==='loot'?loot():t==='shop'?shop():t==='house'?house():journal();}
 document.addEventListener('click',ev=>{
   if(PICK&&!ev.target.closest('[data-act="pick-cancel"]')){const z=ev.target.closest('[data-drop]');if(z&&z.dataset.h===PICK.h){ev.preventDefault();doDrop(PICK.h,PICK.e,z.dataset.drop);return}}
   const b=ev.target.closest('[data-act]');if(!b)return;const a=b.dataset.act;
