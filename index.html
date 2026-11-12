@@ -742,6 +742,11 @@ function itemActions(holderId,e,onSheet){
 /* ---------- loot ---------- */
 const isGear=e=>/uncommon|rare|legendary|artifact/i.test(e.rarity||'')&&!e.quest;
 const raceCls=c=>(c.cls||'').replace(/\s*·\s*played by .*$/i,'');
+const raceClsShort=c=>raceCls(c).split(/\s*·\s*/).slice(0,2).join(' · ');
+/* where Elira is: with the party, at one of the map's places, or away */
+function eliraBadge(){const w=(((D.house||{}).companions||{}).elira||{}).where||'party';return ` <span class="badge${w==='party'?' on':''}">${w==='party'?'with the party':w==='away'?'away':'in '+esc(placeName(D.shop,w))}</span>`}
+function eliraCtl(){if(ME!=='dm')return'';const w=(((D.house||{}).companions||{}).elira||{}).where||'party';const P=mapOf(D.shop).places||{};
+  return `<label class="field"><span class="lbl">DM: Elira is</span><select id="dm-elira" data-dmchg="elira">${optsH([['party','With the party'],...Object.entries(P).map(([k,p])=>[k,'In '+p.name]),['away','Away']],w)}</select></label>`}
 function loot(){const hs=[...D.party,...(D.stash?[D.stash]:[])];const on=hs.reduce((s,c)=>s+(+c.gold||0),0),jars=hs.reduce((s,c)=>s+(+c.jars||0),0);
   const open=LOPEN&&hs.find(c=>c.id===LOPEN);
   const list=c=>{const it=items(c);const top=it.filter(e=>!e.in);return `<section class="panel stack${thc(c)}" style="${thv(c)}" id="lopen"><div class="row"><div style="flex:1;min-width:0"><h2 style="margin:0">${esc(holderName(c.id))}${PLAYERS[c.id]?` <span class="sub" style="font-size:1rem">played by ${esc(PLAYERS[c.id])}</span>`:''}</h2>${c.id!=='stash'?`<div class="sub">${esc(raceCls(c))}${c.ac!=null?` · AC ${esc(c.ac)}`:''}${(c.ddb||DDB[c.id])?` · <a href="${esc(c.ddb||DDB[c.id])}" target="_blank" rel="noopener">D&amp;D Beyond sheet</a>`:''}</div>`:''}</div><button class="btn" data-act="lclose">Close</button></div>
@@ -755,11 +760,11 @@ function loot(){const hs=[...D.party,...(D.stash?[D.stash]:[])];const on=hs.redu
   <div class="pick lootg">${hs.map(c=>{const it=items(c).filter(e=>!e.in&&(e.kind||'item')==='item');const gear=it.filter(isGear),quest=it.filter(e=>e.quest),rest=it.length-gear.length-quest.length;
     const grp=(t,list,n)=>list.length?`<span class="lg"><span class="lbl">${t} <span class="rar">${list.length}</span></span><ul>${list.slice(0,n).map(e=>`<li><b>${esc(e.name)}</b>${e.rarity?` <span class="rar">${esc(e.rarity)}</span>`:''}</li>`).join('')}</ul>${list.length>n?`<span class="more">+ ${list.length-n} more</span>`:''}</span>`:'';
     return `<button class="tile${LOPEN===c.id?' sel':''}${thc(c)}" style="${thv(c)}" data-act="lopen" data-id="${esc(c.id)}">${tIco(c)}<span class="top"><span class="nm"><span class="cn">${esc(holderName(c.id))}</span>${PLAYERS[c.id]?`<span class="pdiv"> | </span><span class="pn">${esc(PLAYERS[c.id])}</span>`:''}${c.id===ME?' <span class="badge">you</span>':''}</span><span class="pips">${c.id==='stash'?items(c).length+' items':'AC '+esc(c.ac??'?')}</span></span>
-    ${c.id!=='stash'?`<span class="sub">${esc(raceCls(c))}</span>`:'<span class="sub">Shared by the party</span>'}
+    ${c.id!=='stash'?`<span class="sub">${esc(raceClsShort(c))}</span>`:'<span class="sub">Shared by the party</span>'}
     <span class="coins"><span class="gp">${fmt(c.gold)} gp</span><span>${+c.jars||0} ash jars</span></span>
     ${grp('Magic gear',gear,4)}${grp('Quest items',quest,3)}${!gear.length&&!quest.length?'<span class="empty">No magic or quest items.</span>':''}
     <span class="rar" style="margin-top:auto">${rest>0?`+ ${rest} other item${rest>1?'s':''}`:''}</span></button>`}).join('')}</div>
-  <h3>Companions</h3><div class="pick lootc">${COMPANIONS.map(x=>`<div class="tile comp" style="cursor:default"><span class="top"><span class="nm">${esc(x.name)}</span><span class="pips">AC ${x.ac}</span></span><span class="sub">${esc(x.cls)}</span>${x.role?`<span>${esc(x.role)}${/^Bellamy/.test(x.name)?belBadge():''}</span>`:''}<a class="sub" href="${esc(x.ddb)}" target="_blank" rel="noopener">D&amp;D Beyond sheet</a></div>`).join('')}</div>
+  <h3>Companions</h3><div class="pick lootc">${COMPANIONS.map(x=>`<div class="tile comp" style="cursor:default"><span class="top"><span class="nm">${esc(x.name)}</span><span class="pips">AC ${x.ac}</span></span><span class="sub">${esc(x.cls)}</span>${/^Bellamy/.test(x.name)?`<span>${esc(x.role)}${belBadge()}</span>`:/Elira/.test(x.name)?`<span>${x.role?esc(x.role)+' ':''}${eliraBadge()}</span>${eliraCtl()}`:x.role?`<span>${esc(x.role)}</span>`:''}<a class="sub" href="${esc(x.ddb)}" target="_blank" rel="noopener">D&amp;D Beyond sheet</a></div>`).join('')}</div>
   ${activityHTML()}</div>`}
 const ACT_L={move:'moved',send_to_shop:'sent to the shop',update_item:'updated',update_sheet:'updated their sheet',dm_put:'DM edit'};
 function activityHTML(){const a=(D.activity||[]).filter(x=>x.action!=='dm_put').slice(0,15);if(!a.length)return'';
@@ -1266,6 +1271,7 @@ function dmClick(a,b){
 function dmChange(el){const k=el.dataset.dmchg;
   if(k==='rstatus')return dmDo(()=>rawPut('shop',d=>{d.runner=d.runner||{};d.runner.status=el.value;return d}),'Wick’s status updated');
   if(k==='bellamy')return dmDo(async()=>{const r=await rpc('dm_bellamy',{pin:PIN,where_now:el.value,summon:false,reason:''});if(r!=='Saved.')throw new Error(r)},'Updated');
+  if(k==='elira')return dmDo(()=>rawPut('house',d=>{d.companions={...(d.companions||{})};d.companions.elira={...(d.companions.elira||{}),where:el.value};return d}),'Updated');
   if(k==='partyAt')return dmDo(()=>rawPut('shop',d=>{d.partyAt=el.value;if(!d.map)d.map=DEF_MAP;return d}),'The party is at '+placeName(D.shop,el.value));
   if(k==='involve')return dmDo(()=>rawPut('house',d=>{d.fin=d.fin||{};d.fin.involve=el.value;return d}),'Updated');
   if(k==='upg'){const i=+el.dataset.i,v=el.value;return dmDo(async()=>{const nx=await rawPut('shop',d=>{d.upgrades=(d.upgrades||[]).map((u,j)=>j===i?{...u,status:v}:u);return d},true);await rawPut('shop',d=>{d.upgrades=(nx.upgrades||[]).filter(u=>u.status==='active'||u.status==='building');return d})},'Upgrade updated')}
