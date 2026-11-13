@@ -42,3 +42,9 @@ D&D Beyond is the character sheet: stats, skills, HP, attacks, spells, and anyth
 - Wick leaves from wherever the party is, goes to the Nest and/or Steven's shop by the shortest roads in the quicker order, and comes back to the party.
 - Any run that spends time on a road rolls for trouble, the Nest included. A quiet run on the back roads cools the heat by 1.
 - The DM sets where the party is on the Shop tab, or with "Party ended the session at" on the latest journal session. Road days and stop lengths are editable on the Shop tab.
+
+## The contract pool (fix-11)
+
+- `supabase/fix-11.sql` loads the twelve House contracts from the House Contracts Pool doc into the DM-only pool, with their sign and leave effects. People are matched by name in the House roster; repeating income runs 12 sessions.
+- What the site can't apply on its own (death rolls, the sealed jar, Wick's loyalty, extra rumors, own-call outcomes) is in each contract's DM-only note.
+- Safe to run again: contracts already in the pool are skipped.
