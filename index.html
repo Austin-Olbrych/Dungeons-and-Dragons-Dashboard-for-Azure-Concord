@@ -130,6 +130,16 @@ table.ledger{width:100%;border-collapse:collapse;font-size:.95rem}
 #guide{position:fixed;inset:0;z-index:70;background:rgba(0,0,0,.45);display:flex;justify-content:flex-end}#guide>div{background:var(--bg,var(--surface));color:var(--ink);width:min(520px,100%);height:100%;overflow:auto;padding:18px max(16px,env(safe-area-inset-right,0px)) 24px 18px;display:flex;flex-direction:column;gap:14px}
 #guide section{border-top:1px solid var(--line);padding-top:10px;display:flex;flex-direction:column;gap:6px}#guide h4{margin:0;font:400 1.2rem var(--f-display)}#guide .k{font:700 .72rem var(--f-body);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}#guide p,#guide ul{margin:0}#guide ul{padding-left:18px}
 .gbtn{font:600 .85rem var(--f-body);display:inline-flex;align-items:center;gap:6px}
+.lgr{display:grid;grid-template-columns:1fr 1fr;gap:12px}@media (max-width:700px){.lgr{grid-template-columns:1fr}}
+.lcol{border:1px solid var(--line);border-radius:10px;overflow:hidden;display:flex;flex-direction:column;min-width:0}.lcol>h4{margin:0;padding:8px 12px;font:700 .78rem var(--f-body);letter-spacing:.1em;text-transform:uppercase;display:flex;justify-content:space-between;gap:8px}
+.lcol.in>h4{background:var(--good-bg,#e3f1e8);color:var(--good)}.lcol.out>h4{background:var(--bad-bg,#f6e0dc);color:var(--bad)}
+.lrow{display:flex;justify-content:space-between;gap:10px;padding:7px 12px;border-top:1px solid var(--line)}.lrow>span:first-child{min-width:0}.lrow .rar{display:block}.lrow .n{white-space:nowrap;font:600 .95rem var(--f-num)}
+.lcol.in .n{color:var(--good)}.lcol.out .n{color:var(--bad)}.lrow.grp{font:700 .72rem var(--f-body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);background:color-mix(in srgb,var(--line) 35%,transparent);padding:4px 12px}
+.lsec .li .rar,.lnet .rar{display:block}.lnet{display:flex;justify-content:space-between;align-items:baseline;gap:10px;border:2px solid var(--line);border-radius:10px;padding:10px 14px}.lnet b.n{font:700 1.4rem var(--f-num)}.lnet .good{color:var(--good)}.lnet .bad{color:var(--bad)}
+.lbar{display:flex;height:14px;border-radius:7px;overflow:hidden;background:var(--line)}.lbar span{display:block;height:100%}
+.lkey{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:.85rem}.lkey i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px;vertical-align:-1px}
+.lsec{border-left:4px solid var(--c);padding:2px 0 2px 10px;display:flex;flex-direction:column;gap:2px}.lsec .lh{display:flex;justify-content:space-between;gap:8px;font:700 .8rem var(--f-body);letter-spacing:.08em;text-transform:uppercase;color:var(--c)}
+.lsec .li{display:flex;justify-content:space-between;gap:10px;padding:3px 0;border-top:1px dashed var(--line)}.lsec .li .n{white-space:nowrap;font:600 .92rem var(--f-num)}
 .mabbis{border-left:3px solid var(--accent);padding:6px 10px;margin:0;font-style:italic}
 .ctrs{display:grid;gap:10px;grid-template-columns:repeat(auto-fill,minmax(280px,1fr))}
 .ctr{border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:10px;background:var(--surface);padding:10px 12px;display:flex;flex-direction:column;gap:6px}
@@ -995,7 +1005,34 @@ function houseBooks(H){const fin=H.fin||{};const ps=H.people||[];const inv=fin.i
     if(trim)note.push('I read every page, so nobody takes quite as much as they’d like.');
     if(extra.length)note.push(`Contract money this session: ${extraT<0?'−':'+'}${fmt(Math.abs(extraT))} gp.`)}
   return {inv,base,trim,caps,over,extra,ear,keep,crew,overT,extraT,net,avg,mab,note}}
-function booksPanel(H){const fin=H.fin;if(!fin)return'';const B=houseBooks(H);const inv=B.inv;
+/* the House's books as two lists: what comes in and what goes out */
+function booksParts(H){const B=houseBooks(H);const nm=p=>esc(p.name.replace(/\s*“.*”\s*/,' '));const M=(DMX&&DMX.market)||{};const pend=ME==='dm'?(+((M.nest||{}).pending)||0):null;
+  const ins=[...B.caps.map(c=>({l:esc((c.p.div||'').split('·')[0].trim()||c.p.name),s:`${nm(c.p)} · ${esc(c.rwhy)}`,v:c.earn,g:'div'})),...B.extra.filter(o=>+o.gp>0).map(o=>({l:'Contract: '+esc(o.name),s:o.once?'Paid once':`${+o.left||1} more session${(+o.left||1)===1?'':'s'}`,v:+o.gp,g:'ctr'}))];
+  const outs=[...B.caps.map(c=>({l:`${nm(c.p)} keeps ${c.pct}%`,s:esc(c.why),v:c.keep,g:'cut'})),...B.caps.map(c=>({l:`${nm(c.p)}’s crews`,v:c.cost,g:'crew'})),...B.over.map(o=>({l:esc(o.name),v:+o.gp||0,g:'over'})),...B.extra.filter(o=>+o.gp<0).map(o=>({l:'Contract: '+esc(o.name),s:o.once?'Paid once':`${+o.left||1} more session${(+o.left||1)===1?'':'s'}`,v:-o.gp,g:'ctr'}))];
+  return {B,ins,outs,pend,tin:ins.reduce((t,x)=>t+x.v,0),tout:outs.reduce((t,x)=>t+x.v,0)}}
+const gp=v=>`${v<0?'−':'+'}${fmt(Math.abs(v))} gp`;
+function orsoloLine(pend){const atNest=((D.shop||{}).cargo||[]).filter(x=>x.status==='atnest');return ME==='dm'?`Orsolo’s fence sales: <b>${gp(pend)}</b> so far, paid in at Settle session.`:atNest.length?`Orsolo is selling ${atNest.length} item${atNest.length===1?'':'s'}; the money comes in at Settle session.`:''}
+function booksA(H){const P=booksParts(H),B=P.B;const G={div:'From the divisions',ctr:'From contracts',cut:'Captains’ cuts',crew:'Paying the crews',over:'Running the House'};
+  const col=(cls,title,list,tot)=>{let last=null;return `<div class="lcol ${cls}"><h4><span>${title}</span><span>${cls==='in'?'+':'−'}${fmt(tot)} gp</span></h4>${list.map(x=>{const h=x.g!==last?`<div class="lrow grp">${G[x.g]}</div>`:'';last=x.g;return h+`<div class="lrow"><span>${x.l}${x.s?`<span class="rar">${x.s}</span>`:''}</span><span class="n">${cls==='in'?'+':'−'}${fmt(x.v)}</span></div>`}).join('')}</div>`};
+  return `<section class="panel stack books" style="gap:10px"><div class="row"><h3 style="flex:1">The House’s books, each session</h3>${ib('books')}<span class="badge">${esc((INVOLVE[B.inv]||[B.inv])[0])}</span></div>
+    <div class="lgr">${col('in','Coming in',P.ins,P.tin)}${col('out','Going out',P.outs,P.tout)}</div>
+    <div class="lnet"><span><b>The House’s take</b><span class="rar">${fmt(P.tin)} in − ${fmt(P.tout)} out</span></span><b class="n ${B.net<0?'bad':'good'}">${gp(B.net)}</b></div>
+    ${orsoloLine(P.pend)?`<p class="sub" style="margin:0">${orsoloLine(P.pend)}</p>`:''}
+    ${B.note.length?`<p class="mabbis"><b style="font-style:normal">Mabbis, in the margin:</b> “${esc(B.note.join(' '))}”</p>`:''}</section>`}
+function booksB(H){const P=booksParts(H),B=P.B;const C={in:'var(--good)',cut:'#c9922e',crew:'var(--bad)',over:'#8a7fb0',ctr:'#5b8fb0'};
+  const sum=g=>P.outs.filter(x=>x.g===g).reduce((t,x)=>t+x.v,0);const groups=[['cut','Captains’ cuts'],['crew','Paying the crews'],['over','Running the House'],['ctr','Contracts']].filter(([g])=>sum(g)>0);
+  const big=Math.max(P.tin,P.tout)||1;
+  const sec=(c,title,list,sign)=>`<div class="lsec" style="--c:${c}"><div class="lh"><span>${title}</span><span>${sign}${fmt(list.reduce((t,x)=>t+x.v,0))} gp</span></div>${list.map(x=>`<div class="li"><span>${x.l}${x.s?`<span class="rar">${x.s}</span>`:''}</span><span class="n" style="color:${sign==='+'?'var(--good)':'var(--bad)'}">${sign}${fmt(x.v)}</span></div>`).join('')}</div>`;
+  return `<section class="panel stack books" style="gap:12px"><div class="row"><h3 style="flex:1">The House’s books, each session</h3>${ib('books')}<span class="badge">${esc((INVOLVE[B.inv]||[B.inv])[0])}</span></div>
+    <div class="stack" style="gap:4px"><div class="row" style="justify-content:space-between"><span class="lbl">In</span><span class="n" style="color:var(--good)">+${fmt(P.tin)} gp</span></div><div class="lbar"><span style="width:${P.tin/big*100}%;background:var(--good)"></span></div>
+      <div class="row" style="justify-content:space-between"><span class="lbl">Out</span><span class="n" style="color:var(--bad)">−${fmt(P.tout)} gp</span></div><div class="lbar">${groups.map(([g])=>`<span style="width:${sum(g)/big*100}%;background:${C[g]}"></span>`).join('')}</div>
+      <div class="lkey">${groups.map(([g,l])=>`<span><i style="background:${C[g]}"></i>${l}</span>`).join('')}</div></div>
+    ${sec(C.in,'Coming in',P.ins,'+')}
+    ${groups.map(([g,l])=>sec(C[g],l,P.outs.filter(x=>x.g===g),'−')).join('')}
+    <div class="lnet"><span><b>The House’s take</b></span><b class="n ${B.net<0?'bad':'good'}">${gp(B.net)}</b></div>
+    ${orsoloLine(P.pend)?`<p class="sub" style="margin:0">${orsoloLine(P.pend)}</p>`:''}
+    ${B.note.length?`<p class="mabbis"><b style="font-style:normal">Mabbis, in the margin:</b> “${esc(B.note.join(' '))}”</p>`:''}</section>`}
+function booksPanel(H){if(window.LEDGER_PREVIEW)return `<h2>Option A</h2>${booksA(H)}<h2>Option B</h2>${booksB(H)}`;const fin=H.fin;if(!fin)return'';const B=houseBooks(H);const inv=B.inv;
   const M=(DMX&&DMX.market)||{};const pend=ME==='dm'?(+((M.nest||{}).pending)||0):null;const atNest=((D.shop||{}).cargo||[]).filter(x=>x.status==='atnest');
   const g=v=>`${v<0?'−':'+'}${fmt(Math.abs(v))} gp`;const nm=p=>esc(p.name.replace(/\s*“.*”\s*/,' '));
   const row=(l,v,sub,cls)=>`<tr class="${cls||''}"><td>${l}${sub?`<div class="rar">${sub}</div>`:''}</td><td class="n">${v}</td></tr>`;
