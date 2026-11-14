@@ -433,7 +433,8 @@ function fxLine(f){const ak=ATK[f.a]||'';let s='';
   return [dot(s.trim()),f.n].filter(Boolean).join(' ');
 }
 function itemLine(e){const f=(e.fx||[])[0];const t=f?fxLine(f):(e.desc||'');return t.length>110?t.slice(0,108)+'…':t}
-function pips(e){const m=+e.uses||0;if(!m)return'';if(m>6)return`<span class="pips">${+e.left||0}/${m}</span>`;let s='';for(let i=0;i<m;i++)s+=`<span class="pip${i<(+e.left||0)?' on':''}"></span>`;return`<span class="pips" title="${+e.left||0} of ${m} left">${s}</span>`}
+/* uses are tracked on D&D Beyond during play, so the site no longer shows or counts them */
+function pips(e){return'';const m=+e.uses||0;if(!m)return'';if(m>6)return`<span class="pips">${+e.left||0}/${m}</span>`;let s='';for(let i=0;i<m;i++)s+=`<span class="pip${i<(+e.left||0)?' on':''}"></span>`;return`<span class="pips" title="${+e.left||0} of ${m} left">${s}</span>`}
 const me=()=>D&&(ME==='dm'?{id:'dm',name:'the DM'}:D.party.find(c=>c.id===ME));
 const viewed=()=>D&&D.party.find(c=>c.id===(ME==='dm'?(VIEW||D.party[0].id):ME));
 
@@ -611,7 +612,7 @@ function gearTab(c){const dm=dollMap(c),{m,where}=dm;const can=canHandle(c.id);c
     const ask=(dmx(c.id).asks||{})[e.id];
     return `<details class="inv${e.container?' cont':''}" data-id="${esc(e.id)}"${(OPENI[e.id]??!!e.container)?' open':''}${e.container?` data-drop="in:${esc(e.id)}" data-h="${esc(c.id)}"`:''} style="--d:${depth}">
       <summary${can?` draggable="true" data-drag="${esc(e.id)}" data-h="${esc(c.id)}"`:''}><span class="grip" aria-hidden="true">${can?'⠿':''}</span><span class="nm2"><b>${esc(e.name)}</b>${e.rarity?` <span class="rar">${esc(e.rarity)}</span>`:''}${lbChip(e)}</span><span class="row" style="gap:5px">${b.join('')}${pips(e)}</span></summary>
-      <div class="invb">${[e.rarity,lbTxt(e),e.attune?(e.attuned?'attuned':'requires attunement'):'',(+e.uses||0)>0?`${+e.left||0} of ${+e.uses} uses left${RESET_T[e.reset]?', back at '+RESET_T[e.reset]:''}`:''].filter(Boolean).length?`<p class="sub">${esc([e.rarity,lbTxt(e),e.attune?(e.attuned?'Attuned':'Requires attunement'):'',(+e.uses||0)>0?`${+e.left||0} of ${+e.uses} uses left${RESET_T[e.reset]?', back after a '+RESET_T[e.reset]:''}`:''].filter(Boolean).join(' · '))}</p>`:''}${e.desc?`<p>${esc(e.desc)}</p>`:''}${(e.fx||[]).length?`<ul class="jl">${e.fx.map(f=>`<li>${esc(fxLine(f))}</li>`).join('')}</ul>`:''}${ask?`<p class="dmnote">DM: ${esc(ask)}</p>`:''}${ME==='dm'?dmItemBtns(c.id,e):''}${itemActions(c.id,e,true)}</div>
+      <div class="invb">${[e.rarity,lbTxt(e),e.attune?(e.attuned?'attuned':'requires attunement'):'',(+e.uses||0)>0?`${+e.uses} use${+e.uses>1?'s':''}${RESET_T[e.reset]?', back at '+RESET_T[e.reset]:''}`:''].filter(Boolean).length?`<p class="sub">${esc([e.rarity,lbTxt(e),e.attune?(e.attuned?'Attuned':'Requires attunement'):'',(+e.uses||0)>0?`${+e.uses} use${+e.uses>1?'s':''}${RESET_T[e.reset]?', back after a '+RESET_T[e.reset]:''}`:''].filter(Boolean).join(' · '))}</p>`:''}${e.desc?`<p>${esc(e.desc)}</p>`:''}${(e.fx||[]).length?`<ul class="jl">${e.fx.map(f=>`<li>${esc(fxLine(f))}</li>`).join('')}</ul>`:''}${ask?`<p class="dmnote">DM: ${esc(ask)}</p>`:''}${ME==='dm'?dmItemBtns(c.id,e):''}${itemActions(c.id,e,true)}</div>
       ${e.container?`<div class="incont">${inn.length?inn.map(x=>row(x,depth+1)).join(''):`<p class="none">Empty. Drag things here to put them in the ${esc(e.name)}.</p>`}</div>`:''}</details>`};
   const top=all.filter(e=>!e.in);
   const eq=top.filter(e=>where[e.id]),bags=top.filter(e=>e.container),loose=top.filter(e=>!where[e.id]&&!e.container);
@@ -658,7 +659,7 @@ function sheet(c){
   const pending=on.filter(e=>e.attune&&!e.attuned);
   const card=e=>{const off=e.attune&&!e.attuned;return `<div class="act${off?' t-att':''}"><div class="row" style="gap:6px"><b style="flex:1">${esc(e.name)}</b>${pips(e)}</div>
     ${off?'<span class="s warn">Off until you attune to it.</span>':''}${(e.fx||[]).length?`<ul class="jl s">${e.fx.map(f=>`<li>${esc(fxLine(f))}</li>`).join('')}</ul>`:e.desc?`<span class="s">${esc(e.desc)}</span>`:''}
-    ${(+e.uses||0)>0&&can?`<div class="acts"><button class="btn sm" data-act="use" data-h="${esc(c.id)}" data-e="${esc(e.id)}" data-v="${Math.max(0,(+e.left||0)-1)}"${(+e.left||0)<=0?' disabled':''}>Use one</button>${ME==='dm'?`<button class="btn sm" data-act="use" data-h="${esc(c.id)}" data-e="${esc(e.id)}" data-v="${+e.uses}">Refill</button>`:''}${RESET_T[e.reset]?`<span class="sub">Back after a ${esc(RESET_T[e.reset])}</span>`:''}</div>`:''}</div>`};
+    </div>`};
   const feats=(c.entries||[]).filter(e=>(e.kind||'item')!=='item');
   const att=items(c).filter(e=>e.attune&&e.attuned&&e.active!==false).length;
   return `<article class="stack">
@@ -735,7 +736,6 @@ function itemActions(holderId,e,onSheet){
   else if(H&&!e.container&&wearable(e))eq=dollMap(H).where[e.id]?da('pack','Unequip'):da('auto','Equip');
   else if(H&&!e.container&&(e.fx||[]).length)eq=`<button class="btn sm" data-act="wear" data-h="${esc(holderId)}" data-e="${esc(e.id)}" data-v="${e.active===false?'1':'0'}">${e.active===false?'Turn it on':'Put it away'}</button>`;
   return `<div class="acts">${eq}${onSheet?`<button class="btn sm" data-act="pick-item" data-h="${esc(holderId)}" data-e="${esc(e.id)}">Move…</button>`:''}
-    ${(+e.uses||0)>0?`<button class="btn sm" data-act="use" data-h="${esc(holderId)}" data-e="${esc(e.id)}" data-v="${Math.max(0,(+e.left||0)-1)}"${(+e.left||0)<=0?' disabled':''}>Use one</button>${ME==='dm'?`<button class="btn sm" data-act="use" data-h="${esc(holderId)}" data-e="${esc(e.id)}" data-v="${+e.uses}">Refill</button>`:''}`:''}
     ${targets.map(t=>`<button class="btn sm" data-act="move" data-h="${esc(holderId)}" data-e="${esc(e.id)}" data-to="${esc(t)}">${t==='stash'?'To party loot':'To '+esc(holderName(t))}</button>`).join('')}
     ${e.quest?'<span class="badge">quest item: can’t be sold</span>':`<button class="btn sm" data-act="send" data-h="${esc(holderId)}" data-e="${esc(e.id)}">Sell…</button>`}</div>`;
 }
