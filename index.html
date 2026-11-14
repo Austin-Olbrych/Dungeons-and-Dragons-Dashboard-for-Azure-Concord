@@ -122,6 +122,9 @@ table.ledger{width:100%;border-collapse:collapse;font-size:.95rem}
 .ib{display:inline-grid;place-items:center;width:20px;height:20px;border-radius:50%;border:1.5px solid currentColor;background:none;color:var(--muted,inherit);font:italic 700 12px Georgia,serif;cursor:pointer;padding:0;vertical-align:middle;opacity:.75;flex:none}
 .ib:hover,.ib:focus-visible,.ib.on{opacity:1;color:var(--accent);outline:none;box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 25%,transparent)}
 .tip{border-bottom:1.5px dotted currentColor;cursor:help;position:relative}
+/* lift the card holding an open tooltip above its neighbours (the blurred cards each paint on their own layer) */
+:is(.st,.panel,.route,.capc,.lcol,.ctr,.pc,.tile,.sendbox,section,label):has(.tip:hover,.tip:focus){position:relative;z-index:45}
+.strip .st:nth-last-child(-n+2) .tip::after{left:auto;right:0}
 .tip:hover::after,.tip:focus::after{content:attr(data-tip);position:absolute;left:0;top:calc(100% + 6px);z-index:40;width:max-content;max-width:260px;white-space:normal;background:var(--ink);color:var(--surface);font:400 .85rem/1.35 var(--f-body);letter-spacing:0;text-transform:none;padding:7px 9px;border-radius:7px;box-shadow:0 6px 18px rgba(0,0,0,.25)}
 #infopop{position:absolute;z-index:60;width:min(380px,calc(100vw - 32px));background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:12px;box-shadow:0 12px 32px rgba(0,0,0,.22);padding:12px 14px;display:flex;flex-direction:column;gap:6px;font-size:.95rem}
 #infopop h4{margin:0;font:400 1.15rem var(--f-display)}#infopop p,#infopop ul{margin:0}#infopop ul{padding-left:18px}#infopop .k{font:700 .72rem var(--f-body);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
@@ -1019,20 +1022,7 @@ function booksA(H){const P=booksParts(H),B=P.B;const G={div:'From the divisions'
     <div class="lnet"><span><b>The House’s take</b><span class="rar">${fmt(P.tin)} in − ${fmt(P.tout)} out</span></span><b class="n ${B.net<0?'bad':'good'}">${gp(B.net)}</b></div>
     ${orsoloLine(P.pend)?`<p class="sub" style="margin:0">${orsoloLine(P.pend)}</p>`:''}
     ${B.note.length?`<p class="mabbis"><b style="font-style:normal">Mabbis, in the margin:</b> “${esc(B.note.join(' '))}”</p>`:''}</section>`}
-function booksB(H){const P=booksParts(H),B=P.B;const C={in:'var(--good)',cut:'#c9922e',crew:'var(--bad)',over:'#8a7fb0',ctr:'#5b8fb0'};
-  const sum=g=>P.outs.filter(x=>x.g===g).reduce((t,x)=>t+x.v,0);const groups=[['cut','Captains’ cuts'],['crew','Paying the crews'],['over','Running the House'],['ctr','Contracts']].filter(([g])=>sum(g)>0);
-  const big=Math.max(P.tin,P.tout)||1;
-  const sec=(c,title,list,sign)=>`<div class="lsec" style="--c:${c}"><div class="lh"><span>${title}</span><span>${sign}${fmt(list.reduce((t,x)=>t+x.v,0))} gp</span></div>${list.map(x=>`<div class="li"><span>${x.l}${x.s?`<span class="rar">${x.s}</span>`:''}</span><span class="n" style="color:${sign==='+'?'var(--good)':'var(--bad)'}">${sign}${fmt(x.v)}</span></div>`).join('')}</div>`;
-  return `<section class="panel stack books" style="gap:12px"><div class="row"><h3 style="flex:1">The House’s books, each session</h3>${ib('books')}<span class="badge">${esc((INVOLVE[B.inv]||[B.inv])[0])}</span></div>
-    <div class="stack" style="gap:4px"><div class="row" style="justify-content:space-between"><span class="lbl">In</span><span class="n" style="color:var(--good)">+${fmt(P.tin)} gp</span></div><div class="lbar"><span style="width:${P.tin/big*100}%;background:var(--good)"></span></div>
-      <div class="row" style="justify-content:space-between"><span class="lbl">Out</span><span class="n" style="color:var(--bad)">−${fmt(P.tout)} gp</span></div><div class="lbar">${groups.map(([g])=>`<span style="width:${sum(g)/big*100}%;background:${C[g]}"></span>`).join('')}</div>
-      <div class="lkey">${groups.map(([g,l])=>`<span><i style="background:${C[g]}"></i>${l}</span>`).join('')}</div></div>
-    ${sec(C.in,'Coming in',P.ins,'+')}
-    ${groups.map(([g,l])=>sec(C[g],l,P.outs.filter(x=>x.g===g),'−')).join('')}
-    <div class="lnet"><span><b>The House’s take</b></span><b class="n ${B.net<0?'bad':'good'}">${gp(B.net)}</b></div>
-    ${orsoloLine(P.pend)?`<p class="sub" style="margin:0">${orsoloLine(P.pend)}</p>`:''}
-    ${B.note.length?`<p class="mabbis"><b style="font-style:normal">Mabbis, in the margin:</b> “${esc(B.note.join(' '))}”</p>`:''}</section>`}
-function booksPanel(H){if(window.LEDGER_PREVIEW)return `<h2>Option A</h2>${booksA(H)}<h2>Option B</h2>${booksB(H)}`;const fin=H.fin;if(!fin)return'';const B=houseBooks(H);const inv=B.inv;
+function booksPanel(H){return booksA(H);const fin=H.fin;if(!fin)return'';const B=houseBooks(H);const inv=B.inv;
   const M=(DMX&&DMX.market)||{};const pend=ME==='dm'?(+((M.nest||{}).pending)||0):null;const atNest=((D.shop||{}).cargo||[]).filter(x=>x.status==='atnest');
   const g=v=>`${v<0?'−':'+'}${fmt(Math.abs(v))} gp`;const nm=p=>esc(p.name.replace(/\s*“.*”\s*/,' '));
   const row=(l,v,sub,cls)=>`<tr class="${cls||''}"><td>${l}${sub?`<div class="rar">${sub}</div>`:''}</td><td class="n">${v}</td></tr>`;
