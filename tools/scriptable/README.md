@@ -22,6 +22,6 @@ the site, so Wick's road roll stays secret until he's home.
 
 | Parameter | Small | Medium | Large |
 |---|---|---|---|
-| `wick` | Where he is and when he's home, or the back-road odds when he's with the party | Road strip with his stops, or main vs back road odds | Road strip, each stop, pack, money, time home |
-| `house` | This session's take | Take, in vs out, where it goes | The full ledger |
-| `steven` | His level and marks | Level and the top of his shelf | His whole shelf, Orsolo's items, last sale |
+| `wick` | Traveling: when he's back with the party and what he could bring home. With the party: where he is and his heat | Road strip, back-with-party time, potential gold; or main vs back road odds | Road strip, each stop, pack, money, time home |
+| `house` | This session's take and open contracts | Coming in vs going out, with a one-line breakdown each | The full ledger |
+| `steven` | Items for sale, what they could bring in, level in the corner | Count and potential, top 3 shelf items, level | His whole shelf, Orsolo's items, last sale, marks |

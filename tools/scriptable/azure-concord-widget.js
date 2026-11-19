@@ -13,7 +13,7 @@
 
 const SB_URL = 'https://yvdmorqaieqlduqplckm.supabase.co';
 const SB_KEY = 'sb_publishable_qW8mC2-abmbxWLUMsIwXyQ_Ar9uchsy';
-const SITE = 'https://austin-olbrych.github.io/dungeons-and-dragons-dashboard-for-azure-concord/';
+const SITE = 'https://austin-olbrych.github.io/Dungeons-and-Dragons-Dashboard-for-Azure-Concord/';
 
 let MODE = String(args.widgetParameter || 'wick').trim().toLowerCase();
 let SIZE = config.widgetFamily || 'medium';
@@ -226,68 +226,87 @@ function vstack(parent, gap = 3) { const s = parent.addStack(); s.layoutVertical
 function box(parent, bg, pad = 6) { const s = parent.addStack(); s.layoutVertically(); s.spacing = 2; s.backgroundColor = col(bg); s.cornerRadius = 6; s.setPadding(pad, pad + 2, pad, pad + 2); return s; }
 function widgetBase(bg) { const w = new ListWidget(); w.backgroundColor = col(bg); w.setPadding(12, 14, 12, 14); w.url = SITE; w.refreshAfterDate = new Date(Date.now() + 15 * 60000); return w; }
 
+// what a shelf item could sell for: its current price, or half its value for plain gear Steven buys outright
+const worth = x => x.plain && x.value != null ? Math.floor(x.value / 2) : (+(x.price ?? x.ask) || 0);
+// best case for this run: everything he's carrying to Steven, plus what's already on the shelf
+function runPotential(S) {
+  const T = S.trip, cg = S.cargo || [];
+  const going = cg.filter(x => (x.tripId === T.id || x.status === 'road') && x.dest !== 'nest');
+  const shelf = cg.filter(x => x.status === 'atshop');
+  const all = [...going, ...shelf];
+  return { gp: all.reduce((t, x) => t + worth(x), 0), n: all.length, bank: T.payout === 'bank' };
+}
+
 // ---------------------------------------------------------------- Wick
 function wickWidget(S) {
-  const heat = +S.heat || 0, T = S.trip;
+  const T = S.trip;
   if (T && T.phase === 'missing') return wickMissing(S);
-  const w = widgetBase(C.night);
-  const top = hstack(w, 6);
-  txt(top, 'WICK', head(SIZE === 'small' ? 13 : 15), C.gold);
-  if (SIZE !== 'small') { const chip = top.addStack(); chip.backgroundColor = col('#2c3a4a'); chip.cornerRadius = 3; chip.setPadding(1, 6, 1, 6);
-    txt(chip, T ? (T.dc ? `${T.route === 'back' ? 'back roads' : 'main road'} · DC ${T.dc}` : 'no road roll') : 'with the party', num(14), C.soft); }
-  top.addSpacer();
-  if (SIZE !== 'small') txt(top, 'HEAT', head(9), C.mute);
-  top.addImage(pips(heat, SIZE === 'small' ? 4 : 6, SIZE === 'small' ? 9 : 10, 2));
-  if (SIZE !== 'small') txt(top, String(heat), num(16), C.amber);
-  w.addSpacer(SIZE === 'large' ? 8 : 4);
-  return T ? wickOnRoad(w, S) : wickHome(w, S);
+  return T ? wickOnRoad(S) : wickHome(S);
 }
-function wickOnRoad(w, S) {
-  const T = S.trip, now = tripNow(S);
+function wickTop(w, S, label) {
+  const heat = +S.heat || 0, top = hstack(w, 6);
+  txt(top, 'WICK', head(SIZE === 'small' ? 13 : 14), C.gold);
+  if (label && SIZE !== 'small') txt(top, label, num(15), C.soft, { lines: 1, min: 0.7 });
+  top.addSpacer();
+  top.addImage(pips(heat, SIZE === 'small' ? 4 : 5, SIZE === 'small' ? 9 : 10, 2));
+  return top;
+}
+function wickOnRoad(S) {
+  const T = S.trip, now = tripNow(S), P = runPotential(S), w = widgetBase(C.night);
+  const label = now.phase === 'shop' ? 'at Steven’s' : now.phase === 'nest' ? 'at the Nest' : now.phase === 'back' ? 'heading home' : now.line.replace(/^To /, 'heading to ').replace('Steven’s shop', 'Steven’s');
+  wickTop(w, S, label);
   if (SIZE === 'small') {
-    const row = hstack(w, 6); row.addImage(sprite(now.phase === 'shop' ? SPR.sit : SPR.run, 3)).imageSize = new Size(48, 48);
-    w.addSpacer(4);
-    txt(w, now.line, num(20), C.ink, { lines: 1, min: 0.7 });
-    if (now.sub) txt(w, now.sub, num(14), C.soft, { lines: 1, min: 0.8 });
-    txt(w, `home ${when(T.returnAt)}`, num(14), C.mute, { lines: 1 });
+    txt(w, label.charAt(0).toUpperCase() + label.slice(1), num(17), C.soft, { lines: 1, min: 0.7 });
+    w.addSpacer(6);
+    txt(w, 'BACK WITH THE PARTY', head(8), C.mute);
+    txt(w, when(T.returnAt), num(32), C.gold, { lines: 1, min: 0.6 });
+    txt(w, until(T.returnAt), num(15), C.mute);
+    w.addSpacer();
+    if (P.gp) txt(w, `Up to ${fmt(P.gp)} gp`, num(18), C.good, { lines: 1, min: 0.7 });
     return w;
   }
-  const width = 310, img = w.addImage(roadStrip(S, width, SIZE === 'large' ? 84 : 80, true)); img.imageSize = new Size(width, SIZE === 'large' ? 84 : 80);
   w.addSpacer(4);
-  const line = hstack(w, 8); txt(line, `${now.line}${now.sub ? ' · ' + now.sub : ''}`, num(16), C.ink, { lines: 1, min: 0.7 }); line.addSpacer();
-  txt(line, `home ${when(T.returnAt).split(' ')[0]}`, num(15), C.mute);
+  const width = 310, h = SIZE === 'large' ? 80 : 44;
+  w.addImage(roadStrip(S, width, h, SIZE === 'large')).imageSize = new Size(width, h);
+  w.addSpacer(4);
+  const g = hstack(w, 8);
+  const b1 = box(g, C.panel, 5); txt(b1, 'BACK WITH THE PARTY', head(8), C.mute); txt(b1, when(T.returnAt), num(23), C.gold, { lines: 1, min: 0.6 });
+  txt(b1, `${until(T.returnAt)} · ${T.route === 'back' ? 'back roads' : 'main road'}`, num(13), C.mute, { lines: 1, min: 0.7 });
+  const b2 = box(g, C.panel, 5); txt(b2, 'COULD BRING HOME', head(8), C.mute); txt(b2, P.gp ? `${fmt(P.gp)} gp` : 'news only', num(23), C.good, { lines: 1, min: 0.6 });
+  txt(b2, P.gp ? `if all ${P.n} sell · ${P.bank ? 'to the bank' : 'as coin'}` : 'nothing to sell', num(13), C.mute, { lines: 1, min: 0.7 });
   if (SIZE === 'large') {
     w.addSpacer(8);
-    const cargo = (S.cargo || []).filter(x => x.tripId === T.id || x.status === 'road');
-    const stops = tripStops(S);
-    for (const s of stops) {
+    for (const s of tripStops(S)) {
       const done = Date.now() >= +new Date(s.at), r = hstack(w, 8);
       const what = s.k === 'party' ? 'Left ' + placeName(S, T.from || hereOf(S)) : s.k === 'nest' ? 'The Nest' : s.k === 'shop' ? 'Steven’s shop' : 'Back with the party';
       txt(r, done ? '■' : '□', num(14), done ? C.gold : C.ink); txt(r, what, num(16), done ? C.mute : C.ink, { lines: 1 }); r.addSpacer(); txt(r, when(s.at), num(15), done ? C.mute : C.ink);
     }
     w.addSpacer();
-    const foot = hstack(w, 6);
-    const lb = cargo.reduce((t, x) => t + (x.lb != null ? +x.lb : 0), 0);
-    for (const [k, v] of [['PACK', `${(T.items || []).length} items${lb ? ' · ' + Math.round(lb) + ' lb' : ''}`], ['MONEY', T.payout === 'bank' ? 'Bank receipt' : 'Carrying coin'], ['HOME', until(T.returnAt)]]) {
-      const b = box(foot, C.panel); txt(b, k, head(8), C.mute); txt(b, v, num(15), C.ink, { lines: 1, min: 0.7 });
-    }
   }
   return w;
 }
-function wickHome(w, S) {
+function wickHome(S) {
+  const w = widgetBase(C.night), heat = +S.heat || 0, drop = nextHeatDrop(S);
   const pack = (S.cargo || []).filter(x => x.status === 'pack'), toNest = pack.some(x => x.dest === 'nest'), toShop = !toNest || pack.some(x => x.dest !== 'nest');
-  const M = planRun(S, 'main', toNest, toShop), B = planRun(S, 'back', toNest, toShop), drop = nextHeatDrop(S), heat = +S.heat || 0;
+  const M = planRun(S, 'main', toNest, toShop), B = planRun(S, 'back', toNest, toShop);
   const tm = M.road ? runThr(S, 'main') * 5 : 0, tb = B.road ? runThr(S, 'back') * 5 : 0;
   if (SIZE === 'small') {
-    const row = hstack(w, 4); row.addImage(sprite(SPR.sit, 3)).imageSize = new Size(48, 48); row.addImage(sprite(SPR.fire, 3)).imageSize = new Size(24, 21);
-    txt(w, 'With the party', num(17), C.ink, { lines: 1 });
-    txt(w, `Back roads ${tb}% · ${dayTxt(B.days)}`, num(15), C.warm, { lines: 1, min: 0.7 });
-    if (drop) txt(w, `heat ${heat - 1} ${when(drop).split(' ')[0]}`, num(14), C.mute);
+    txt(w, 'WICK', head(13), C.gold);
+    w.addSpacer(6);
+    txt(w, 'WITH THE PARTY AT', head(8), C.mute);
+    txt(w, placeName(S, hereOf(S)), num(20), C.ink, { lines: 2, min: 0.7 });
+    w.addSpacer(6);
+    txt(w, 'HEAT', head(8), C.mute);
+    const r = hstack(w, 6); r.addImage(pips(heat, 7, 14, 2)); txt(r, String(heat), num(22), C.amber);
+    w.addSpacer();
+    txt(w, drop ? `Drops to ${heat - 1} ${when(drop).split(' ')[0]}` : heat ? 'Cools while he’s home' : 'The roads are quiet', num(15), C.soft, { lines: 1, min: 0.7 });
     return w;
   }
+  wickTop(w, S, 'with the party');
+  w.addSpacer(4);
   const body = hstack(w, 12); body.topAlignContent();
   const left = vstack(body, 4); const art = hstack(left, 0); art.addImage(sprite(SPR.sit, 3)).imageSize = new Size(48, 48); art.addImage(sprite(SPR.fire, 3)).imageSize = new Size(24, 21);
-  txt(left, 'With the party', num(14), C.mute); txt(left, placeName(S, hereOf(S)), num(14), C.mute, { lines: 2 });
+  txt(left, placeName(S, hereOf(S)), num(14), C.mute, { lines: 2 });
   const right = vstack(body, 6);
   const g = hstack(right, 6);
   for (const [k, p, d, c, on] of [['MAIN ROAD', tm, M.days, C.hot, false], ['BACK ROADS', tb, B.days, C.warm, true]]) {
@@ -306,7 +325,8 @@ function wickHome(w, S) {
 }
 function wickMissing(S) {
   const w = widgetBase(C.missBg), T = S.trip;
-  const top = hstack(w, 6); txt(top, 'WICK', head(13), C.red); top.addSpacer(); { const h = Math.max(0, Math.round((Date.now() - new Date(T.returnAt)) / 3600000)); txt(top, h < 36 ? `overdue ${h}h` : `overdue ${Math.floor(h / 24)}d`, num(14), '#c9a9a4'); }
+  const top = hstack(w, 6); txt(top, 'WICK', head(13), C.red); top.addSpacer();
+  { const h = Math.max(0, Math.round((Date.now() - new Date(T.returnAt)) / 3600000)); txt(top, h < 36 ? `overdue ${h}h` : `overdue ${Math.floor(h / 24)}d`, num(14), '#c9a9a4'); }
   w.addSpacer(4);
   const row = hstack(w, 10); row.addImage(sprite(SPR.sack, 4)).imageSize = new Size(44, 36); txt(row, '?', head(36), C.red);
   w.addSpacer(4);
@@ -319,34 +339,38 @@ function wickMissing(S) {
 function houseWidget(H, S) {
   const B = houseBooks(H), w = widgetBase(C.hBg), open = (H.offers || []).filter(o => o.status === 'open').length;
   const nest = (S.cargo || []).filter(x => x.status === 'atnest').length, netC = B.net < 0 ? C.bad : C.good;
-  const foot = [open ? `${open} contract${open === 1 ? '' : 's'} waiting` : '', nest ? `Orsolo is selling ${nest}` : ''].filter(Boolean).join(' · ');
-  const top = hstack(w, 6);
-  top.addImage(sprite(SPR.coins, 3)).imageSize = new Size(24, 24);
-  txt(top, SIZE === 'large' ? 'THE HOUSE’S BOOKS' : 'THE HOUSE', head(13), C.hGold, { lines: 1 }); top.addSpacer();
-  if (SIZE !== 'small') { const chip = top.addStack(); chip.backgroundColor = col(C.hPanel); chip.cornerRadius = 3; chip.setPadding(1, 6, 1, 6); txt(chip, B.inv, num(14), C.hMute); }
   if (SIZE === 'small') {
-    w.addSpacer(6); txt(w, 'This session’s take', num(14), C.hMute);
+    txt(w, 'THE HOUSE', head(13), C.hGold);
+    w.addSpacer(8);
+    txt(w, 'THIS SESSION’S TAKE', head(8), C.hMute);
     txt(w, `${sgn(B.net)} gp`, num(34), netC, { lines: 1, min: 0.6 });
-    const io = hstack(w, 4); txt(io, sgn(B.tin), num(14), C.good); txt(io, 'in ·', num(14), C.hInk); txt(io, '−' + fmt(B.tout), num(14), C.bad); txt(io, 'out', num(14), C.hInk);
-    w.addSpacer(); if (foot) txt(w, foot, num(14), C.hGold, { lines: 1, min: 0.7 });
+    w.addSpacer(10);
+    txt(w, 'OPEN CONTRACTS', head(8), C.hMute);
+    const r = hstack(w, 6); r.bottomAlignContent(); txt(r, String(open), num(34), C.hGold); txt(r, open === 1 ? 'waiting on you' : open ? 'waiting on you' : 'none right now', num(15), C.hMute);
     return w;
   }
   if (SIZE === 'medium') {
+    const top = hstack(w, 8); txt(top, 'THE HOUSE', head(13), C.hGold); top.addSpacer(); txt(top, 'take', num(15), C.hMute); txt(top, `${sgn(B.net)} gp`, num(24), netC);
+    w.addSpacer(8);
+    const divs = B.ins.filter(x => !/^Contract:/.test(x.l)), ctrIn = B.ins.filter(x => /^Contract:/.test(x.l));
+    const inParts = [`${divs.length} division${divs.length === 1 ? '' : 's'} ${fmt(divs.reduce((t, x) => t + x.v, 0))}`, ctrIn.length ? `contracts ${fmt(ctrIn.reduce((t, x) => t + x.v, 0))}` : ''].filter(Boolean).join(' · ');
+    const outParts = B.groups.map(g => `${g.s.toLowerCase().replace('house', 'House')} ${fmt(g.v)}`).join(' · ');
+    const line = (title, total, color, parts) => {
+      const s = hstack(w, 8); s.topAlignContent();
+      s.addImage(bar(3, 36, [[1, color]], color)).imageSize = new Size(3, 36);
+      const v = vstack(s, 1); const r = hstack(v, 4); txt(r, title, head(9), color); r.addSpacer(); txt(r, total, num(20), color);
+      txt(v, parts, num(15), C.hMute, { lines: 1, min: 0.6 });
+    };
+    line('COMING IN', sgn(B.tin), C.good, inParts);
     w.addSpacer(6);
-    const body = hstack(w, 14); body.topAlignContent();
-    const left = vstack(body, 2); left.size = new Size(100, 0);
-    txt(left, 'This session', num(14), C.hMute); txt(left, sgn(B.net), num(36), netC, { lines: 1, min: 0.6 }); txt(left, 'gp', num(14), C.hMute);
-    const right = vstack(body, 4);
-    const big = Math.max(B.tin, B.tout) || 1;
-    const r1 = hstack(right, 4); txt(r1, 'COMING IN', head(9), C.good); r1.addSpacer(); txt(r1, sgn(B.tin), num(16), C.good);
-    right.addImage(bar(190, 8, [[B.tin / big, C.good]], C.hPanel));
-    const r2 = hstack(right, 4); txt(r2, 'GOING OUT', head(9), C.bad); r2.addSpacer(); txt(r2, '−' + fmt(B.tout), num(16), C.bad);
-    right.addImage(bar(190, 8, B.groups.map(g => [g.v / big, g.c]), C.hPanel));
-    const legend = hstack(right, 8); for (const g of B.groups) { const it = hstack(legend, 3); it.addImage(bar(7, 7, [[1, g.c]], g.c)); txt(it, g.s, num(13), C.hInk); }
-    w.addSpacer(); if (foot) txt(w, foot, num(14), C.hGold, { lines: 1, min: 0.7 });
+    line('GOING OUT', '−' + fmt(B.tout), C.bad, outParts);
+    w.addSpacer();
     return w;
   }
-  // large: the ledger
+  const foot = [open ? `${open} contract${open === 1 ? '' : 's'} waiting` : '', nest ? `Orsolo is selling ${nest}` : ''].filter(Boolean).join(' · ');
+  const top = hstack(w, 6); top.addImage(sprite(SPR.coins, 3)).imageSize = new Size(24, 24);
+  txt(top, 'THE HOUSE’S BOOKS', head(13), C.hGold, { lines: 1 }); top.addSpacer();
+  const chip = top.addStack(); chip.backgroundColor = col(C.hPanel); chip.cornerRadius = 3; chip.setPadding(1, 6, 1, 6); txt(chip, B.inv, num(14), C.hMute);
   w.addSpacer(6);
   const section = (title, total, color, bg, rows) => {
     const s = w.addStack(); s.layoutVertically(); s.backgroundColor = col(C.hBg); s.borderColor = col(bg); s.borderWidth = 1; s.cornerRadius = 6;
@@ -363,44 +387,56 @@ function houseWidget(H, S) {
   return w;
 }
 
-// ---------------------------------------------------------------- Steven
+// ---------------------------------------------------------------- Steven: what's for sale first, his level second
 function stevenWidget(S) {
   const V = steven(S), w = widgetBase(C.sBg), cg = S.cargo || [];
   const shelf = cg.filter(x => x.status === 'atshop'), nest = cg.filter(x => x.status === 'atnest');
+  const total = shelf.reduce((t, x) => t + worth(x), 0), longest = shelf.reduce((m, x) => Math.max(m, +x.shelfDays || 0), 0);
   const last = cg.filter(x => x.status === 'sold' && x.dest !== 'nest').sort((a, b) => new Date(b.soldAt || 0) - new Date(a.soldAt || 0))[0];
-  const head2 = hstack(w, 8); head2.topAlignContent();
-  head2.addImage(sprite(SPR.steven, 3)).imageSize = new Size(48, 48);
-  const id = vstack(head2, 2);
+  const lvTxt = `Lv ${V.lv}`, bonusTxt = `${V.bonus >= 0 ? '+' : ''}${V.bonus}`;
+  const count = (stack, big) => { const r = hstack(stack, 5); r.bottomAlignContent(); txt(r, String(shelf.length), num(big), C.sInk); txt(r, 'for sale', num(16), C.sMute); };
   if (SIZE === 'small') {
-    txt(id, 'STEVEN', head(12), C.gold); txt(id, `Lv ${V.lv}`, num(34), C.sInk);
-    w.addSpacer(2);
-    txt(w, V.L.t, num(16), C.sInk, { lines: 1, min: 0.7 });
-    w.addImage(bar(130, 8, [[V.pct, C.gold]], C.sPanel));
-    txt(w, V.N ? `${V.mk} of ${V.N.m} marks to Lv ${V.lv + 1}` : `${V.mk} marks · top level`, num(13), C.sMute, { lines: 1 });
+    const top = hstack(w, 6); txt(top, 'STEVEN', head(12), C.gold); top.addSpacer(); txt(top, lvTxt, num(15), C.sMute);
+    w.addSpacer(6); count(w, 44);
+    txt(w, 'COULD BRING IN', head(8), C.sMute);
+    txt(w, `${fmt(total)} gp`, num(26), C.good, { lines: 1, min: 0.6 });
     w.addSpacer();
-    txt(w, `Market bonus ${V.bonus >= 0 ? '+' : ''}${V.bonus}${V.hp ? ` (−${V.hp} heat)` : ''}`, num(14), C.sInk, { lines: 1, min: 0.7 });
+    txt(w, shelf.length ? `longest wait: ${longest} day${longest === 1 ? '' : 's'}` : 'Nothing on the shelf', num(14), C.sMute, { lines: 1 });
     return w;
   }
-  const r = hstack(id, 8); txt(r, SIZE === 'large' ? 'STEVEN’S SHELF' : 'STEVEN', head(13), C.gold); r.addSpacer(); txt(r, `Lv ${V.lv} · bonus ${V.bonus >= 0 ? '+' : ''}${V.bonus}`, num(16), C.sInk);
-  id.addImage(bar(SIZE === 'large' ? 250 : 250, 6, [[V.pct, C.gold]], C.sPanel));
-  txt(id, V.N ? `${V.mk} of ${V.N.m} marks to Lv ${V.lv + 1}, ${V.N.t}` : 'Top level', num(13), C.sMute, { lines: 1, min: 0.7 });
+  const item = (stack, x, big) => {
+    const row = hstack(stack, 8); row.topAlignContent();
+    const l = vstack(row, 0); txt(l, x.name + ((+x.qty || 1) > 1 ? ' ×' + x.qty : ''), num(big ? 17 : 16), C.sInk, { lines: 1, min: 0.7 });
+    const bits = [x.shelfDays ? `${x.shelfDays} day${x.shelfDays === 1 ? '' : 's'}` : '', x.min != null ? `lowest ${fmt(x.min)}` : '', x.price != null && x.price !== x.ask ? `marked down from ${fmt(x.ask)}` : ''].filter(Boolean);
+    txt(l, bits.join(' · ') || ' ', num(13), C.sMute, { lines: 1, min: 0.7 });
+    row.addSpacer(); txt(row, `${fmt(worth(x))}${big ? ' gp' : ''}`, num(big ? 18 : 16), C.gold);
+  };
+  if (SIZE === 'medium') {
+    const body = hstack(w, 14); body.topAlignContent();
+    const left = vstack(body, 2); left.size = new Size(104, 0);
+    txt(left, 'STEVEN', head(12), C.gold); left.addSpacer(4); count(left, 40);
+    txt(left, 'COULD BRING IN', head(8), C.sMute); txt(left, `${fmt(total)} gp`, num(24), C.good, { lines: 1, min: 0.6 });
+    txt(left, `${lvTxt} · bonus ${bonusTxt}`, num(14), C.sMute);
+    const right = vstack(body, 4);
+    if (!shelf.length) txt(right, 'Nothing on the shelf right now.', num(16), C.sMute, { lines: 2 });
+    for (const x of shelf.slice(0, 3)) item(right, x, false);
+    if (shelf.length > 3) txt(right, `+ ${shelf.length - 3} more`, num(14), C.sMute);
+    return w;
+  }
+  const top = hstack(w, 8); txt(top, 'STEVEN’S SHELF', head(13), C.gold); top.addSpacer(); txt(top, lvTxt, num(15), C.sMute);
   w.addSpacer(6);
-  const rows = shelf.slice(0, SIZE === 'large' ? 6 : 2);
-  if (!rows.length) txt(w, 'Nothing on the shelf right now.', num(16), C.sMute);
-  for (const x of rows) {
-    const row = hstack(w, 8);
-    const l = vstack(row, 0); txt(l, x.name + ((+x.qty || 1) > 1 ? ' ×' + x.qty : ''), num(16), C.sInk, { lines: 1, min: 0.7 });
-    if (SIZE === 'large') txt(l, [x.min != null ? `lowest ${fmt(x.min)}` : '', x.price != null && x.price !== x.ask ? `marked down to ${fmt(x.price)}` : ''].filter(Boolean).join(' · ') || ' ', num(13), C.sMute, { lines: 1 });
-    row.addSpacer();
-    const rr = vstack(row, 0); txt(rr, x.ask != null ? `${fmt(x.ask)} gp` : 'no price', num(16), C.gold, { right: true });
-    if (SIZE === 'large' && x.shelfDays) txt(rr, `${x.shelfDays} day${x.shelfDays === 1 ? '' : 's'}`, num(13), C.sMute, { right: true });
-  }
-  if (shelf.length > rows.length) txt(w, `+ ${shelf.length - rows.length} more`, num(14), C.sMute);
-  if (SIZE === 'large') {
-    w.addSpacer();
-    if (nest.length) { const b = box(w, C.sPanel); txt(b, 'WITH ORSOLO AT THE NEST', head(9), C.sMute); txt(b, nest.map(x => x.name).join(', '), num(15), C.sInk, { lines: 2, min: 0.7 }); w.addSpacer(6); }
-    if (last) txt(w, `Last sale: ${last.name}, ${fmt(last.sold)} gp`, num(14), C.sMute, { lines: 1, min: 0.7 });
-  }
+  const g = hstack(w, 8);
+  const b1 = box(g, C.sPanel); txt(b1, 'FOR SALE', head(8), C.sMute); txt(b1, `${shelf.length} item${shelf.length === 1 ? '' : 's'}`, num(28), C.sInk);
+  const b2 = box(g, C.sPanel); txt(b2, 'COULD BRING IN', head(8), C.sMute); txt(b2, `${fmt(total)} gp`, num(28), C.good, { lines: 1, min: 0.6 });
+  w.addSpacer(6);
+  if (!shelf.length) txt(w, 'Nothing on the shelf right now.', num(16), C.sMute);
+  for (const x of shelf.slice(0, 5)) { item(w, x, true); w.addSpacer(3); }
+  if (shelf.length > 5) txt(w, `+ ${shelf.length - 5} more`, num(14), C.sMute);
+  w.addSpacer();
+  if (nest.length) { const b = hstack(w, 8); b.backgroundColor = col(C.sPanel); b.cornerRadius = 6; b.setPadding(5, 8, 5, 8);
+    txt(b, 'WITH ORSOLO', head(8), C.sMute); txt(b, nest.map(x => x.name).join(', '), num(16), C.sInk, { lines: 1, min: 0.7 }); b.addSpacer(); txt(b, 'paid at settle', num(14), C.sMute); w.addSpacer(6); }
+  const foot = hstack(w, 8); txt(foot, last ? `Last sale: ${last.name}, ${fmt(last.sold)} gp` : 'No sales yet', num(14), C.sMute, { lines: 1, min: 0.7 }); foot.addSpacer();
+  txt(foot, V.N ? `${V.mk}/${V.N.m} marks · ${bonusTxt}` : `${V.mk} marks · ${bonusTxt}`, num(14), C.sMute);
   return w;
 }
 
