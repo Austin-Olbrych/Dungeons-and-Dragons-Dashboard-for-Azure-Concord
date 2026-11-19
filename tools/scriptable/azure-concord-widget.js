@@ -58,6 +58,12 @@ function when(iso) {
   df.dateFormat = diff < 6 ? 'EEE h a' : 'MMM d';
   return df.string(d);
 }
+// heat drops are a week out, so always show the day and the date ("Thu Nov 26")
+function dropDay(d) {
+  if (+d <= Date.now()) return 'any day now';
+  const df = new DateFormatter(); df.dateFormat = 'EEE MMM d';
+  return df.string(d);
+}
 function until(iso) {
   const ms = new Date(iso) - Date.now();
   if (ms <= 0) return 'any time now';
@@ -292,14 +298,17 @@ function wickHome(S) {
   const tm = M.road ? runThr(S, 'main') * 5 : 0, tb = B.road ? runThr(S, 'back') * 5 : 0;
   if (SIZE === 'small') {
     txt(w, 'WICK', head(13), C.gold);
-    w.addSpacer(6);
+    w.addSpacer(4);
     txt(w, 'WITH THE PARTY AT', head(8), C.mute);
-    txt(w, placeName(S, hereOf(S)), num(20), C.ink, { lines: 2, min: 0.7 });
-    w.addSpacer(6);
+    txt(w, placeName(S, hereOf(S)), num(18), C.ink, { lines: 2, min: 0.7 });
+    w.addSpacer(4);
     txt(w, 'HEAT', head(8), C.mute);
-    const r = hstack(w, 6); r.addImage(pips(heat, 7, 14, 2)); txt(r, String(heat), num(22), C.amber);
+    const r = hstack(w, 6); r.centerAlignContent(); r.addImage(pips(heat, 7, 14, 2)); txt(r, String(heat), num(22), C.amber);
     w.addSpacer();
-    txt(w, drop ? `Drops to ${heat - 1} ${when(drop).split(' ')[0]}` : heat ? 'Cools while he’s home' : 'The roads are quiet', num(15), C.soft, { lines: 1, min: 0.7 });
+    if (drop) {
+      txt(w, `DROPS TO ${heat - 1}`, head(8), C.mute);
+      txt(w, dropDay(drop), num(17), C.soft, { lines: 1, min: 0.6 });
+    } else txt(w, heat ? 'Cools while he’s home' : 'The roads are quiet', num(15), C.soft, { lines: 1, min: 0.7 });
     return w;
   }
   wickTop(w, S, 'with the party');
@@ -313,7 +322,7 @@ function wickHome(S) {
     const b = box(g, C.panel); if (on) { b.borderColor = col(C.gold); b.borderWidth = 2; }
     txt(b, k, head(9), '#b9c6d3'); txt(b, `${p}%`, num(28), c); txt(b, `trouble · ${dayTxt(d)}`, num(14), '#e3ecf4', { lines: 1, min: 0.7 });
   }
-  const verdict = heat === 0 ? 'The roads are quiet. Good time to send him.' : tb <= 15 ? `Back roads are the safer bet.${drop ? ` Heat drops to ${heat - 1} ${when(drop).split(' ')[0]}.` : ''}` : `Heat is high.${drop ? ` It drops to ${heat - 1} ${when(drop).split(' ')[0]}.` : ''}`;
+  const verdict = heat === 0 ? 'The roads are quiet. Good time to send him.' : `${tb <= 15 ? 'Back roads are the safer bet.' : 'Heat is high.'}${drop ? ` Drops to ${heat - 1} ${dropDay(drop)}.` : ''}`;
   txt(right, verdict, num(15), C.ink, { lines: 2, min: 0.7 });
   if (SIZE === 'large') {
     right.addSpacer(6);
