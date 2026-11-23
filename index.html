@@ -156,6 +156,30 @@ table.ledger{width:100%;border-collapse:collapse;font-size:.95rem}
 .jstep small{color:var(--muted);font-size:.78rem;display:block}
 .jn{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:var(--ink);color:var(--bg);font:600 .9rem var(--f-num)}
 .jl{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:4px}
+/* handouts: thumbnails in the Journal, and a full-screen viewer */
+.hogrid{display:grid;gap:12px;grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}
+.hocell{display:flex;flex-direction:column;gap:6px;min-width:0}
+.ho{display:flex;flex-direction:column;gap:4px;text-align:left;background:none;border:0;padding:0;cursor:zoom-in;min-width:0;color:inherit;font:inherit}
+.ho .th{aspect-ratio:4/3;width:100%;border-radius:8px;border:1px solid var(--line);background:var(--surface2) center top/cover no-repeat;position:relative;overflow:hidden;transition:transform .15s ease}
+.ho:hover .th{transform:translateY(-2px)}.ho:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:8px}
+.ho .t{font-weight:700;line-height:1.2;overflow-wrap:anywhere}.ho .k{font-size:.78rem;color:var(--muted)}
+.ho.hid .th{opacity:.55}.ho .hb{position:absolute;left:6px;top:6px;font:700 .66rem var(--f-body);letter-spacing:.08em;text-transform:uppercase;padding:2px 6px;border-radius:5px;background:#7b3b5c;color:#fff}
+.hocell .dmbar{padding:4px 6px;gap:4px}.hocell .dmbar .btn.sm{padding:1px 7px;font-size:.78rem}.hocell .dmbar .rv{flex-basis:100%}
+.hoform{display:grid;gap:8px;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));align-items:end}
+.hoform .prev{grid-column:1/-1;display:flex;gap:10px;align-items:center}.hoform .prev img{width:96px;height:72px;object-fit:cover;border-radius:6px;border:1px solid var(--line)}
+.jall{display:flex;justify-content:space-between;align-items:center}
+#hview[hidden]{display:none}
+#hview{position:fixed;inset:0;z-index:60;background:#0d0c0a;color:#f3ecd9;display:grid;grid-template-rows:auto minmax(0,1fr) auto}
+#hview .vbar{display:flex;align-items:center;gap:10px;padding:calc(10px + env(safe-area-inset-top,0px)) max(14px,env(safe-area-inset-right,0px)) 10px max(14px,env(safe-area-inset-left,0px));background:#0d0c0a;position:relative;z-index:3}
+#hview .vbot{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:10px;padding:8px 14px calc(12px + env(safe-area-inset-bottom,0px));background:#0d0c0a;position:relative;z-index:3}
+#hview .vt{flex:1;min-width:0}#hview .vt b{font:400 1.2rem var(--f-display);display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}#hview .vt span{font-size:.85rem;opacity:.75}
+#hview .vb{border:1px solid rgba(243,236,217,.35);background:rgba(243,236,217,.08);color:#f3ecd9;border-radius:8px;min-width:40px;height:40px;padding:0 10px;cursor:pointer;font:600 1rem var(--f-body)}
+#hview .vb:disabled{opacity:.3;cursor:default}#hview .vb:focus-visible{outline:2px solid #d3ab50;outline-offset:2px}
+#hview .stage{position:relative;overflow:hidden;touch-action:none;cursor:grab;background:#1a1813}#hview .stage.drag{cursor:grabbing}
+#hview .stage img{position:absolute;left:50%;top:50%;transform-origin:0 0;user-select:none;-webkit-user-drag:none;max-width:none;box-shadow:0 10px 40px rgba(0,0,0,.5)}
+#hview .navl,#hview .navr{position:absolute;top:50%;transform:translateY(-50%);z-index:2;background:rgba(13,12,10,.7)}#hview .navl{left:max(10px,env(safe-area-inset-left,0px))}#hview .navr{right:max(10px,env(safe-area-inset-right,0px))}
+#hview .zl{font:600 .85rem var(--f-num);min-width:52px;text-align:center;opacity:.8}#hview .wait{position:absolute;inset:0;display:grid;place-items:center;opacity:.7}#hview .wait[hidden]{display:none}
+@media (prefers-reduced-motion:reduce){.ho .th{transition:none}}
 .jgrid{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
 .dec{border-left:3px solid var(--accent);padding:2px 0 2px 10px;display:flex;flex-direction:column}
 .tl{list-style:none;margin:0;padding:0;border-left:2px solid var(--line);display:flex;flex-direction:column;gap:8px}
@@ -427,6 +451,7 @@ body.busy{cursor:progress}body.busy .btn{pointer-events:none;opacity:.7}
 <main class="wrap" id="app"><p class="empty">Opening the ledger…</p></main>
 <div class="wrap foot" id="foot"></div>
 <div id="toast" role="status" aria-live="polite" hidden></div>
+<div id="hview" role="dialog" aria-modal="true" aria-label="Handout" hidden></div>
 <script>
 (function(){
 const $=s=>document.querySelector(s);
@@ -723,10 +748,12 @@ async function api(path,opts={}){
 const rpc=(fn,args)=>api('/rest/v1/rpc/'+fn,{method:'POST',body:JSON.stringify(args)});
 let DMX=null,PIN=null,LOPEN=null,SEND=null,EDIT=false,BUSY=false;
 async function load(){
-  const [docs,notes,act]=await Promise.all([
+  const [docs,notes,act,ho]=await Promise.all([
     api('/rest/v1/docs?select=id,kind,data,updated_at'),
     api('/rest/v1/notes?select=id,session,author,body,created_at&order=created_at.asc'),
-    api('/rest/v1/activity?select=actor,action,detail,created_at&order=id.desc&limit=40')]);
+    api('/rest/v1/activity?select=actor,action,detail,created_at&order=id.desc&limit=40'),
+    api('/rest/v1/handouts?select=id,session,title,kind,caption,sort,w,h&order=session,sort,created_at').catch(()=>null)]);
+  HO=ho||[];
   const of=k=>docs.filter(d=>d.kind===k);
   const one=k=>(of(k)[0]||{}).data||{};
   const party=of('char').map(d=>({...d.data,id:d.id,ddb:DDB[d.id]})).sort((a,b)=>(a.order??99)-(b.order??99));
@@ -794,7 +821,7 @@ function loot(){const hs=[...D.party,...(D.stash?[D.stash]:[])];const on=hs.redu
 const ACT_L={move:'moved',send_to_shop:'sent to the shop',update_item:'updated',update_sheet:'updated their sheet',dm_put:'DM edit'};
 function activityHTML(){const a=(D.activity||[]).filter(x=>x.action!=='dm_put').slice(0,15);if(!a.length)return'';
   return `<details class="panel"><summary class="lbl">Recent changes</summary><ul class="jl" style="margin-top:8px">${a.map(x=>{const d=x.detail||{};const who=x.actor==='dm'?'DM':holderName(x.actor||'');
-    const what=x.action==='move'?`moved ${d.item||'an item'} from ${holderName(d.from)} to ${holderName(d.to)}`:x.action==='send_to_shop'?`sent ${d.item||'an item'} to the shop${d.asking!=null?' asking '+fmt(d.asking)+' gp':''}`:x.action==='update_sheet'?`updated ${holderName(d.holder)}: ${Object.entries(d.change||{}).map(([k,v])=>k+' '+v).join(', ')}`:ACT_L[x.action]||x.action;
+    const what=x.action==='handout_reveal'?`shared a handout: ${d.title||''}`:x.action==='move'?`moved ${d.item||'an item'} from ${holderName(d.from)} to ${holderName(d.to)}`:x.action==='send_to_shop'?`sent ${d.item||'an item'} to the shop${d.asking!=null?' asking '+fmt(d.asking)+' gp':''}`:x.action==='update_sheet'?`updated ${holderName(d.holder)}: ${Object.entries(d.change||{}).map(([k,v])=>k+' '+v).join(', ')}`:ACT_L[x.action]||x.action;
     return `<li><b>${esc(who)}</b> ${esc(what)} <span class="rar">${esc(new Date(x.created_at).toLocaleString('en-US',{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'}))}</span></li>`}).join('')}</ul></details>`}
 
 /* ---------- guide: the i on each card, and the Guide button by each tab's title ---------- */
@@ -1130,12 +1157,15 @@ function house(){const H=D.house||{};const ps=H.people||[];const X=dmx('house');
 
 /* ---------- journal ---------- */
 function journal(){const ss=(D.journal||{}).sessions||[];if(!ss.length)return'<p class="empty">No sessions yet.</p>';if(JSEL==null||!ss[JSEL])JSEL=ss.length-1;const s=ss[JSEL];
+  const hoN=hoList().length,allBtn=hoN||ME==='dm'?`<button class="jstep jall${HOALL?' on':''}" data-act="ho-all"><b>All handouts</b><span class="sub">${hoN}</span></button>`:'';
+  if(HOALL)return `<div class="journal"><nav class="jrail">${allBtn}${ss.map((x,i)=>`<button class="jstep" style="--sc:${SESS_COL[i%SESS_COL.length]}" data-act="jsel" data-i="${i}"><span class="jn">${esc(x.num||i+1)}</span><span><b>${esc(x.title)}</b><small>${esc(hoCount(i)||[x.played,x.world].filter(Boolean).join(' · '))}</small></span></button>`).join('')}</nav>${hoGallery(ss)}</div>`;
   const notes=((D.journal||{}).notes||[]).filter(n=>+n.session===JSEL);const X=dmx('journal');
   const sec=(t,b)=>`<section class="stack" style="gap:6px"><h3>${t}</h3>${b}</section>`;
   const who=n=>n.by==='dm'?'DM':holderName(n.by);
-  return `<div class="journal"><nav class="jrail">${ss.map((x,i)=>`<button class="jstep${i===JSEL?' on':''}" style="--sc:${SESS_COL[i%SESS_COL.length]}" data-act="jsel" data-i="${i}"><span class="jn">${esc(x.num||i+1)}</span><span><b>${esc(x.title)}</b><small>${esc([x.played,x.world].filter(Boolean).join(' · '))}</small></span></button>`).join('')}</nav>
+  return `<div class="journal"><nav class="jrail">${allBtn}${ss.map((x,i)=>`<button class="jstep${i===JSEL?' on':''}" style="--sc:${SESS_COL[i%SESS_COL.length]}" data-act="jsel" data-i="${i}"><span class="jn">${esc(x.num||i+1)}</span><span><b>${esc(x.title)}</b><small>${esc([x.played,x.world].filter(Boolean).join(' · ')||hoCount(i))}</small></span></button>`).join('')}</nav>
   <article class="stack jart" style="max-width:820px;min-width:0;--sc:${SESS_COL[JSEL%SESS_COL.length]}">${ME==='dm'?dmJournalPanel(s,JSEL):''}<span class="lbl">Session ${esc(s.num||JSEL+1)}${s.at?` · ended at ${esc(placeName(D.shop,s.at))}`:''}</span><h2 class="big" style="font-size:2rem">${esc(s.title)}</h2>${s.quote?`<p class="sub" style="font-style:italic;margin:0">${esc(s.quote)}</p>`:''}
   <p style="font-size:1.08rem;line-height:1.6;margin:0">${esc(s.summary||'')}</p>
+  ${hoSection(JSEL)}
   ${sec('Highlights',`<ul class="jl">${(s.highlights||[]).map(x=>`<li>${esc(x)}</li>`).join('')}</ul>`)}
   <div class="jgrid">${sec('People you met',`<ul class="jl">${(s.people||[]).map(x=>`<li><b>${esc(x.name)}</b> <span class="sub">${esc(x.note||'')}</span></li>`).join('')}</ul>`)}${sec('Loot',`<ul class="jl">${(s.loot||[]).map(x=>`<li><b>${esc(x.item)}</b>${x.who?` <span class="sub">→ ${esc(x.who)}</span>`:''}</li>`).join('')}</ul>`)}</div>
   ${sec('Decisions',(s.decisions||[]).map(x=>`<div class="dec"><b>${esc(x.choice)}</b><span class="sub">${esc(x.result||'')}</span></div>`).join(''))}
@@ -1145,6 +1175,110 @@ function journal(){const ss=(D.journal||{}).sessions||[];if(!ss.length)return'<p
   ${sec('Notes from the table',`<div class="stack" style="gap:8px">${notes.length?`<ol class="nlog">${notes.map(n=>{const pc=D.party.find(c=>c.id===n.by);return `<li class="${pc&&themeOf(pc)?'th':'dmn'}" style="${pc?thv(pc):''}"><div class="row">${pc&&themeOf(pc)?`<svg class="nico" viewBox="0 0 100 100" aria-hidden="true">${classIcon(themeOf(pc).c)}</svg>`:''}<b style="flex:1">${esc(who(n))}</b><span class="rar">${esc(new Date(n.at).toLocaleString('en-US',{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'}))}</span>${ME==='dm'?`<button class="btn sm" data-act="delnote" data-id="${esc(n.id)}">Delete</button>`:''}</div><p style="margin:2px 0 0;white-space:pre-wrap">${esc(n.text)}</p></li>`}).join('')}</ol>`:'<p class="empty">No notes yet.</p>'}
     <div class="panel stack" style="gap:8px"><label class="field"><span class="lbl">Add a note as ${esc(ME==='dm'?'the DM':holderName(ME))}</span><textarea id="note-text" rows="3" placeholder="What do you remember, suspect, or want to follow up on?"></textarea></label><div class="row" style="justify-content:flex-end"><button class="btn primary" data-act="addnote">Add note</button></div></div></div>`)}
   </article></div>`}
+
+/* ---------- handouts: maps, letters and posters for each Journal session (view only for players) ---------- */
+// HO: handouts the players can see (details only). HODM: every handout, hidden ones too, for the DM.
+// HOT: thumbnails by id. HOI: full pictures by id, fetched when someone opens one.
+let HO=[],HODM=null,HOT={},HOI={},HOALL=false,HOADD=false,HONEW=null,HOREN=null,HODEL=null,HOV=null,HOWANT=new Set();
+const HO_KINDS=['Map','Letter','Poster','Sketch','Other'];
+const hoList=()=>ME==='dm'&&HODM?HODM:HO;
+const hoOf=i=>hoList().filter(h=>+h.session===+i);
+const hoCount=i=>{const n=hoOf(i).length;return n?`${n} handout${n===1?'':'s'}`:''};
+function hoTile(h){const dm=ME==='dm'&&HODM,ren=dm&&HOREN===h.id;
+  return `<div class="hocell"><button class="ho${h.hidden?' hid':''}" data-act="ho-open" data-id="${esc(h.id)}" aria-label="Open ${esc(h.title)}"><span class="th" data-hoid="${esc(h.id)}">${h.hidden?'<span class="hb">Hidden</span>':''}</span><span class="t">${esc(h.title)}</span><span class="k">${esc(h.kind||'')}${h.caption?' · '+esc(h.caption):''}</span></button>
+  ${!dm?'':ren?`<div class="dmbox stack" style="gap:6px"><label class="field"><span class="lbl">Title</span><input id="hr-title" value="${esc(h.title)}" maxlength="120"></label><label class="field"><span class="lbl">Kind</span><select id="hr-kind">${HO_KINDS.map(k=>`<option${k===h.kind?' selected':''}>${k}</option>`).join('')}</select></label><label class="field"><span class="lbl">Caption</span><input id="hr-cap" value="${esc(h.caption||'')}" maxlength="200"></label><div class="row"><button class="btn sm primary" data-act="ho-rsave" data-id="${esc(h.id)}">Save</button><button class="btn sm" data-act="ho-rcancel">Cancel</button></div></div>`
+  :`<div class="dmbar"><button class="btn sm rv${h.hidden?' primary':''}" data-act="ho-vis" data-id="${esc(h.id)}">${h.hidden?'Reveal to players':'Hide'}</button><button class="btn sm" data-act="ho-ren" data-id="${esc(h.id)}">Edit</button><button class="btn sm" data-act="ho-move" data-d="-1" data-id="${esc(h.id)}" aria-label="Move earlier">←</button><button class="btn sm" data-act="ho-move" data-d="1" data-id="${esc(h.id)}" aria-label="Move later">→</button><button class="btn sm" data-act="ho-del" data-id="${esc(h.id)}">${HODEL===h.id?'Sure? Click again':'Remove'}</button></div>`}</div>`}
+function hoForm(){if(!HOADD)return '';const n=HONEW;
+  return `<div class="dmbox stack" style="gap:8px"><span class="lbl">Add a handout to this session</span><div class="hoform">
+    <label class="field"><span class="lbl">Picture</span><input type="file" id="ho-file" accept="image/*"></label>
+    <label class="field"><span class="lbl">Title</span><input id="ho-title" maxlength="120" placeholder="Map of the Sunken Vault" value="${esc(n&&n.name||'')}"></label>
+    <label class="field"><span class="lbl">Kind</span><select id="ho-kind">${HO_KINDS.map(k=>`<option>${k}</option>`).join('')}</select></label>
+    <label class="field"><span class="lbl">Caption (optional)</span><input id="ho-cap" maxlength="200" placeholder="Found under the church"></label>
+    <label class="field"><span class="lbl">Who sees it</span><select id="ho-vis"><option value="1">Hidden until I reveal it</option><option value="0">The players, now</option></select></label>
+    <div class="prev" id="ho-prev">${n?`<img src="${n.thumb}" alt=""><span class="sub">${n.w} × ${n.h} px · ${Math.round(n.img.length*3/4/1024)} KB</span>`:'<span class="sub">Pick a picture. PDFs need to be saved as an image first. Big pictures are shrunk before they’re saved.</span>'}</div></div>
+    <div class="row"><button class="btn primary" data-act="ho-save"${n?'':' disabled'}>Save handout</button><button class="btn" data-act="ho-add">Cancel</button></div></div>`}
+function hoSection(i){const list=hoOf(i),dm=ME==='dm'&&HODM;if(!list.length&&!dm)return '';
+  return `<section class="stack" style="gap:8px"><div class="row"><h3 style="flex:1">Handouts</h3>${dm&&!HOADD?`<button class="btn sm dmb" data-act="ho-add">Add handout</button>`:''}</div>${dm?hoForm():''}
+  ${list.length?`<div class="hogrid">${list.map(hoTile).join('')}</div>`:dm?'<p class="sub" style="margin:0">No handouts for this session yet.</p>':''}</section>`}
+function hoGallery(ss){const groups=ss.map((s,i)=>({s,i,l:hoOf(i)})).filter(g=>g.l.length).reverse();
+  return `<article class="stack jart" style="max-width:820px;min-width:0;--sc:var(--ink)"><span class="lbl">Every session</span><h2 class="big" style="font-size:2rem">All handouts</h2><p class="sub" style="margin:0">Every map and letter the party has been given, newest session first.</p>
+  ${groups.length?groups.map(g=>`<section class="stack" style="gap:8px;border-top:1px solid var(--line);padding-top:12px;--sc:${SESS_COL[g.i%SESS_COL.length]}"><h3 style="color:var(--sc)">Session ${esc(g.s.num||g.i+1)} · ${esc(g.s.title)}</h3><div class="hogrid">${g.l.map(hoTile).join('')}</div></section>`).join(''):'<p class="empty">No handouts yet.</p>'}</article>`}
+// Paint thumbnails we already have, and fetch the rest in one request.
+function hoThumbs(){const paint=()=>document.querySelectorAll('.th[data-hoid]').forEach(el=>{const t=HOT[el.dataset.hoid];if(t&&el.dataset.done!=='1'){el.style.backgroundImage=`url("${t}")`;el.dataset.done='1'}});
+  paint();const miss=[...document.querySelectorAll('.th[data-hoid]')].map(el=>el.dataset.hoid).filter(id=>!HOT[id]&&!HOWANT.has(id));if(!miss.length)return;
+  miss.forEach(id=>HOWANT.add(id));
+  api(`/rest/v1/handouts?select=id,thumb&id=in.(${miss.map(encodeURIComponent).join(',')})`).then(r=>{(r||[]).forEach(x=>HOT[x.id]=x.thumb);paint()}).catch(()=>{}).finally(()=>miss.forEach(id=>HOWANT.delete(id)))}
+async function hoDmLoad(){if(ME!=='dm'||!PIN)return;try{const r=await rpc('dm_handouts',{pin:PIN});if(Array.isArray(r)){r.forEach(h=>{HOT[h.id]=h.thumb;delete h.thumb});HODM=r}}catch(e){HODM=HODM||[]}}
+async function hoDo(fn,args,msg){if(BUSY)return;BUSY=true;document.body.classList.add('busy');
+  try{const r=await rpc(fn,{pin:PIN,...args});if(typeof r==='string'&&/wrong pin/i.test(r))throw new Error(r);await hoDmLoad();await load();toast(typeof r==='string'?r:msg||'Saved');return true}
+  catch(e){toast(/too large|payload|413/i.test(e.message||'')?'That picture is too big to save. Try a smaller one.':(e.message||'That didn’t save.'),true);return false}
+  finally{BUSY=false;document.body.classList.remove('busy');render()}}
+// Shrink a picture in the browser: the full one to at most 2400 px on its long side, the thumbnail to 480 px.
+async function hoShrink(file){
+  const src=await new Promise((ok,bad)=>{const u=URL.createObjectURL(file),im=new Image();im.onload=()=>ok(im);im.onerror=()=>bad(new Error('That file couldn’t be opened as a picture.'));im.src=u});
+  const W=src.naturalWidth,H=src.naturalHeight;
+  const draw=(max,type,q)=>{const k=Math.min(1,max/Math.max(W,H)),c=document.createElement('canvas');c.width=Math.round(W*k);c.height=Math.round(H*k);const g=c.getContext('2d');g.fillStyle='#fff';g.fillRect(0,0,c.width,c.height);g.drawImage(src,0,0,c.width,c.height);const d=c.toDataURL(type,q);return{d,w:c.width,h:c.height}};
+  const enc=(max,q)=>{let r=draw(max,'image/webp',q);if(!r.d.startsWith('data:image/webp'))r=draw(max,'image/jpeg',q);return r};
+  let full=enc(2400,.82);if(full.d.length>3500000)full=enc(1800,.72);if(full.d.length>3500000)full=enc(1400,.66);
+  const th=draw(480,'image/jpeg',.72);URL.revokeObjectURL(src.src);
+  return{img:full.d,w:full.w,h:full.h,thumb:th.d}}
+document.addEventListener('change',async ev=>{if(ev.target.id!=='ho-file')return;const f=ev.target.files&&ev.target.files[0];if(!f)return;
+  if(/pdf/i.test(f.type)||/\.pdf$/i.test(f.name)){toast('Save the PDF page as an image first (PNG or JPG), then pick that.',true);ev.target.value='';return}
+  const p=$('#ho-prev');if(p)p.innerHTML='<span class="sub">Shrinking the picture…</span>';
+  try{const r=await hoShrink(f);const t=$('#ho-title');HONEW={...r,name:(t&&t.value.trim())||f.name.replace(/\.[^.]+$/,'').replace(/[_-]+/g,' ')};
+    if(t&&!t.value.trim())t.value=HONEW.name;if(p)p.innerHTML=`<img src="${HONEW.thumb}" alt=""><span class="sub">${r.w} × ${r.h} px · ${Math.round(r.img.length*3/4/1024)} KB</span>`;const s=document.querySelector('[data-act="ho-save"]');if(s)s.disabled=false}
+  catch(e){HONEW=null;if(p)p.innerHTML=`<span class="sub">${esc(e.message)}</span>`}});
+function hoDmClick(a,b){const id=b.dataset.id,list=HODM||[],h=list.find(x=>x.id===id);
+  if(a!=='ho-del')HODEL=null;
+  if(a==='ho-add'){HOADD=!HOADD;HONEW=null;render();return}
+  if(a==='ho-save'){if(!HONEW)return;const n=HONEW;hoDo('dm_handout_add',{p_session:JSEL,p_title:($('#ho-title').value||'').trim()||n.name,p_kind:$('#ho-kind').value,p_caption:($('#ho-cap').value||'').trim(),p_hidden:$('#ho-vis').value==='1',p_w:n.w,p_h:n.h,p_thumb:n.thumb,p_img:n.img}).then(ok=>{if(ok){HOADD=false;HONEW=null;render()}});return}
+  if(!h)return;
+  if(a==='ho-vis')hoDo('dm_handout_set',{handout_id:id,p_title:null,p_kind:null,p_caption:null,p_hidden:!h.hidden});
+  else if(a==='ho-ren'){HOREN=id;render()}
+  else if(a==='ho-rcancel'){HOREN=null;render()}
+  else if(a==='ho-rsave'){const t=$('#hr-title').value,k=$('#hr-kind').value,c=$('#hr-cap').value;HOREN=null;hoDo('dm_handout_set',{handout_id:id,p_title:t,p_kind:k,p_caption:c,p_hidden:null})}
+  else if(a==='ho-move')hoDo('dm_handout_move',{handout_id:id,dir:+b.dataset.d});
+  else if(a==='ho-del'){if(HODEL!==id){HODEL=id;render();return}HODEL=null;delete HOI[id];hoDo('dm_handout_del',{handout_id:id})}}
+
+/* the full-screen viewer: pinch or scroll to zoom, drag to move, arrows between handouts */
+const HV={sc:1,fit:1,tx:0,ty:0,iw:0,ih:0,P:new Map(),last:null,pd:0,tap:0,from:null};
+function hoOpen(id){const all=hoList(),h=all.find(x=>x.id===id);if(!h)return;const list=HOALL?[...all].sort((a,b)=>b.session-a.session||a.sort-b.sort):hoOf(h.session);
+  HOV={list,i:list.findIndex(x=>x.id===id)};HV.from=document.activeElement;const v=$('#hview');
+  v.innerHTML=`<div class="vbar"><div class="vt"><b id="hv-t"></b><span id="hv-s"></span></div><button class="vb" data-hv="x" aria-label="Close">✕</button></div>
+  <div class="stage" id="hv-stage"><button class="vb navl" data-hv="prev" aria-label="Previous handout">‹</button><img id="hv-img" alt=""><span class="wait" id="hv-wait">Opening…</span><button class="vb navr" data-hv="next" aria-label="Next handout">›</button></div>
+  <div class="vbot"><button class="vb" data-hv="out" aria-label="Zoom out">−</button><span class="zl" id="hv-z">100%</span><button class="vb" data-hv="in" aria-label="Zoom in">+</button><button class="vb" data-hv="fit">Fit</button><span class="zl" id="hv-n"></span></div>`;
+  v.hidden=false;document.body.style.overflow='hidden';hvWire();hvShow();v.querySelector('[data-hv="x"]').focus()}
+function hoClose(){const v=$('#hview');v.hidden=true;v.innerHTML='';HOV=null;document.body.style.overflow='';if(HV.from&&HV.from.focus)HV.from.focus();if(quiet())render()}
+async function hvShow(){const {list,i}=HOV,h=list[i],ss=(D.journal||{}).sessions||[],s=ss[h.session];
+  $('#hv-t').textContent=h.title;$('#hv-s').textContent=[`Session ${s?(s.num||h.session+1):h.session+1}`,h.kind,h.caption].filter(Boolean).join(' · ');
+  $('#hv-n').textContent=list.length>1?`${i+1} of ${list.length}`:'';
+  const pv=document.querySelector('#hview [data-hv="prev"]'),nx=document.querySelector('#hview [data-hv="next"]');pv.hidden=nx.hidden=list.length<2;pv.disabled=i===0;nx.disabled=i===list.length-1;
+  const img=$('#hv-img'),w=$('#hv-wait');img.style.visibility='hidden';w.hidden=false;w.textContent='Opening…';
+  try{if(!HOI[h.id])HOI[h.id]=ME==='dm'&&HODM?await rpc('dm_handout_img',{pin:PIN,handout_id:h.id}):((await api(`/rest/v1/handouts?select=img&id=eq.${encodeURIComponent(h.id)}`))[0]||{}).img;
+    if(!HOV||HOV.list[HOV.i]!==h)return;if(!HOI[h.id]||!/^data:image/.test(HOI[h.id]))throw new Error('That handout isn’t available.');
+    img.onload=()=>{HV.iw=img.naturalWidth;HV.ih=img.naturalHeight;w.hidden=true;img.style.visibility='';hvFit()};img.alt=h.title;img.src=HOI[h.id]}
+  catch(e){w.textContent=e.message||'That handout didn’t load.'}}
+function hvApply(){const img=$('#hv-img');if(!img)return;img.style.width=HV.iw+'px';img.style.transform=`translate(${HV.tx}px,${HV.ty}px) scale(${HV.sc})`;$('#hv-z').textContent=Math.round(HV.sc/HV.fit*100)+'%'}
+function hvFit(){const r=$('#hv-stage').getBoundingClientRect();HV.fit=Math.min((r.width-24)/HV.iw,(r.height-24)/HV.ih,1.5);HV.sc=HV.fit;HV.tx=-HV.iw*HV.sc/2;HV.ty=-HV.ih*HV.sc/2;hvApply()}
+function hvZoom(f,cx,cy){const r=$('#hv-stage').getBoundingClientRect();const px=cx-r.left-r.width/2,py=cy-r.top-r.height/2;const n=Math.max(HV.fit,Math.min(HV.fit*8,HV.sc*f)),k=n/HV.sc;
+  HV.tx=px-(px-HV.tx)*k;HV.ty=py-(py-HV.ty)*k;HV.sc=n;if(n===HV.fit){HV.tx=-HV.iw*n/2;HV.ty=-HV.ih*n/2}hvApply()}
+const hvMid=()=>{const r=$('#hv-stage').getBoundingClientRect();return[r.left+r.width/2,r.top+r.height/2]};
+function hvStep(d){if(!HOV)return;const n=HOV.i+d;if(n<0||n>=HOV.list.length)return;HOV.i=n;hvShow()}
+function hvWire(){const st=$('#hv-stage');
+  st.addEventListener('wheel',e=>{e.preventDefault();hvZoom(e.deltaY<0?1.15:1/1.15,e.clientX,e.clientY)},{passive:false});
+  st.addEventListener('pointerdown',e=>{if(e.target.closest('button'))return;st.setPointerCapture(e.pointerId);HV.P.set(e.pointerId,[e.clientX,e.clientY]);st.classList.add('drag');
+    if(HV.P.size===1){HV.last=[e.clientX,e.clientY];const now=Date.now();if(now-HV.tap<300)hvZoom(HV.sc>HV.fit*1.05?HV.fit/HV.sc:2.5,e.clientX,e.clientY);HV.tap=now}
+    if(HV.P.size===2){const [a,b]=[...HV.P.values()];HV.pd=Math.hypot(a[0]-b[0],a[1]-b[1])}});
+  st.addEventListener('pointermove',e=>{if(!HV.P.has(e.pointerId))return;HV.P.set(e.pointerId,[e.clientX,e.clientY]);
+    if(HV.P.size===2){const [a,b]=[...HV.P.values()],d=Math.hypot(a[0]-b[0],a[1]-b[1]);if(HV.pd)hvZoom(d/HV.pd,(a[0]+b[0])/2,(a[1]+b[1])/2);HV.pd=d;return}
+    if(HV.last){HV.tx+=e.clientX-HV.last[0];HV.ty+=e.clientY-HV.last[1];HV.last=[e.clientX,e.clientY];hvApply()}});
+  const up=e=>{HV.P.delete(e.pointerId);if(HV.P.size<2)HV.pd=0;if(!HV.P.size){HV.last=null;st.classList.remove('drag')}else HV.last=[...HV.P.values()][0]};
+  st.addEventListener('pointerup',up);st.addEventListener('pointercancel',up)}
+document.addEventListener('click',ev=>{const b=ev.target.closest('[data-hv]');if(!b||!HOV)return;const k=b.dataset.hv;
+  if(k==='x')hoClose();else if(k==='prev')hvStep(-1);else if(k==='next')hvStep(1);else if(k==='in')hvZoom(1.5,...hvMid());else if(k==='out')hvZoom(1/1.5,...hvMid());else if(k==='fit')hvFit()});
+document.addEventListener('keydown',ev=>{if(!HOV)return;const k=ev.key;
+  if(k==='Escape')hoClose();else if(k==='ArrowLeft')hvStep(-1);else if(k==='ArrowRight')hvStep(1);else if(k==='+'||k==='=')hvZoom(1.5,...hvMid());else if(k==='-')hvZoom(1/1.5,...hvMid());else if(k==='Tab'){const f=[...document.querySelectorAll('#hview button:not([hidden]):not(:disabled)')];if(f.length){const i=f.indexOf(document.activeElement);ev.preventDefault();f[(i+(ev.shiftKey?-1:1)+f.length)%f.length].focus()}}});
+addEventListener('resize',()=>{if(HOV&&HV.iw)hvFit()});
 
 /* ---------- DM editor ---------- */
 const clone=o=>JSON.parse(JSON.stringify(o));
@@ -1473,7 +1607,9 @@ function render(){renderTabs();const app=$('#app');if(!D)return;applyPage(tab())
   if(!me()){app.innerHTML=picker();return}
   const t=tab();const chips=ME==='dm'?`<div class="row" style="margin-bottom:12px">${D.party.map(c=>`<button class="btn${c.id===viewed().id?' on':''}" data-act="view" data-id="${esc(c.id)}">${esc(first(c.name))}</button>`).join('')}</div>`:'';
   const chips2=ME==='dm'&&(t==='sheet'||t==='encounter')?chips:'';
-  app.innerHTML=t==='sheet'?chips2+sheet(viewed()):t==='encounter'?chips2+encounter(viewed()):t==='party'||t==='loot'?loot():t==='shop'?shop():t==='house'?house():journal();}
+  if(t==='journal'&&ME==='dm'&&!HODM&&PIN)hoDmLoad().then(()=>{if(tab()==='journal')render()});
+  app.innerHTML=t==='sheet'?chips2+sheet(viewed()):t==='encounter'?chips2+encounter(viewed()):t==='party'||t==='loot'?loot():t==='shop'?shop():t==='house'?house():journal();
+  if(t==='journal')hoThumbs();}
 document.addEventListener('keydown',ev=>{if(ev.key==='Escape'&&(INFO_OPEN||GUIDE)){INFO_OPEN=null;GUIDE=null;placeInfo();placeGuide()}});
 document.addEventListener('click',ev=>{if(INFO_OPEN&&!ev.target.closest('#infopop,.ib')){INFO_OPEN=null;placeInfo()}if(GUIDE&&ev.target.id==='guide'){GUIDE=null;placeGuide()}},true);
 document.addEventListener('click',ev=>{
@@ -1486,7 +1622,7 @@ document.addEventListener('click',ev=>{
   if(a.startsWith('dm-')){if(ME==='dm')dmClick(a,b);return}
   if(a==='pick'){ME=b.dataset.id;LOPEN=null;SEND=null;location.hash='sheet';render();window.scrollTo(0,0)}
   else if(a==='dmpin'){ME='pin';PINERR='';render()}
-  else if(a==='switch'){PICK=null;ME=null;VIEW=null;DMX=null;PIN=null;DMED=null;IEDIT=null;SELLING=null;PRICING=null;SCONF=false;LOPEN=null;SEND=null;EDIT=false;render()}
+  else if(a==='switch'){HODM=null;HOALL=false;HOADD=false;PICK=null;ME=null;VIEW=null;DMX=null;PIN=null;DMED=null;IEDIT=null;SELLING=null;PRICING=null;SCONF=false;LOPEN=null;SEND=null;EDIT=false;render()}
   else if(a==='lopen'){LOPEN=LOPEN===b.dataset.id?null:b.dataset.id;SEND=null;render();const o=$('#lopen');o&&o.scrollIntoView({behavior:'smooth',block:'start'})}
   else if(a==='lclose'){LOPEN=null;SEND=null;render()}
   else if(a==='move')act('p_move_item',{from_id:b.dataset.h,to_id:b.dataset.to,entry_id:b.dataset.e,actor:actor()},'Moved to '+holderName(b.dataset.to));
@@ -1528,7 +1664,10 @@ document.addEventListener('click',ev=>{
   else if(a==='view'){VIEW=b.dataset.id;PICK=null;DMED=null;IEDIT=null;render()}
   else if(a==='eq'){EQ[b.dataset.k]=b.dataset.v;if(b.dataset.k==='kind')EQ.close=b.dataset.v==='melee';render()}
   else if(a==='eqset'){const S=EQ[b.dataset.k];S.has(b.dataset.v)?S.delete(b.dataset.v):S.add(b.dataset.v);render()}
-  else if(a==='jsel'){JSEL=+b.dataset.i;DMED=null;render();window.scrollTo(0,0)}});
+  else if(a==='jsel'){JSEL=+b.dataset.i;DMED=null;HOALL=false;HOADD=false;HOREN=null;HODEL=null;render();window.scrollTo(0,0)}
+  else if(a==='ho-all'){HOALL=true;HOADD=false;HOREN=null;HODEL=null;render();window.scrollTo(0,0)}
+  else if(a==='ho-open')hoOpen(b.dataset.id);
+  else if(a.startsWith('ho-')&&ME==='dm')hoDmClick(a,b);});
 const clearOver=()=>document.querySelectorAll('.over').forEach(x=>x.classList.remove('over'));
 document.addEventListener('dragstart',ev=>{const d=ev.target.closest&&ev.target.closest('[data-drag]');if(!d)return;DRAG={h:d.dataset.h,e:d.dataset.drag};try{ev.dataTransfer.setData('text/plain',d.dataset.drag);ev.dataTransfer.effectAllowed='move'}catch(e){}});
 document.addEventListener('dragend',()=>{DRAG=null;clearOver()});
@@ -1541,8 +1680,8 @@ document.addEventListener('visibilitychange',()=>{if(document.visibilityState===
 window.addEventListener('hashchange',()=>{render();window.scrollTo(0,0)});
 /* keep every screen current: pick up other people's changes, and bring Wick home when he's due */
 let LASTTICK=0,LASTCOOL=0,SIG='';
-const sig=()=>JSON.stringify([D&&D.updated,(D&&D.journal.notes.length),ME==='dm'&&DMX?JSON.stringify(DMX.trip||null):''].concat(D&&D.activity[0]?[D.activity[0].created_at]:[]));
-const quiet=()=>!INFO_OPEN&&!GUIDE&&!TCONF&&!BUSY&&!DRAG&&!PICK&&!SCONF&&!CTOWN&&!JOBF&&!REPRICE&&!QUIET&&!VALUING&&!EDIT&&!SEND&&!IEDIT&&!DMED&&!SELLING&&!PRICING&&!(document.activeElement&&/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName));
+const sig=()=>JSON.stringify([D&&D.updated,HO.map(h=>h.id).join(),(D&&D.journal.notes.length),ME==='dm'&&DMX?JSON.stringify(DMX.trip||null):''].concat(D&&D.activity[0]?[D.activity[0].created_at]:[]));
+const quiet=()=>!HOV&&!HOADD&&!HOREN&&!INFO_OPEN&&!GUIDE&&!TCONF&&!BUSY&&!DRAG&&!PICK&&!SCONF&&!CTOWN&&!JOBF&&!REPRICE&&!QUIET&&!VALUING&&!EDIT&&!SEND&&!IEDIT&&!DMED&&!SELLING&&!PRICING&&!(document.activeElement&&/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName));
 async function refresh(force){if(!D||BUSY)return;try{
   await load();const T=D.shop&&D.shop.trip;const due=T&&T.phase==='out'&&Date.now()>=+new Date(T.returnAt)&&Date.now()-LASTTICK>60000,cool=!T&&(+(D.shop||{}).heat||0)>0&&Date.now()-LASTCOOL>600000;if(due||cool){if(due)LASTTICK=Date.now();else LASTCOOL=Date.now();const r=await rpc('p_tick',{});if(r!=='on the road')await load()}if(ME==='dm'&&PIN){const g=await rpc('dm_get',{pin:PIN});if(g&&!g.error)DMX=g.docs||{}}
   const n=sig();if((force||n!==SIG||(tab()==='shop'&&D.shop&&D.shop.trip))&&quiet()){SIG=n;render()}}catch(e){}}

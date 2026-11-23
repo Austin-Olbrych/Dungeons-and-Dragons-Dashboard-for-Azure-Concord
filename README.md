@@ -48,3 +48,10 @@ D&D Beyond is the character sheet: stats, skills, HP, attacks, spells, and anyth
 - `supabase/fix-11.sql` loads the twelve House contracts from the House Contracts Pool doc into the DM-only pool, with their sign and leave effects. People are matched by name in the House roster; repeating income runs 12 sessions.
 - What the site can't apply on its own (death rolls, the sealed jar, Wick's loyalty, extra rumors, own-call outcomes) is in each contract's DM-only note.
 - Safe to run again: contracts already in the pool are skipped.
+
+## Session handouts (fix-12)
+
+- `supabase/fix-12.sql` adds a `handouts` table for maps, letters, posters and sketches tied to a Journal session. Run it before using the Add handout button.
+- Players see a Handouts section on a session only once it has a handout they're allowed to see, plus an "All handouts" view at the top of the session list. Tapping one opens it full screen: pinch or scroll to zoom, drag to move, arrows between handouts.
+- The DM adds handouts from the session page (picture, title, kind, caption, hidden or shown). Pictures are shrunk in the browser to at most 2400 px before they're saved. PDFs need to be saved as an image first.
+- Hidden handouts can only be read with the DM PIN; the public activity log only mentions a handout once it's revealed.
